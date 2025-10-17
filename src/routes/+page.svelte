@@ -1,6 +1,7 @@
 
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { base } from '$app/paths';
 	import * as BABYLON from '@babylonjs/core';
 
 	let canvas: HTMLCanvasElement | undefined;
@@ -32,7 +33,7 @@
 		// Using the older CreateGroundFromHeightMap API (positional arguments) as requested.
 		// width=100, height=100, subdivisions=100, minHeight=0, maxHeight=10
 		const ground = BABYLON.Mesh.CreateGroundFromHeightMap
-			? BABYLON.Mesh.CreateGroundFromHeightMap('ground', '/heightmap.png', 200, 200, 300, 0, 20, scene, false, () => {
+			? BABYLON.Mesh.CreateGroundFromHeightMap('ground', `${base}/heightmap.png`, 200, 200, 300, 0, 20, scene, false, () => {
 					// once the height map is ready, apply GridMaterial dynamically
 					import('@babylonjs/materials').then(({ GridMaterial }) => {
 						const grid = new GridMaterial('groundMaterial', scene);

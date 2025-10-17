@@ -8,7 +8,8 @@ const config = {
 			// these options are set automatically — see below
 			pages: 'docs',
 			assets: 'docs',
-			fallback: undefined,
+			// produce an SPA fallback so dynamic client-side routes work
+			fallback: 'index.html',
 			precompress: false,
 			strict: true
 		})

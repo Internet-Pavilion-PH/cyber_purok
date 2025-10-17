@@ -11,12 +11,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # If you're using pnpm, add this step then change the commands and cache key below to use `pnpm`
-      # - name: Install pnpm
-      #   uses: pnpm/action-setup@v3
-      #   with:
-      #     version: 8
-
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
@@ -32,18 +26,25 @@ jobs:
         run: |
           npm run build
 
-      - name: Archive docs directory if present
+      # PREPARE DOCS DIRECTORY
+      - name: Prepare pages directory
         run: |
-          if [ -d docs ]; then
-            tar -czf docs.tar.gz docs
+          set -e
+          mkdir -p docs
+          # Copy build outputs into docs for Pages deployment
+          if [ -d "build" ]; then
+            cp -R build/* docs/
+          elif [ -d ".svelte-kit/output/client" ]; then
+            cp -R .svelte-kit/output/client/* docs/
+          elif [ -d ".svelte-kit/output" ]; then
+            cp -R .svelte-kit/output/* docs/
           else
-            echo "No docs directory found; skipping archive."
+            echo "No recognized build output found. docs will be empty."
           fi
 
-      - name: Upload Artifacts
+      - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # this should match the `pages` option in your adapter-static options
           path: 'docs'
 
   deploy:

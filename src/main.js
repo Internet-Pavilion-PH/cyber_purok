@@ -43,6 +43,11 @@ camera.upperRadiusLimit = 200
 camera.wheelPrecision = 50
 camera.useAutoRotationBehavior = false
 
+// Prevent camera from going below the ground by clamping beta (polar) angle
+// beta is measured from +Y axis: beta < PI/2 keeps camera above the horizon
+camera.lowerBetaLimit = 0.3 // don't go too close to top-down
+camera.upperBetaLimit = Math.PI / 2 - 0.05 // stay above the plane
+
 // Lock rotation so user can't rotate camera around the target (MOBA-style)
 camera.allowUpsideDown = false
 camera.panningSensibility = 1000
@@ -79,6 +84,11 @@ scene.onBeforeRenderObservable.add(() => {
 	// lerp target
 	const t = 0.08
 	camera.target = Vector3.Lerp(camera.target, desiredTarget, t)
+
+	// Make sure the camera target never drops below the ground plane (y = 0)
+	if (camera.target.y < 0) {
+		camera.target.y = 0
+	}
 })
 
 // Pointer drag to pan (left mouse or single touch)

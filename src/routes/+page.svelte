@@ -32,7 +32,7 @@
 		// Using the older CreateGroundFromHeightMap API (positional arguments) as requested.
 		// width=100, height=100, subdivisions=100, minHeight=0, maxHeight=10
 		const ground = BABYLON.Mesh.CreateGroundFromHeightMap
-			? BABYLON.Mesh.CreateGroundFromHeightMap('ground', '/heightmap.png', 100, 100, 100, 0, 10, scene, false, () => {
+			? BABYLON.Mesh.CreateGroundFromHeightMap('ground', '/heightmap.png', 200, 200, 300, 0, 20, scene, false, () => {
 					// once the height map is ready, apply GridMaterial dynamically
 					import('@babylonjs/materials').then(({ GridMaterial }) => {
 						const grid = new GridMaterial('groundMaterial', scene);

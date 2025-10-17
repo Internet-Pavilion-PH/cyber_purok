@@ -32,6 +32,14 @@ jobs:
         run: |
           npm run build
 
+      - name: Archive docs directory if present
+        run: |
+          if [ -d docs ]; then
+            tar -czf docs.tar.gz docs
+          else
+            echo "No docs directory found; skipping archive."
+          fi
+
       - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v3
         with:

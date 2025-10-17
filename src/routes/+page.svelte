@@ -52,16 +52,37 @@
 
 		// Add an orange rectangular cube at the origin, sitting on the ground
 		const boxHeight = 2;
-		const box = BABYLON.MeshBuilder.CreateBox('box', { width: 2, height: boxHeight, depth: 1 }, scene);
-		box.position = new BABYLON.Vector3(0, boxHeight / 2, 0);
-		const boxMat = new BABYLON.StandardMaterial('boxMat', scene);
-		boxMat.diffuseColor = new BABYLON.Color3(1, 0.55, 0); // orange
-		box.material = boxMat;
+		// The box mesh is commented out for now; uncomment to enable the visual cube.
+		// const box = BABYLON.MeshBuilder.CreateBox('box', { width: 2, height: boxHeight, depth: 1 }, scene);
+		// box.position = new BABYLON.Vector3(0, boxHeight / 2, 0);
+		// const boxMat = new BABYLON.StandardMaterial('boxMat', scene);
+		// boxMat.diffuseColor = new BABYLON.Color3(1, 0.55, 0); // orange
+		// box.material = boxMat;
 
 		// Shadow generator
 		const shadowGen = new BABYLON.ShadowGenerator(1024, dir);
 		shadowGen.useBlurExponentialShadowMap = true;
-		shadowGen.addShadowCaster(box);
+		// shadowGen.addShadowCaster(box); // box is commented out; enable if the box mesh is restored
+
+		// Billboard label above the box
+		const labelPlane = BABYLON.MeshBuilder.CreatePlane('labelPlane', { width: 10, height: 5}, scene);
+		labelPlane.position = new BABYLON.Vector3(0, boxHeight + 1.2, 0);
+		labelPlane.isPickable = false;
+
+		// Dynamic texture for the label
+		const dt = new BABYLON.DynamicTexture('labelDt', { width: 512, height: 256 }, scene, false);
+		dt.hasAlpha = true;
+		dt.updateURL(`${base}/cyber_purok.png`);
+
+		const labelMat = new BABYLON.StandardMaterial('labelMat', scene);
+		labelMat.diffuseTexture = dt;
+		labelMat.emissiveColor = new BABYLON.Color3(1, 1, 1);
+		labelMat.backFaceCulling = false;
+		labelMat.diffuseTexture.hasAlpha = true;
+		labelPlane.material = labelMat;
+
+		// Make the plane always face the camera
+		labelPlane.billboardMode = BABYLON.AbstractMesh.BILLBOARDMODE_ALL;
 
 			const groundY = 0;
 			engine.runRenderLoop(() => {

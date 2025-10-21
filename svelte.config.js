@@ -7,7 +7,9 @@ const config = {
 			fallback: '404.html'
 		}),
 		paths: {
-			base: process.argv.includes('dev') ? '' : (process.env.BASE_PATH || '/cyber_purok')
+			// In dev mode keep base '', otherwise prefer an explicit BASE_PATH env var
+			// (use an explicit empty string to build as a root site for custom domains)
+			base: process.argv.includes('dev') ? '' : (process.env.BASE_PATH !== undefined ? process.env.BASE_PATH : '/cyber_purok')
 		}
 	}
 };

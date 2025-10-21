@@ -22,7 +22,8 @@ jobs:
 
       - name: Build
         env:
-          BASE_PATH: '/${{ github.event.repository.name }}'
+          # For a custom domain we want root-relative asset paths, so set BASE_PATH to empty
+          BASE_PATH: ''
         run: |
           npm run build
 

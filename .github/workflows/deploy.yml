@@ -42,6 +42,10 @@ jobs:
             echo "No recognized build output found. docs will be empty."
           fi
 
+      - name: Add CNAME for GitHub Pages
+        run: |
+          echo 'cyberpurok.lowbandwidthdreams.com' > docs/CNAME
+
       - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

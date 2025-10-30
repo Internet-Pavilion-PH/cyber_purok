@@ -110,7 +110,7 @@
 			// Use ModelPlacer helper to append and place the GLB above the labelPlane
 			(async () => {
 				const { default: ModelPlacer } = await import('$lib/ModelPlacer');
-				const url = 'https://streetkonect.com/storage/lbd/cyberpurok/salawaki_swimming.glb';
+				const url = '/salawaki_swimming.glb';
 				const worldPos = new BABYLON.Vector3(labelPlane.position.x, labelPlane.position.y, labelPlane.position.z);
 				const placer = new ModelPlacer(url, worldPos);
 				try {

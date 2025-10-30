@@ -3,20 +3,41 @@
 	import { onMount } from 'svelte';
 	import { base } from '$app/paths';
 	import * as BABYLON from '@babylonjs/core';
+	// Ensure GLTF loader is included in the bundle so SceneLoader can parse .glb/.gltf files
+	import '@babylonjs/loaders/glTF';
+	import { CustomLoadingScreen } from '$lib/CustomLoadingScreen';
 
 	let canvas: HTMLCanvasElement | undefined;
 	let engine: BABYLON.Engine | undefined;
 	let scene: BABYLON.Scene | undefined;
 
+	// debug string for camera info shown on-screen
+	let cameraDebug = '';
+
+	// auto-rotate settings
+	let autoRotate = true;
+	// radians per second (slow)
+	const rotateSpeed = 0.1;
+
 	onMount(() => {
 		if (!canvas) return;
 
 		engine = new BABYLON.Engine(canvas, true);
+
+			// Replace Babylon's default loading screen with a custom one using your image
+			// Ensure SceneLoader will call the engine.loadingScreen methods
+			BABYLON.SceneLoader.ShowLoadingScreen = true;
+
+			engine.loadingScreen = new CustomLoadingScreen(`${base}/cyber_purok.png`);
 		scene = new BABYLON.Scene(engine);
 
 		// MOBA-friendly camera: 55° tilt
 		const camera = new BABYLON.ArcRotateCamera('camera', -Math.PI / 2, (55 * Math.PI) / 180, 20, BABYLON.Vector3.Zero(), scene);
 		camera.attachControl(canvas, true);
+		// set requested initial camera world-space position
+		try {
+			camera.setPosition(new BABYLON.Vector3(43.43, 11.64, -1.32));
+		} catch (e) { console.warn('failed to set initial camera position', e); }
 		camera.lowerRadiusLimit = 8;
 		camera.upperRadiusLimit = 45;
 		camera.lowerBetaLimit = (30 * Math.PI) / 180; // 30°
@@ -84,7 +105,28 @@
 		// Make the plane always face the camera
 		labelPlane.billboardMode = BABYLON.AbstractMesh.BILLBOARDMODE_ALL;
 
+		
+
+			// Use ModelPlacer helper to append and place the GLB above the labelPlane
+			(async () => {
+				const { default: ModelPlacer } = await import('$lib/ModelPlacer');
+				const url = 'https://streetkonect.com/storage/lbd/cyberpurok/salawaki_swimming.glb';
+				const worldPos = new BABYLON.Vector3(labelPlane.position.x, labelPlane.position.y, labelPlane.position.z);
+				const placer = new ModelPlacer(url, worldPos);
+				try {
+					const res = await placer.appendTo(scene, camera, { targetSize: 2, focusCamera: false, scaleFactor: 0.2 });
+					console.log('ModelPlacer result:', res);
+				} catch (err) {
+					console.error('ModelPlacer failed', err);
+				}
+			})();
+
+			// place a second model (local static) a few units to the right of the billboard
+			
+
+
 			const groundY = 0;
+			let lastCamUpdate = 0;
 			engine.runRenderLoop(() => {
 				if (!scene) return;
 				// clamp target y so camera looks at or above the ground
@@ -101,7 +143,28 @@
 					}
 				} catch (e) {}
 
-				scene.render();
+					// update camera debug info at ~10Hz to avoid flooding the UI
+					try {
+						// auto-rotate camera around target if enabled (time-based)
+						try {
+							if (autoRotate && engine) {
+								const dtSec = (engine.getDeltaTime && engine.getDeltaTime() ? engine.getDeltaTime() : 16) / 1000;
+								camera.alpha += rotateSpeed * dtSec;
+							}
+						} catch (e) {}
+						
+						const now = Date.now();
+						if (now - lastCamUpdate > 100) {
+							lastCamUpdate = now;
+							try {
+								// camera is in scope in this closure
+								cameraDebug = `alpha: ${camera.alpha.toFixed(3)} | beta: ${camera.beta.toFixed(3)} | radius: ${camera.radius.toFixed(2)}\npos: ${camera.position.x.toFixed(2)}, ${camera.position.y.toFixed(2)}, ${camera.position.z.toFixed(2)}`;
+							} catch (e) {
+								cameraDebug = '';
+							}
+						}
+					} catch (e) {}
+					scene.render();
 			});
 
 		const onResize = () => engine && engine.resize();
@@ -118,6 +181,11 @@
 	<canvas bind:this={canvas}></canvas>
 </div>
 
+<!-- Camera debug overlay -->
+{#if cameraDebug}
+<div class="cam-debug">{cameraDebug}</div>
+{/if}
+
 <style>
 	.container {
 		width: 100vw;
@@ -130,6 +198,20 @@
 		height: 100%;
 		display: block;
 		outline: none;
+	}
+
+	.cam-debug {
+		position: fixed;
+		left: 12px;
+		top: 12px;
+		background: rgba(0,0,0,0.6);
+		color: #0f0;
+		padding: 8px 10px;
+		font-family: monospace;
+		font-size: 12px;
+		border-radius: 6px;
+		z-index: 9999;
+		white-space: pre-line;
 	}
 </style>
 

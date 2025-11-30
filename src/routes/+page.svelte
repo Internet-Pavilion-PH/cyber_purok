@@ -1,171 +1,81 @@
 
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { base } from '$app/paths';
 	import * as BABYLON from '@babylonjs/core';
-	// Ensure GLTF loader is included in the bundle so SceneLoader can parse .glb/.gltf files
 	import '@babylonjs/loaders/glTF';
 	import { CustomLoadingScreen } from '$lib/CustomLoadingScreen';
+	import { placeModel, placeModelInFrontOfCamera } from '$lib/placeModel';
+	import { initEngine } from '$lib/engineSetup';
+	import { initScene, startRenderLoop } from '$lib/sceneSetup';
 
 	let canvas: HTMLCanvasElement | undefined;
-	let engine: BABYLON.Engine | undefined;
+	let engine: BABYLON.Engine | BABYLON.WebGPUEngine | undefined;
 	let scene: BABYLON.Scene | undefined;
+	let camera: BABYLON.ArcRotateCamera | undefined;
 
 	// debug string for camera info shown on-screen
 	let cameraDebug = '';
+	let rendererInfo = '';
 
 	// auto-rotate settings
 	let autoRotate = true;
-	// radians per second (slow)
 	const rotateSpeed = 0.1;
 
 	onMount(() => {
 		if (!canvas) return;
 
-		engine = new BABYLON.Engine(canvas, true);
+		// Initialize engine and scene asynchronously
+		(async () => {
+			// Initialize engine (WebGPU or WebGL)
+			engine = await initEngine(canvas);
 
-			// Replace Babylon's default loading screen with a custom one using your image
-			// Ensure SceneLoader will call the engine.loadingScreen methods
+			// Set up custom loading screen
 			BABYLON.SceneLoader.ShowLoadingScreen = true;
+			engine.loadingScreen = new CustomLoadingScreen(`/cyber_purok.png`);
 
-			engine.loadingScreen = new CustomLoadingScreen(`${base}/cyber_purok.png`);
-		scene = new BABYLON.Scene(engine);
+			// Initialize scene with all meshes, lights, and camera
+			const result = await initScene(engine, {
+				heightmapUrl: '/heightmap.png',
+				logoUrl: '/cyber_purok.png',
+				cameraPosition: [43.43, 11.64, -1.32],
+				autoRotate,
+				rotateSpeed
+			});
 
-		// MOBA-friendly camera: 55° tilt
-		const camera = new BABYLON.ArcRotateCamera('camera', -Math.PI / 2, (55 * Math.PI) / 180, 20, BABYLON.Vector3.Zero(), scene);
-		camera.attachControl(canvas, true);
-		// set requested initial camera world-space position
-		try {
-			camera.setPosition(new BABYLON.Vector3(43.43, 11.64, -1.32));
-		} catch (e) { console.warn('failed to set initial camera position', e); }
-		camera.lowerRadiusLimit = 8;
-		camera.upperRadiusLimit = 45;
-		camera.lowerBetaLimit = (30 * Math.PI) / 180; // 30°
-		camera.upperBetaLimit = (75 * Math.PI) / 180; // 75°
+			scene = result.scene;
+			camera = result.camera;
 
-		const hemi = new BABYLON.HemisphericLight('hemi', new BABYLON.Vector3(0, 1, 0), scene);
-		hemi.intensity = 0.6;
-		// Directional light for shadows
-		const dir = new BABYLON.DirectionalLight('dir', new BABYLON.Vector3(-1, -2, -1), scene);
-		dir.position = new BABYLON.Vector3(50, 100, 50);
-		dir.intensity = 0.8;
-
-		// Create ground from a height map image. Place your height map at `static/textures/heightMap.png`.
-		// Using the older CreateGroundFromHeightMap API (positional arguments) as requested.
-		// width=100, height=100, subdivisions=100, minHeight=0, maxHeight=10
-		const ground = BABYLON.Mesh.CreateGroundFromHeightMap
-			? BABYLON.Mesh.CreateGroundFromHeightMap('ground', `${base}/heightmap.png`, 200, 200, 300, 0, 20, scene, false, () => {
-					// once the height map is ready, apply GridMaterial dynamically
-					import('@babylonjs/materials').then(({ GridMaterial }) => {
-						const grid = new GridMaterial('groundMaterial', scene);
-						grid.majorUnitFrequency = 4;
-						grid.minorUnitVisibility = 0.45;
-						grid.gridRatio = 4;
-						grid.backFaceCulling = false;
-						grid.mainColor = new BABYLON.Color3(0.2, 0.2, 0.25);
-						grid.lineColor = new BABYLON.Color3(0.7, 0.7, 0.7);
-						ground.material = grid;
-						ground.receiveShadows = true;
-					});
-				})
-			: // fallback: create a flat ground if CreateGroundFromHeightMap isn't available
-				BABYLON.MeshBuilder.CreateGround('ground', { width: 200, height: 200 }, scene);
-
-		// Add an orange rectangular cube at the origin, sitting on the ground
-		const boxHeight = 2;
-		// The box mesh is commented out for now; uncomment to enable the visual cube.
-		// const box = BABYLON.MeshBuilder.CreateBox('box', { width: 2, height: boxHeight, depth: 1 }, scene);
-		// box.position = new BABYLON.Vector3(0, boxHeight / 2, 0);
-		// const boxMat = new BABYLON.StandardMaterial('boxMat', scene);
-		// boxMat.diffuseColor = new BABYLON.Color3(1, 0.55, 0); // orange
-		// box.material = boxMat;
-
-		// Shadow generator
-		const shadowGen = new BABYLON.ShadowGenerator(1024, dir);
-		shadowGen.useBlurExponentialShadowMap = true;
-		// shadowGen.addShadowCaster(box); // box is commented out; enable if the box mesh is restored
-
-		// Billboard label above the box
-		const labelPlane = BABYLON.MeshBuilder.CreatePlane('labelPlane', { width: 10, height: 5}, scene);
-		labelPlane.position = new BABYLON.Vector3(0, boxHeight + 1.2, 0);
-		labelPlane.isPickable = false;
-
-		// Dynamic texture for the label
-		const dt = new BABYLON.DynamicTexture('labelDt', { width: 512, height: 256 }, scene, false);
-		dt.hasAlpha = true;
-		dt.updateURL(`${base}/cyber_purok.png`);
-
-		const labelMat = new BABYLON.StandardMaterial('labelMat', scene);
-		labelMat.diffuseTexture = dt;
-		labelMat.emissiveColor = new BABYLON.Color3(1, 1, 1);
-		labelMat.backFaceCulling = false;
-		labelMat.diffuseTexture.hasAlpha = true;
-		labelPlane.material = labelMat;
-
-		// Make the plane always face the camera
-		labelPlane.billboardMode = BABYLON.AbstractMesh.BILLBOARDMODE_ALL;
-
-		
-
-			// Use ModelPlacer helper to append and place the GLB above the labelPlane
+			// Load models using simple API
 			(async () => {
-				const { default: ModelPlacer } = await import('$lib/ModelPlacer');
-				const url = '/salawaki_swimming.glb';
-				const worldPos = new BABYLON.Vector3(labelPlane.position.x, labelPlane.position.y, labelPlane.position.z);
-				const placer = new ModelPlacer(url, worldPos);
-				try {
-					const res = await placer.appendTo(scene, camera, { targetSize: 2, focusCamera: false, scaleFactor: 0.2 });
-					console.log('ModelPlacer result:', res);
-				} catch (err) {
-					console.error('ModelPlacer failed', err);
-				}
+				// Place at position on ground (raycasts down to terrain)
+				await placeModel(scene, 'salawaki_swimming.glb', [10, 0, 5], {
+					scaleFactor: 0.1,
+					onGround: false
+				});
+
+
+				await placeModel(scene, 'https://kolown.net/assets/ip25/zebra.glb', [10, 0, 5], {
+					scaleFactor: 3,
+					onGround: true
+				});
+
+				// Place in front of camera
+				await placeModelInFrontOfCamera(scene, 'gw.glb', 6, {
+					scaleFactor: 3,
+					onGround: true
+				});
 			})();
 
-			// place a second model (local static) a few units to the right of the billboard
-			
-
-
-			const groundY = 0;
-			let lastCamUpdate = 0;
-			engine.runRenderLoop(() => {
-				if (!scene) return;
-				// clamp target y so camera looks at or above the ground
-				try {
-					if (camera.target && camera.target.y < groundY) camera.target.y = groundY;
-				} catch (e) {}
-
-				// ensure camera position is above ground; if below, push it up along camera direction
-				try {
-					const pos = camera.position;
-					if (pos.y < groundY + 0.5) {
-						// nudge camera up
-						camera.setPosition(new BABYLON.Vector3(pos.x, groundY + 0.5, pos.z));
-					}
-				} catch (e) {}
-
-					// update camera debug info at ~10Hz to avoid flooding the UI
-					try {
-						// auto-rotate camera around target if enabled (time-based)
-						try {
-							if (autoRotate && engine) {
-								const dtSec = (engine.getDeltaTime && engine.getDeltaTime() ? engine.getDeltaTime() : 16) / 1000;
-								camera.alpha += rotateSpeed * dtSec;
-							}
-						} catch (e) {}
-						
-						const now = Date.now();
-						if (now - lastCamUpdate > 100) {
-							lastCamUpdate = now;
-							try {
-								// camera is in scope in this closure
-								cameraDebug = `alpha: ${camera.alpha.toFixed(3)} | beta: ${camera.beta.toFixed(3)} | radius: ${camera.radius.toFixed(2)}\npos: ${camera.position.x.toFixed(2)}, ${camera.position.y.toFixed(2)}, ${camera.position.z.toFixed(2)}`;
-							} catch (e) {
-								cameraDebug = '';
-							}
-						}
-					} catch (e) {}
-					scene.render();
+			// Start render loop with camera constraints and debug updates
+			startRenderLoop(engine, scene, camera, {
+				autoRotate,
+				rotateSpeed,
+				onCameraUpdate: (info) => {
+					cameraDebug = `alpha: ${info.alpha.toFixed(3)} | beta: ${info.beta.toFixed(3)} | radius: ${info.radius.toFixed(2)}\npos: ${info.position.x.toFixed(2)}, ${info.position.y.toFixed(2)}, ${info.position.z.toFixed(2)}`;
+					rendererInfo = `${info.rendererType} | ${Math.round(info.fps)} FPS`;
+				}
 			});
+		})();
 
 		const onResize = () => engine && engine.resize();
 		window.addEventListener('resize', onResize);
@@ -185,6 +95,25 @@
 {#if cameraDebug}
 <div class="cam-debug">{cameraDebug}</div>
 {/if}
+
+<!-- Renderer info overlay -->
+{#if rendererInfo}
+<div class="renderer-info">{rendererInfo}</div>
+{/if}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 <style>
 	.container {
@@ -212,6 +141,19 @@
 		border-radius: 6px;
 		z-index: 9999;
 		white-space: pre-line;
+	}
+
+	.renderer-info {
+		position: fixed;
+		right: 12px;
+		top: 12px;
+		background: rgba(0,0,0,0.6);
+		color: #0ff;
+		padding: 8px 10px;
+		font-family: monospace;
+		font-size: 12px;
+		border-radius: 6px;
+		z-index: 9999;
 	}
 </style>
 

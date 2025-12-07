@@ -48,22 +48,40 @@
 			// Load models using simple API
 			(async () => {
 				// Place at position on ground (raycasts down to terrain)
-				await placeModel(scene, 'salawaki_swimming.glb', [10, 0, 5], {
+				await placeModel(scene, 'salawaki_swimming.glb', [10, 10, 2], {
 					scaleFactor: 0.1,
 					onGround: false
 				});
 
+				await placeModel(scene, 'salawaki_swimming.glb', [20, 5, -2], {
+					scaleFactor: 0.1,
+					onGround: false
+				});
 
-				await placeModel(scene, 'https://kolown.net/assets/ip25/zebra.glb', [10, 0, 5], {
+					await placeModel(scene, 'Yellowbasketstore.glb', [-20, 11, -42], {
+					scaleFactor: 1,
+					onGround: true
+				});
+
+
+				await placeModel(scene, 'https://kolown.net/assets/ip25/zebra.glb', [-25, 0, 5], {
 					scaleFactor: 3,
 					onGround: true
 				});
 
-				// Place in front of camera
-				await placeModelInFrontOfCamera(scene, 'gw.glb', 6, {
-					scaleFactor: 3,
+			await placeModel(scene, 'Fountain.glb', [27, 7, 5], {
+					scaleFactor: .6,
 					onGround: true
 				});
+
+				await placeModel(scene, 'gw.glb', [-3, 5, 40], {
+					scaleFactor: 1.5,
+					onGround: false
+				});
+
+
+
+
 			})();
 
 			// Start render loop with camera constraints and debug updates
@@ -96,9 +114,11 @@
 <div class="cam-debug">{cameraDebug}</div>
 {/if}
 
-<!-- Renderer info overlay -->
+<!-- Renderer info overlay removed (using small left overlay instead) -->
+
+<!-- Small render info below camera debug -->
 {#if rendererInfo}
-<div class="renderer-info">{rendererInfo}</div>
+<div class="render-small">{rendererInfo}</div>
 {/if}
 
 
@@ -143,17 +163,20 @@
 		white-space: pre-line;
 	}
 
-	.renderer-info {
+	/* right-side renderer-info removed; using .render-small on the left */
+
+	.render-small {
 		position: fixed;
-		right: 12px;
-		top: 12px;
+		left: 12px;
+		top: 64px; /* place below the cam-debug box */
 		background: rgba(0,0,0,0.6);
-		color: #0ff;
-		padding: 8px 10px;
+		color: #9ef;
+		padding: 6px 8px;
 		font-family: monospace;
-		font-size: 12px;
+		font-size: 11px;
 		border-radius: 6px;
 		z-index: 9999;
+		white-space: nowrap;
 	}
 </style>
 

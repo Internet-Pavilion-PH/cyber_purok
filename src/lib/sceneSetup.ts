@@ -1,9 +1,12 @@
 import * as BABYLON from '@babylonjs/core';
 import '@babylonjs/materials';
 
+
 export interface SceneConfig {
 	heightmapUrl: string;
 	logoUrl: string;
+	/** choose 'grid' (default) or 'grass' for the ground material */
+	groundMaterial?: 'grass' | 'grid';
 	cameraPosition?: [number, number, number];
 	autoRotate?: boolean;
 	rotateSpeed?: number;
@@ -83,18 +86,48 @@ export async function initScene(
 				scene,
 				false,
 				() => {
-					// Apply GridMaterial when heightmap is ready
-					import('@babylonjs/materials').then(({ GridMaterial }) => {
+					// Apply selected ground material when heightmap is ready.
+					// Default: GridMaterial; optional: procedural Grass (loaded dynamically).
+					(async () => {
+						const { GridMaterial } = await import('@babylonjs/materials');
+
+						if (config.groundMaterial === 'grass') {
+							try {
+								const proc = await import('@babylonjs/procedural-textures');
+								const GrassProc: any = (proc as any).GrassProceduralTexture || (proc as any).GrassProceduralTexture;
+								if (GrassProc) {
+									const grassMat = new BABYLON.StandardMaterial('grassMat', scene);
+									const grassTex = new GrassProc('grassTex', 50, scene);
+									grassMat.ambientTexture = grassTex;
+									grassMat.backFaceCulling = false;
+									ground.material = grassMat;
+									ground.receiveShadows = true;
+									return;
+								}
+							} catch (e) {
+								console.warn('Failed to load procedural textures, falling back to GridMaterial', e);
+							}
+						}
+
+						// Default grid material
 						const grid = new GridMaterial('groundMaterial', scene);
 						grid.majorUnitFrequency = 4;
 						grid.minorUnitVisibility = 0.45;
 						grid.gridRatio = 4;
 						grid.backFaceCulling = false;
+						// subtle dark base color
 						grid.mainColor = new BABYLON.Color3(0.2, 0.2, 0.25);
-						grid.lineColor = new BABYLON.Color3(0.7, 0.7, 0.7);
+						// neon green grid lines
+						const neonGreen = new BABYLON.Color3(0.0, 1.0, 0.2);
+						grid.lineColor = neonGreen;
+						// ensure lines can emit for GlowLayer to pick them up
+						try {
+							// GridMaterial exposes emissiveColor in some versions
+							(grid as any).emissiveColor = neonGreen;
+						} catch (e) {}
 						ground.material = grid;
 						ground.receiveShadows = true;
-					});
+					})();
 				}
 		  )
 		: BABYLON.MeshBuilder.CreateGround('ground', { width: 200, height: 200 }, scene);

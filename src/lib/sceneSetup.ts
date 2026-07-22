@@ -1,12 +1,16 @@
 import * as BABYLON from '@babylonjs/core';
-import '@babylonjs/materials';
+import { SkyMaterial } from '@babylonjs/materials';
 
 
 export interface SceneConfig {
 	heightmapUrl: string;
 	logoUrl: string;
-	/** choose 'grid' (default) or 'grass' for the ground material */
+	/** choose 'grass' (default) or 'grid' for the ground material */
 	groundMaterial?: 'grass' | 'grid';
+	/** whether to add a procedural skybox around the scene */
+	skybox?: boolean;
+	/** optional label tint for the billboard plane */
+	labelColor?: string | [number, number, number] | BABYLON.Color3;
 	cameraPosition?: [number, number, number];
 	autoRotate?: boolean;
 	rotateSpeed?: number;
@@ -28,11 +32,29 @@ interface StartRenderLoopOptions {
 /**
  * Initialize the complete Babylon scene with lights, ground, camera, and billboard
  */
+function parseColor3(input: string | [number, number, number] | BABYLON.Color3): BABYLON.Color3 {
+	if (input instanceof BABYLON.Color3) {
+		return input;
+	}
+
+	if (typeof input === 'string') {
+		return BABYLON.Color3.FromHexString(input);
+	}
+
+	return new BABYLON.Color3(input[0], input[1], input[2]);
+}
+
 export async function initScene(
 	engine: BABYLON.Engine | BABYLON.WebGPUEngine,
 	config: SceneConfig
 ) {
 	const scene = new BABYLON.Scene(engine);
+
+	// Add atmospheric fog for natural horizon blending.
+	scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR;
+	scene.fogColor = new BABYLON.Color3(0.05, 0.82, 0.92);
+	scene.fogStart = 200;
+	scene.fogEnd = 600;
 
 	// MOBA-friendly camera: 55° tilt
 	const camera = new BABYLON.ArcRotateCamera(
@@ -78,8 +100,8 @@ export async function initScene(
 		? BABYLON.Mesh.CreateGroundFromHeightMap(
 				'ground',
 				config.heightmapUrl,
-				200,
-				200,
+				500,
+				500,
 				300,
 				0,
 				20,
@@ -91,25 +113,30 @@ export async function initScene(
 					(async () => {
 						const { GridMaterial } = await import('@babylonjs/materials');
 
-						if (config.groundMaterial === 'grass') {
-							try {
-								const proc = await import('@babylonjs/procedural-textures');
-								const GrassProc: any = (proc as any).GrassProceduralTexture || (proc as any).GrassProceduralTexture;
-								if (GrassProc) {
-									const grassMat = new BABYLON.StandardMaterial('grassMat', scene);
-									const grassTex = new GrassProc('grassTex', 50, scene);
-									grassMat.ambientTexture = grassTex;
-									grassMat.backFaceCulling = false;
-									ground.material = grassMat;
-									ground.receiveShadows = true;
-									return;
-								}
-							} catch (e) {
-								console.warn('Failed to load procedural textures, falling back to GridMaterial', e);
+					const useGrass = config.groundMaterial !== 'grid';
+					if (useGrass) {
+						try {
+							const proc = await import('@babylonjs/procedural-textures');
+							const GrassProc: any = (proc as any).GrassProceduralTexture || (proc as any).GrassProceduralTexture;
+							if (GrassProc) {
+								const grassMat = new BABYLON.StandardMaterial('grassMat', scene);
+								const grassTex = new GrassProc('grassTex', 1024, scene);
+								grassTex.uScale = 6;
+								grassTex.vScale = 6;
+								grassTex.wrapU = BABYLON.Texture.WRAP_ADDRESSMODE;
+								grassTex.wrapV = BABYLON.Texture.WRAP_ADDRESSMODE;
+								grassTex.anisotropicFilteringLevel = 8;
+								grassMat.diffuseTexture = grassTex;
+								grassMat.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
+								grassMat.ambientColor = new BABYLON.Color3(0.2, 0.25, 0.15);
+								ground.material = grassMat;
+								ground.receiveShadows = true;
+								return;
 							}
+						} catch (e) {
+							console.warn('Failed to load procedural textures, falling back to GridMaterial', e);
 						}
-
-						// Default grid material
+					}
 						const grid = new GridMaterial('groundMaterial', scene);
 						grid.majorUnitFrequency = 4;
 						grid.minorUnitVisibility = 0.45;
@@ -131,6 +158,45 @@ export async function initScene(
 				}
 		  )
 		: BABYLON.MeshBuilder.CreateGround('ground', { width: 200, height: 200 }, scene);
+
+	const useSkybox = config.skybox !== false;
+	if (useSkybox) {
+		const skybox = BABYLON.MeshBuilder.CreateBox('skyBox', { size: 1000 }, scene);
+		skybox.isPickable = false;
+		skybox.infiniteDistance = true;
+
+		try {
+			const proc = await import('@babylonjs/procedural-textures');
+			const CloudProc: any = (proc as any).CloudProceduralTexture || (proc as any).CloudProceduralTexture;
+			if (CloudProc) {
+				const cloudTex = new CloudProc('cloudTex', 1024, scene);
+				cloudTex.uScale = 2;
+				cloudTex.vScale = 2;
+				cloudTex.cloudSpeed = 0.05;
+				cloudTex.skyColor = new BABYLON.Color3(0.4, 0.65, 0.95);
+				cloudTex.cloudColor = new BABYLON.Color3(1.0, 1.0, 1.0);
+				cloudTex.anisotropicFilteringLevel = 8;
+
+				const skyMaterial = new BABYLON.StandardMaterial('skyMaterial', scene);
+				skyMaterial.backFaceCulling = false;
+				skyMaterial.diffuseTexture = cloudTex;
+				skyMaterial.emissiveColor = new BABYLON.Color3(1, 1, 1);
+				skyMaterial.disableLighting = true;
+				skybox.material = skyMaterial;
+			} else {
+				const skyMaterial = new SkyMaterial('skyMaterial', scene);
+				skyMaterial.backFaceCulling = false;
+				skyMaterial.sunPosition = new BABYLON.Vector3(-1, 1, 0);
+				skyMaterial.turbidity = 10;
+				skyMaterial.rayleigh = 3;
+				skyMaterial.inclination = 0.4;
+				skyMaterial.luminance = 1;
+				skybox.material = skyMaterial;
+			}
+		} catch (e) {
+			console.warn('Could not create procedural skybox:', e);
+		}
+	}
 
 	// Shadow generator
 	const shadowGen = new BABYLON.ShadowGenerator(1024, dir);
@@ -155,6 +221,13 @@ export async function initScene(
 	labelMat.emissiveColor = new BABYLON.Color3(1, 1, 1);
 	labelMat.backFaceCulling = false;
 	labelMat.diffuseTexture.hasAlpha = true;
+
+	if (config.labelColor) {
+		const color = parseColor3(config.labelColor);
+		labelMat.diffuseColor = color;
+		labelMat.emissiveColor = color.scale(0.5);
+	}
+
 	labelPlane.material = labelMat;
 	labelPlane.billboardMode = BABYLON.AbstractMesh.BILLBOARDMODE_ALL;
 

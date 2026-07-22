@@ -16,6 +16,8 @@
 	// debug string for camera info shown on-screen
 	let cameraDebug = '';
 	let rendererInfo = '';
+	// Set this to false in code to hide UI overlays.
+	let showUi = false;
 
 	// auto-rotate settings
 	let autoRotate = true;
@@ -37,6 +39,8 @@
 			const result = await initScene(engine, {
 				heightmapUrl: '/heightmap.png',
 				logoUrl: '/cyber_purok.png',
+				groundMaterial: 'grass',
+				labelColor: '#b4ff00',
 				cameraPosition: [43.43, 11.64, -1.32],
 				autoRotate,
 				rotateSpeed
@@ -109,26 +113,17 @@
 	<canvas bind:this={canvas}></canvas>
 </div>
 
-<!-- Camera debug overlay -->
-{#if cameraDebug}
-<div class="cam-debug">{cameraDebug}</div>
+{#if showUi}
+	<!-- Camera debug overlay -->
+	{#if cameraDebug}
+	<div class="cam-debug">{cameraDebug}</div>
+	{/if}
+
+	<!-- Small render info below camera debug -->
+	{#if rendererInfo}
+	<div class="render-small">{rendererInfo}</div>
+	{/if}
 {/if}
-
-<!-- Renderer info overlay removed (using small left overlay instead) -->
-
-<!-- Small render info below camera debug -->
-{#if rendererInfo}
-<div class="render-small">{rendererInfo}</div>
-{/if}
-
-
-
-
-
-
-
-
-
 
 
 
@@ -178,5 +173,6 @@
 		z-index: 9999;
 		white-space: nowrap;
 	}
+
 </style>
 

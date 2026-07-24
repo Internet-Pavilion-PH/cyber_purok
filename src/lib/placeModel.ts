@@ -10,12 +10,13 @@ import * as BABYLON from '@babylonjs/core';
 export async function placeModel(
 	scene: BABYLON.Scene,
 	modelName: string,
-	position: BABYLON.Vector3 | [number, number, number],
+	position: BABYLON.Vector3 | number[],
 	options?: {
 		scaleFactor?: number;
 		focusCamera?: boolean;
 		targetSize?: number;
 		onGround?: boolean; // raycast down to place on terrain
+		mergeMeshes?: boolean;
 	}
 ) {
 	const opts = {
@@ -23,13 +24,20 @@ export async function placeModel(
 		focusCamera: false,
 		targetSize: 2,
 		onGround: false,
+		mergeMeshes: false,
 		...options
 	};
 
 	// convert array to Vector3 if needed
-	let worldPos = Array.isArray(position)
-		? new BABYLON.Vector3(position[0], position[1], position[2])
-		: position.clone();
+	let worldPos: BABYLON.Vector3;
+	if (position instanceof BABYLON.Vector3) {
+		worldPos = position.clone();
+	} else {
+		const x = position[0] ?? 0;
+		const y = position[1] ?? 0;
+		const z = position[2] ?? 0;
+		worldPos = new BABYLON.Vector3(x, y, z);
+	}
 
 	// if onGround, raycast down to find terrain height
 	if (opts.onGround) {
@@ -69,7 +77,8 @@ export async function placeModel(
 		// Load the GLB
 		await BABYLON.SceneLoader.AppendAsync(rootUrl, fileName, scene);
 
-		// Get newly added meshes
+		// Get all nodes added by the import (meshes, transform nodes, skeletons)
+		const addedNodes = scene.transformNodes.slice(beforeCount > scene.transformNodes.length ? 0 : beforeCount);
 		const addedMeshes = scene.meshes.slice(beforeCount).filter((m) => m instanceof BABYLON.Mesh) as BABYLON.Mesh[];
 
 		// Remove any appended cameras/lights
@@ -81,9 +90,21 @@ export async function placeModel(
 			return { added: 0 };
 		}
 
-		// Create root transform node and parent all meshes
+		// Create root transform node
 		const modelRoot = new BABYLON.TransformNode(`${modelName}_root`, scene);
-		addedMeshes.forEach((m) => m.setParent(modelRoot));
+
+		// Find the GLB-imported root node (__root__ TransformNode) — parent only it,
+		// so we don't break the animated glTF hierarchy.
+		const glbRoot = scene.transformNodes.find(
+			(n) => (n.name === '__root__' || n.name === fileName.replace('.glb', '')) && !n.parent
+		);
+		if (glbRoot) {
+			glbRoot.setParent(modelRoot);
+		} else {
+			// Fallback: find top-level meshes (no parent) and parent them
+			const topLevelMeshes = addedMeshes.filter((m) => !m.parent);
+			topLevelMeshes.forEach((m) => m.setParent(modelRoot));
+		}
 
 		// Compute bounding box
 		const min = new BABYLON.Vector3(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);

@@ -4,7 +4,7 @@ import { SkyMaterial } from '@babylonjs/materials';
 
 export interface SceneConfig {
 	heightmapUrl: string;
-	logoUrl: string;
+	logoUrl?: string;
 	/** choose 'grass' (default) or 'grid' for the ground material */
 	groundMaterial?: 'grass' | 'grid';
 	/** whether to add a procedural skybox around the scene */
@@ -29,6 +29,13 @@ interface StartRenderLoopOptions {
 	}) => void;
 }
 
+export interface BillboardOptions {
+	width?: number;
+	height?: number;
+	onGround?: boolean;
+	labelColor?: string | [number, number, number] | BABYLON.Color3;
+}
+
 /**
  * Initialize the complete Babylon scene with lights, ground, camera, and billboard
  */
@@ -42,6 +49,51 @@ function parseColor3(input: string | [number, number, number] | BABYLON.Color3):
 	}
 
 	return new BABYLON.Color3(input[0], input[1], input[2]);
+}
+
+function normalizePosition(position: BABYLON.Vector3 | number[]) {
+	if (position instanceof BABYLON.Vector3) {
+		return [position.x, position.y, position.z] as [number, number, number];
+	}
+	return [position[0] ?? 0, position[1] ?? 0, position[2] ?? 0] as [number, number, number];
+}
+
+export async function placeBillboard(
+	scene: BABYLON.Scene,
+	textureUrl: string,
+	position: BABYLON.Vector3 | number[],
+	options?: BillboardOptions
+) {
+	const opts = { width: 10, height: 5, onGround: false, labelColor: '#ffffff', ...options };
+	const [x, y, z] = normalizePosition(position);
+	const worldPos = new BABYLON.Vector3(x, y, z);
+
+	if (opts.onGround) {
+		const hit = scene.pickWithRay(
+			new BABYLON.Ray(new BABYLON.Vector3(worldPos.x, 100, worldPos.z), new BABYLON.Vector3(0, -1, 0), 200),
+			(mesh) => mesh.name === 'ground'
+		);
+		worldPos.y = hit?.hit && hit.pickedPoint ? hit.pickedPoint.y : 0;
+	}
+
+	const id = `billboard_${Date.now()}`;
+	const plane = BABYLON.MeshBuilder.CreatePlane(id, { width: opts.width, height: opts.height }, scene);
+	plane.position = worldPos;
+	plane.isPickable = false;
+	// Negative X scale corrects the horizontal mirror caused by BILLBOARDMODE_ALL showing the back face.
+	plane.scaling = new BABYLON.Vector3(-1, 1, 1);
+	plane.billboardMode = BABYLON.AbstractMesh.BILLBOARDMODE_ALL;
+
+	const texture = new BABYLON.Texture(textureUrl, scene, true, false, BABYLON.Texture.TRILINEAR_SAMPLINGMODE);
+	texture.hasAlpha = true;
+
+	const material = new BABYLON.StandardMaterial(`${id}_mat`, scene);
+	material.diffuseTexture = texture;
+	material.emissiveColor = parseColor3(opts.labelColor!);
+	material.backFaceCulling = false;
+	plane.material = material;
+
+	return plane;
 }
 
 export async function initScene(
@@ -202,34 +254,36 @@ export async function initScene(
 	const shadowGen = new BABYLON.ShadowGenerator(1024, dir);
 	shadowGen.useBlurExponentialShadowMap = true;
 
-	// Billboard label
-	const boxHeight = 2;
-	const labelPlane = BABYLON.MeshBuilder.CreatePlane(
-		'labelPlane',
-		{ width: 10, height: 5 },
-		scene
-	);
-	labelPlane.position = new BABYLON.Vector3(0, boxHeight + 1.2, 0);
-	labelPlane.isPickable = false;
+	let labelPlane: BABYLON.Mesh | undefined;
+	if (config.logoUrl) {
+		const boxHeight = 2;
+		labelPlane = BABYLON.MeshBuilder.CreatePlane(
+			'labelPlane',
+			{ width: 10, height: 5 },
+			scene
+		);
+		labelPlane.position = new BABYLON.Vector3(0, boxHeight + 5, 0);
+		labelPlane.isPickable = false;
 
-	const dt = new BABYLON.DynamicTexture('labelDt', { width: 512, height: 256 }, scene, false);
-	dt.hasAlpha = true;
-	dt.updateURL(config.logoUrl);
+		const dt = new BABYLON.DynamicTexture('labelDt', { width: 512, height: 256 }, scene, false);
+		dt.hasAlpha = true;
+		dt.updateURL(config.logoUrl);
 
-	const labelMat = new BABYLON.StandardMaterial('labelMat', scene);
-	labelMat.diffuseTexture = dt;
-	labelMat.emissiveColor = new BABYLON.Color3(1, 1, 1);
-	labelMat.backFaceCulling = false;
-	labelMat.diffuseTexture.hasAlpha = true;
+		const labelMat = new BABYLON.StandardMaterial('labelMat', scene);
+		labelMat.diffuseTexture = dt;
+		labelMat.emissiveColor = new BABYLON.Color3(1, 1, 1);
+		labelMat.backFaceCulling = false;
+		labelMat.diffuseTexture.hasAlpha = true;
 
-	if (config.labelColor) {
-		const color = parseColor3(config.labelColor);
-		labelMat.diffuseColor = color;
-		labelMat.emissiveColor = color.scale(0.5);
+		if (config.labelColor) {
+			const color = parseColor3(config.labelColor);
+			labelMat.diffuseColor = color;
+			labelMat.emissiveColor = color.scale(0.5);
+		}
+
+		labelPlane.material = labelMat;
+		labelPlane.billboardMode = BABYLON.AbstractMesh.BILLBOARDMODE_ALL;
 	}
-
-	labelPlane.material = labelMat;
-	labelPlane.billboardMode = BABYLON.AbstractMesh.BILLBOARDMODE_ALL;
 
 	return { scene, camera, ground, labelPlane };
 }

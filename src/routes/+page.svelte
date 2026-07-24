@@ -4,9 +4,24 @@
 	import * as BABYLON from '@babylonjs/core';
 	import '@babylonjs/loaders/glTF';
 	import { CustomLoadingScreen } from '$lib/CustomLoadingScreen';
-	import { placeModel, placeModelInFrontOfCamera } from '$lib/placeModel';
+	import { placeModel } from '$lib/placeModel';
+	import assetList from '$lib/assetList.json';
 	import { initEngine } from '$lib/engineSetup';
 	import { initScene, startRenderLoop } from '$lib/sceneSetup';
+
+	type AssetEntry = {
+		type?: 'model' | 'billboard';
+		link: string;
+		filename?: string;
+		position: [number, number, number];
+		scaleFactor?: number;
+		onGround?: boolean;
+		targetSize?: number;
+		mergeMeshes?: boolean;
+		width?: number;
+		height?: number;
+		labelColor?: string;
+	};
 
 	let canvas: HTMLCanvasElement | undefined;
 	let engine: BABYLON.Engine | BABYLON.WebGPUEngine | undefined;
@@ -26,22 +41,18 @@
 	onMount(() => {
 		if (!canvas) return;
 
-		// Initialize engine and scene asynchronously
 		(async () => {
-			// Initialize engine (WebGPU or WebGL)
 			engine = await initEngine(canvas);
+			if (!engine) return;
 
-			// Set up custom loading screen
 			BABYLON.SceneLoader.ShowLoadingScreen = true;
 			engine.loadingScreen = new CustomLoadingScreen(`/cyber_purok.png`);
 
-			// Initialize scene with all meshes, lights, and camera
 			const result = await initScene(engine, {
 				heightmapUrl: '/heightmap.png',
-				logoUrl: '/cyber_purok.png',
 				groundMaterial: 'grass',
-				labelColor: '#b4ff00',
 				cameraPosition: [43.43, 11.64, -1.32],
+				logoUrl: '/cyber_purok.png',
 				autoRotate,
 				rotateSpeed
 			});
@@ -49,46 +60,17 @@
 			scene = result.scene;
 			camera = result.camera;
 
-			// Load models using simple API
-			(async () => {
-				// Place at position on ground (raycasts down to terrain)
-				await placeModel(scene, 'salawaki_swimming.glb', [10, 10, 2], {
-					scaleFactor: 0.1,
-					onGround: false
+			if (!scene) return;
+			const assets = assetList as unknown as AssetEntry[];
+			for (const asset of assets) {
+				await placeModel(scene, asset.link, asset.position, {
+					scaleFactor: asset.scaleFactor,
+					onGround: asset.onGround,
+					targetSize: asset.targetSize,
+					mergeMeshes: asset.mergeMeshes
 				});
+			}
 
-				await placeModel(scene, 'salawaki_swimming.glb', [20, 5, -2], {
-					scaleFactor: 0.1,
-					onGround: false
-				});
-
-					await placeModel(scene, 'Yellowbasketstore.glb', [-20, 11, -42], {
-					scaleFactor: 1,
-					onGround: true
-				});
-
-
-				await placeModel(scene, 'https://kolown.net/assets/ip25/zebra.glb', [-25, 0, 5], {
-					scaleFactor: 3,
-					onGround: true
-				});
-
-			await placeModel(scene, 'Fountain.glb', [27, 7, 5], {
-					scaleFactor: .6,
-					onGround: true
-				});
-
-				await placeModel(scene, 'gw.glb', [-3, 5, 40], {
-					scaleFactor: 1.5,
-					onGround: false
-				});
-
-
-
-
-			})();
-
-			// Start render loop with camera constraints and debug updates
 			startRenderLoop(engine, scene, camera, {
 				autoRotate,
 				rotateSpeed,

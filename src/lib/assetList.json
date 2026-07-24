@@ -1,0 +1,62 @@
+[
+  {
+    "link": "salawaki_swimming.glb",
+    "filename": "salawaki_swimming.glb",
+    "position": [10, 10, 2],
+    "scaleFactor": 0.1,
+    "onGround": false
+  },
+  {
+    "link": "salawaki_swimming.glb",
+    "filename": "salawaki_swimming.glb",
+    "position": [20, 5, -2],
+    "scaleFactor": 0.1,
+    "onGround": false
+  },
+  {
+    "link": "Yellowbasketstore.glb",
+    "filename": "Yellowbasketstore.glb",
+    "position": [-20, 11, -42],
+    "scaleFactor": 1,
+    "onGround": true,
+    "mergeMeshes": true
+  },
+  {
+    "link": "https://kolown.net/assets/ip25/zebra.glb",
+    "filename": "zebra.glb",
+    "position": [-25, 0, 5],
+    "scaleFactor": 3,
+    "onGround": true
+  },
+  {
+    "link": "Fountain.glb",
+    "filename": "Fountain.glb",
+    "position": [0, 5, 1],
+    "scaleFactor": 0.6,
+    "onGround": true,
+    "mergeMeshes": true
+  },
+  {
+    "link": "gw.glb",
+    "filename": "gw.glb",
+    "position": [-3, 5, 40],
+    "scaleFactor": 1.5,
+    "onGround": false,
+    "mergeMeshes": true
+  },
+   {
+    "link": "JFK_2.glb",
+    "filename": "JFK_2.glb",
+    "position": [2, 5, 10],
+    "scaleFactor": 1.5,
+    "onGround": true
+  },
+  {
+    "link": "gw.glb",
+    "filename": "gw.glb",
+    "position": [-3, 5, 40],
+    "scaleFactor": 1.5,
+    "onGround": false,
+    "mergeMeshes": true
+  }
+]

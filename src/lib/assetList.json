@@ -58,5 +58,19 @@
     "scaleFactor": 1.5,
     "onGround": false,
     "mergeMeshes": true
+  },
+  {
+    "link": "roger.glb",
+    "filename": "roger.glb",
+    "position": [0,-10, -50],
+    "scaleFactor": 3,
+    "onGround": false
+  },
+   {
+    "link": "roger.glb",
+    "filename": "roger.glb",
+    "position": [30,-15, -80],
+    "scaleFactor": 3,
+    "onGround": false
   }
 ]

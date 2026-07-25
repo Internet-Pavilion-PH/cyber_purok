@@ -90,6 +90,14 @@ export async function placeModel(
 			return { added: 0 };
 		}
 
+		const shadowGen = (scene.metadata as any)?.shadowGen as BABYLON.ShadowGenerator | undefined;
+		if (shadowGen) {
+			addedMeshes.forEach((mesh) => {
+				mesh.receiveShadows = true;
+				shadowGen.addShadowCaster(mesh, true);
+			});
+		}
+
 		// Create root transform node
 		const modelRoot = new BABYLON.TransformNode(`${modelName}_root`, scene);
 

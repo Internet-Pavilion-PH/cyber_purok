@@ -140,7 +140,7 @@ export async function initScene(
 	camera.upperBetaLimit = (75 * Math.PI) / 180; // 75°
 
 	// Lights
-	const hemi = new BABYLON.HemisphericLight('hemi', new BABYLON.Vector3(0, 1, 0), scene);
+	const hemi = new BABYLON.HemisphericLight('hemi', new BABYLON.Vector3(1, 1, 0), scene);
 	hemi.intensity = 0.6;
 
 	const dir = new BABYLON.DirectionalLight('dir', new BABYLON.Vector3(-1, -2, -1), scene);
@@ -253,6 +253,10 @@ export async function initScene(
 	// Shadow generator
 	const shadowGen = new BABYLON.ShadowGenerator(1024, dir);
 	shadowGen.useBlurExponentialShadowMap = true;
+	if (!scene.metadata) {
+		scene.metadata = {};
+	}
+	(scene.metadata as any).shadowGen = shadowGen;
 
 	let labelPlane: BABYLON.Mesh | undefined;
 	if (config.logoUrl) {

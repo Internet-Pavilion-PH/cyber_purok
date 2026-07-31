@@ -72,5 +72,26 @@
     "position": [250,10, -80],
     "scaleFactor": 500,
     "onGround": false
+  },
+  {
+    "link": "salawaki_isda-optimized.glb",
+    "filename": "salawaki_isda-optimized.glb",
+    "position": [-15,-26,1],
+    "scaleFactor": 0.15,
+    "onGround": false
+  },
+   {
+    "link": "cottage.glb",
+    "filename": "cottage.glb",
+    "position": [15,-16,-5],
+    "scaleFactor": 0.3,
+    "onGround": false
+  },
+   {
+    "link": "led.glb",
+    "filename": "led.glb",
+    "position": [30,5,20],
+    "scaleFactor": 50,
+    "onGround": false
   }
 ]

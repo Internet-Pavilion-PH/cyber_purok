@@ -17,6 +17,7 @@ export async function placeModel(
 		targetSize?: number;
 		onGround?: boolean; // raycast down to place on terrain
 		mergeMeshes?: boolean;
+		fadeIn?: boolean;
 	}
 ) {
 	const opts = {
@@ -25,6 +26,7 @@ export async function placeModel(
 		targetSize: 2,
 		onGround: false,
 		mergeMeshes: false,
+		fadeIn: false,
 		...options
 	};
 
@@ -128,14 +130,15 @@ export async function placeModel(
 		const size = max.subtract(min);
 		const maxDim = Math.max(size.x, size.y, size.z) || 1;
 
-		// Apply scaling
+		// Compute and apply scaling
+		let targetScaling = new BABYLON.Vector3(1, 1, 1);
 		if (opts.scaleFactor) {
-			modelRoot.scaling = new BABYLON.Vector3(opts.scaleFactor, opts.scaleFactor, opts.scaleFactor);
+			targetScaling = new BABYLON.Vector3(opts.scaleFactor, opts.scaleFactor, opts.scaleFactor);
+			modelRoot.scaling = opts.fadeIn ? BABYLON.Vector3.Zero() : targetScaling;
 		} else {
 			const autoScale = opts.targetSize / maxDim;
-			if (maxDim < 0.5) {
-				modelRoot.scaling = new BABYLON.Vector3(autoScale, autoScale, autoScale);
-			}
+			targetScaling = new BABYLON.Vector3(autoScale, autoScale, autoScale);
+			modelRoot.scaling = opts.fadeIn ? BABYLON.Vector3.Zero() : targetScaling;
 		}
 
 		// Position the model
@@ -153,6 +156,19 @@ export async function placeModel(
 					camera.radius = Math.max(5, boundingRadius * 6);
 				} catch (e) {}
 			}
+		}
+
+		if (opts.fadeIn) {
+			const fadeDuration = 600;
+			let elapsed = 0;
+			const observer = scene.onBeforeRenderObservable.add(() => {
+				elapsed += scene.getEngine().getDeltaTime();
+				const progress = Math.min(elapsed / fadeDuration, 1);
+				modelRoot.scaling = BABYLON.Vector3.Lerp(BABYLON.Vector3.Zero(), targetScaling, progress);
+				if (progress >= 1) {
+					scene.onBeforeRenderObservable.remove(observer);
+				}
+			});
 		}
 
 		console.log(`✓ Model '${modelName}' placed at`, worldPos);

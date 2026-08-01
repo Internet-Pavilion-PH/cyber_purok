@@ -1,36 +1,17 @@
 [
   {
-    "link": "salawaki_swimming.glb",
-    "filename": "salawaki_swimming.glb",
-    "position": [10, 10, 2],
-    "scaleFactor": 0.1,
-    "onGround": false
-  },
-  {
-    "link": "salawaki_swimming.glb",
-    "filename": "salawaki_swimming.glb",
-    "position": [20, 5, -2],
-    "scaleFactor": 0.1,
-    "onGround": false
-  },
-  {
     "link": "Yellowbasketstore.glb",
     "filename": "Yellowbasketstore.glb",
+    "priority": 4,
     "position": [-20, 11, -42],
     "scaleFactor": 1,
     "onGround": true,
     "mergeMeshes": true
   },
   {
-    "link": "https://kolown.net/assets/ip25/zebra.glb",
-    "filename": "zebra.glb",
-    "position": [-25, 0, 5],
-    "scaleFactor": 3,
-    "onGround": true
-  },
-  {
     "link": "Fountain.glb",
     "filename": "Fountain.glb",
+    "priority": 0,
     "position": [0, 5, 1],
     "scaleFactor": 0.6,
     "onGround": true,
@@ -39,59 +20,90 @@
   {
     "link": "gw.glb",
     "filename": "gw.glb",
+    "priority": 4,
     "position": [-3, 5, 40],
     "scaleFactor": 1.5,
     "onGround": true,
     "mergeMeshes": true
   },
-   {
+  {
+    "link": "salawaki_swimming.glb",
+    "filename": "salawaki_swimming.glb",
+    "priority": 1,
+    "position": [10, 10, 2],
+    "scaleFactor": 0.1,
+    "onGround": false
+  },
+  {
+    "link": "salawaki_swimming.glb",
+    "filename": "salawaki_swimming.glb",
+    "priority": 4,
+    "position": [20, 5, -2],
+    "scaleFactor": 0.1,
+    "onGround": false
+  },
+  {
+    "link": "https://kolown.net/assets/ip25/zebra.glb",
+    "filename": "zebra.glb",
+    "priority": 1,
+    "position": [-25, 0, 5],
+    "scaleFactor": 3,
+    "onGround": true
+  },
+  {
     "link": "JFK_2.glb",
     "filename": "JFK_2.glb",
+    "priority": 2,
     "position": [2, 5, 10],
     "scaleFactor": 1.5,
     "onGround": true
   },
-
-  {
-    "link": "roger.glb",
-    "filename": "roger.glb",
-    "position": [0,-10, -50],
-    "scaleFactor": 3,
-    "onGround": false
-  },
-   {
-    "link": "roger.glb",
-    "filename": "roger.glb",
-    "position": [100,-15, -80],
-    "scaleFactor": 3,
-    "onGround": false
-  },
-   {
-    "link": "bukid.glb",
-    "filename": "bukid.glb",
-    "position": [250,10, -80],
-    "scaleFactor": 500,
-    "onGround": false
-  },
   {
     "link": "salawaki_isda-optimized.glb",
     "filename": "salawaki_isda-optimized.glb",
-    "position": [-15,-26,1],
+    "priority": 2,
+    "position": [-15, -26, 1],
     "scaleFactor": 0.15,
     "onGround": false
   },
-   {
+  {
     "link": "cottage.glb",
     "filename": "cottage.glb",
-    "position": [15,-16,-5],
+    "priority": 2,
+    "position": [15, -16, -5],
     "scaleFactor": 0.3,
     "onGround": false
   },
-   {
+  {
+    "link": "roger.glb",
+    "filename": "roger.glb",
+    "priority": 3,
+    "position": [0, -10, -50],
+    "scaleFactor": 3,
+    "onGround": false
+  },
+  {
+    "link": "roger.glb",
+    "filename": "roger.glb",
+    "priority": 3,
+    "position": [100, -15, -80],
+    "scaleFactor": 3,
+    "onGround": false
+  },
+  {
     "link": "led.glb",
     "filename": "led.glb",
-    "position": [30,5,20],
+    "priority": 3,
+    "position": [30, 5, 20],
     "scaleFactor": 50,
+    "onGround": false
+  },
+  {
+    "link": "bukid.glb",
+    "filename": "bukid.glb",
+    "priority": 4,
+    "position": [250, 10, -80],
+    "scaleFactor": 500,
     "onGround": false
   }
 ]

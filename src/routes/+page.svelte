@@ -13,6 +13,7 @@
 		type?: 'model' | 'billboard';
 		link: string;
 		filename?: string;
+		priority?: number;
 		position: [number, number, number];
 		scaleFactor?: number;
 		onGround?: boolean;
@@ -60,10 +61,17 @@
 			scene = result.scene;
 			camera = result.camera;
 
-			if (!scene) return;
+			const sceneInstance = scene;
+			const cameraInstance = camera;
+			if (!sceneInstance || !cameraInstance) return;
+
 			const assets = assetList as unknown as AssetEntry[];
-			for (const asset of assets) {
-				await placeModel(scene, asset.link, asset.position, {
+			const sortedAssets = [...assets].sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0));
+			const initialAssets = sortedAssets.filter((asset) => (asset.priority ?? 0) <= 0);
+			const deferredAssets = sortedAssets.filter((asset) => (asset.priority ?? 0) > 0);
+
+			for (const asset of initialAssets) {
+				await placeModel(sceneInstance, asset.link, asset.position, {
 					scaleFactor: asset.scaleFactor,
 					onGround: asset.onGround,
 					targetSize: asset.targetSize,
@@ -71,7 +79,8 @@
 				});
 			}
 
-			startRenderLoop(engine, scene, camera, {
+			BABYLON.SceneLoader.ShowLoadingScreen = false;
+			startRenderLoop(engine, sceneInstance, cameraInstance, {
 				autoRotate,
 				rotateSpeed,
 				onCameraUpdate: (info) => {
@@ -79,6 +88,40 @@
 					rendererInfo = `${info.rendererType} | ${Math.round(info.fps)} FPS`;
 				}
 			});
+
+			if (deferredAssets.length) {
+				let currentIndex = 0;
+
+				const loadNextDeferredAsset = async () => {
+					if (currentIndex >= deferredAssets.length) return;
+					const asset = deferredAssets[currentIndex];
+					try {
+						await placeModel(sceneInstance, asset.link, asset.position, {
+							scaleFactor: asset.scaleFactor,
+							onGround: asset.onGround,
+							targetSize: asset.targetSize,
+							mergeMeshes: asset.mergeMeshes,
+							fadeIn: true
+						});
+					} catch (err) {
+						console.warn('Deferred asset failed to load:', asset.link, err);
+					}
+					currentIndex += 1;
+					if (currentIndex < deferredAssets.length) {
+						if ('requestIdleCallback' in window) {
+							(window as any).requestIdleCallback(() => requestAnimationFrame(loadNextDeferredAsset), { timeout: 1000 });
+						} else {
+							setTimeout(() => requestAnimationFrame(loadNextDeferredAsset), 200);
+						}
+					}
+				};
+
+				if ('requestIdleCallback' in window) {
+					(window as any).requestIdleCallback(() => requestAnimationFrame(loadNextDeferredAsset), { timeout: 1000 });
+				} else {
+					setTimeout(() => requestAnimationFrame(loadNextDeferredAsset), 200);
+				}
+			}
 		})();
 
 		const onResize = () => engine && engine.resize();

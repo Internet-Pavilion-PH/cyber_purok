@@ -41,6 +41,7 @@ export class Hero {
 
   // Internal Dependencies & State
   private scene: BABYLON.Scene;
+  private moveDirection = BABYLON.Vector3.Zero();
   private animGroups = new Map<string, BABYLON.AnimationGroup>();
   private resolvedAnimations = new Map<HeroAnimationState, BABYLON.AnimationGroup | null>();
   private animationNames: Record<HeroAnimationState, string>;
@@ -104,6 +105,15 @@ export class Hero {
 
   public setTarget(destination: BABYLON.Vector3 | null) {
     this.currentTarget = destination ? destination.clone() : null;
+  }
+
+  public setMoveDirection(direction: BABYLON.Vector3 | null) {
+    if (!direction || direction.lengthSquared() < 0.0001) {
+      this.moveDirection = BABYLON.Vector3.Zero();
+      return;
+    }
+
+    this.moveDirection = direction.clone();
   }
 
   public moveTo(destination: BABYLON.Vector3) {
@@ -296,7 +306,43 @@ export class Hero {
   // --- PRIVATE FRAME UPDATE LOOPS ---
 
   private updateMovement() {
-    if (!this.mesh || !this.currentTarget) return;
+    if (!this.mesh) return;
+
+    const hasMoveVector = this.moveDirection.lengthSquared() > 0.0001;
+
+    if (hasMoveVector) {
+      const direction = this.moveDirection.clone();
+      direction.y = 0;
+      const length = direction.length();
+
+      if (length > 0.0001) {
+        const normalized = direction.scale(1 / length);
+        const modelForwardOffset = this.config.forwardOffset ?? Math.PI;
+        const wantedYaw = Math.atan2(normalized.x, normalized.z) + modelForwardOffset;
+
+        this.mesh.rotation.y = BABYLON.Scalar.LerpAngle(
+          this.mesh.rotation.y,
+          wantedYaw,
+          this.config.rotationSpeed,
+        );
+
+        this.mesh.position.addInPlace(normalized.scaleInPlace(this.config.moveSpeed * 3.4));
+
+        if (!this.isMoving) {
+          this.isMoving = true;
+          this.playAnimation("Walking");
+        }
+        return;
+      }
+    }
+
+    if (!this.currentTarget) {
+      if (this.isMoving) {
+        this.isMoving = false;
+        this.playAnimation("Idle");
+      }
+      return;
+    }
 
     const toTarget = this.currentTarget.subtract(this.mesh.position);
     toTarget.y = 0;
@@ -307,14 +353,12 @@ export class Hero {
       const modelForwardOffset = this.config.forwardOffset ?? Math.PI;
       const visualTargetYaw = Math.atan2(direction.x, direction.z) + modelForwardOffset;
 
-      // Smoothly turn toward destination
       this.mesh.rotation.y = BABYLON.Scalar.LerpAngle(
         this.mesh.rotation.y,
         visualTargetYaw,
-        this.config.rotationSpeed
+        this.config.rotationSpeed,
       );
 
-      // Move toward target
       this.mesh.position.addInPlace(direction.scaleInPlace(this.config.moveSpeed));
 
       if (!this.isMoving) {

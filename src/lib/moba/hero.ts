@@ -229,25 +229,29 @@ export class Hero {
     }
 
     // Local overhead PointLight for local hero shadows
-    const desiredLightHeight = 28;
-    const heroScaleY = mesh.scaling.y || 1;
+    // Temporarily disabled while tuning the arena light cycle.
+    // const desiredLightHeight = 28;
+    // const heroScaleY = mesh.scaling.y || 1;
+    //
+    // this.heroLight = new BABYLON.PointLight(
+    //   "heroLight",
+    //   new BABYLON.Vector3(0, desiredLightHeight / heroScaleY, 0),
+    //   this.scene
+    // );
+    // this.heroLight.parent = mesh;
+    // this.heroLight.intensity = 1.0;
+    // this.heroLight.range = 80;
+    // this.heroLight.diffuse = new BABYLON.Color3(0.9, 0.95, 1.0);
+    // this.heroLight.specular = new BABYLON.Color3(0, 0, 0);
+    //
+    // this.heroShadowGen = new BABYLON.ShadowGenerator(1024, this.heroLight);
+    // heroMeshes.forEach((m) => this.heroShadowGen!.addShadowCaster(m, true));
+    // this.heroShadowGen.useBlurExponentialShadowMap = true;
+    // this.heroShadowGen.blurKernel = 8;
+    // this.heroShadowGen.darkness = 0.5;
 
-    this.heroLight = new BABYLON.PointLight(
-      "heroLight",
-      new BABYLON.Vector3(0, desiredLightHeight / heroScaleY, 0),
-      this.scene
-    );
-    this.heroLight.parent = mesh;
-    this.heroLight.intensity = 1.0;
-    this.heroLight.range = 80;
-    this.heroLight.diffuse = new BABYLON.Color3(0.9, 0.95, 1.0);
-    this.heroLight.specular = new BABYLON.Color3(0, 0, 0);
-
-    this.heroShadowGen = new BABYLON.ShadowGenerator(1024, this.heroLight);
-    heroMeshes.forEach((m) => this.heroShadowGen!.addShadowCaster(m, true));
-    this.heroShadowGen.useBlurExponentialShadowMap = true;
-    this.heroShadowGen.blurKernel = 8;
-    this.heroShadowGen.darkness = 0.5;
+    this.heroLight = null;
+    this.heroShadowGen = null;
   }
 
   private attachOverheadBars(mesh: BABYLON.AbstractMesh) {

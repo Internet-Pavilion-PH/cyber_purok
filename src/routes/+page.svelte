@@ -2,11 +2,16 @@
   import { onMount } from "svelte";
   import * as BABYLON from "@babylonjs/core";
   import * as GUI from "@babylonjs/gui";
+  import * as ADDONS from "@babylonjs/addons";
   import "@babylonjs/loaders/glTF";
   import { CustomLoadingScreen } from "$lib/CustomLoadingScreen";
-  import { GridMaterial } from "@babylonjs/materials";
-  import { GrassProceduralTexture } from "@babylonjs/procedural-textures";
   import { Hero } from "$lib/moba/hero";
+  import { Tower } from "$lib/moba/tower";
+  import { Creep } from "$lib/moba/creeps";
+  import { ArenaBuilder } from "$lib/moba/arenaBuilder";
+  import { Fence } from "$lib/moba/fence";
+  
+
   import {
     configureFixedGameCamera,
     defaultGameCameraConfig,
@@ -33,11 +38,13 @@
   let wallMeshes: BABYLON.Mesh[] = [];
   let gameGroundMaterial: BABYLON.StandardMaterial | null = null;
   let debugGroundMaterial: BABYLON.Material | null = null;
+  let arenaBuilder: ArenaBuilder | null = null;
   let currentTarget: BABYLON.Vector3 | null = null;
   let cameraLight: BABYLON.SpotLight | null = null;
   let hero: Hero | null = null;
   let keyboardController: ReturnType<typeof createKeyboardController> | null = null;
   let mobileMoveVector = { x: 0, y: 0 };
+  let isCameraEdgePanning = false;
 
   const isMobile =
     typeof window !== "undefined" &&
@@ -54,10 +61,29 @@
     mobileMoveVector = input;
   };
 
+  const handleMinimapSelect = (point: { x: number; z: number }) => {
+    if (!gameCamera) return;
+
+    const target = new BABYLON.Vector3(point.x, 0, point.z);
+    gameCamera.setTarget(target);
+    gameCamera.target.copyFrom(target);
+
+    const orbitRadius = gameCamera.radius;
+    const horizontal = orbitRadius * Math.cos(gameCamera.beta);
+    const offset = new BABYLON.Vector3(
+      Math.sin(gameCamera.alpha) * horizontal,
+      orbitRadius * Math.sin(gameCamera.beta),
+      Math.cos(gameCamera.alpha) * horizontal,
+    );
+    gameCamera.position = target.add(offset);
+
+    currentTarget = null;
+    hero?.setTarget(null);
+  };
+
   const preventGameWheel: EventListener = (event) => {
     if (cameraMode !== "game") return;
     const wheelEvent = event as WheelEvent;
-    wheelEvent.preventDefault();
     wheelEvent.stopPropagation();
   };
 
@@ -68,6 +94,10 @@
     gameGroundMaterial &&
     debugGroundMaterial
   ) {
+    if (arenaBuilder) {
+      arenaBuilder.updateCameraMode(cameraMode);
+    }
+
     sceneRef.activeCamera = cameraMode === "debug" ? debugCamera : gameCamera;
     if (cameraLight) {
       cameraLight.parent = cameraMode === "debug" ? debugCamera : gameCamera;
@@ -76,7 +106,9 @@
     }
     const activeGroundMaterial =
       cameraMode === "debug" ? debugGroundMaterial : gameGroundMaterial;
-    groundMesh!.material = activeGroundMaterial;
+    if (groundMesh) {
+      groundMesh.material = activeGroundMaterial;
+    }
     wallMeshes.forEach((wall) => {
       wall.material = activeGroundMaterial;
     });
@@ -92,7 +124,7 @@
         gameMouseInput.wheelPrecision = 0;
       }
       gameCamera.wheelPrecision = 0;
-      canvas.addEventListener("wheel", preventGameWheel, false);
+      canvas.addEventListener("wheel", preventGameWheel, { passive: true });
       gameCamera.attachControl(canvas, true);
     }
   }
@@ -128,6 +160,7 @@
     const createScene = () => {
       const scene = new BABYLON.Scene(engine);
       sceneRef = scene;
+      new ADDONS.HtmlMeshRenderer(scene, { enableOverlayRender: true });
 
       // 1) Ground plane: a large base surface that sits at the world origin.
       const groundWidth = 1000;
@@ -135,13 +168,11 @@
       const groundHalfWidth = groundWidth / 2;
       const groundHalfHeight = groundHeight / 2;
 
-      const ground = BABYLON.MeshBuilder.CreateGround(
-        "ground",
-        { height: groundHeight, width: groundWidth, subdivisions: 4 },
-        scene,
-      );
-      ground.position.y = 0;
-      groundMesh = ground;
+      arenaBuilder = new ArenaBuilder(scene, cameraMode);
+      groundMesh = arenaBuilder.ground;
+      wallMeshes = arenaBuilder.walls;
+      gameGroundMaterial = arenaBuilder.gameGroundMaterial;
+      debugGroundMaterial = arenaBuilder.debugGroundMaterial;
 
       
 
@@ -215,122 +246,68 @@
         }
       });
 
-      // 2) Ground material: keep the grass look in game mode, but use a flat debug material when inspecting the plane.
-      const grassMat = new BABYLON.StandardMaterial("grassMat", scene);
-      const grassTex = new GrassProceduralTexture("grassTex", 1024, scene);
-      grassTex.uScale = 6;
-      grassTex.vScale = 6;
-      grassTex.wrapU = BABYLON.Texture.WRAP_ADDRESSMODE;
-      grassTex.wrapV = BABYLON.Texture.WRAP_ADDRESSMODE;
-      grassTex.anisotropicFilteringLevel = 8;
-      grassMat.diffuseTexture = grassTex;
-      grassMat.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
-      grassMat.ambientColor = new BABYLON.Color3(0.25, 0.25, 0.25);
+      //tower
+      const tower = new Tower(scene, new BABYLON.Vector3(-216, -0, -216), 50, 2, 40, Math.PI / 4);
+      const tower2 = new Tower(scene, new BABYLON.Vector3(-100, -0, -100), 50, 2, 40, Math.PI / 4);
+      const tower3 = new Tower(scene, new BABYLON.Vector3(-437, 0, -123), 50, 2, 40, Math.PI/9);
+      const tower4 = new Tower(scene, new BABYLON.Vector3(-71, 0, -440), 50, 2, 40, Math.PI/2);
 
-      const mapTex = new BABYLON.Texture("/map.png", scene);
-      mapTex.uScale = 1;
-      mapTex.vScale = 1;
-      mapTex.wrapU = BABYLON.Texture.WRAP_ADDRESSMODE;
-      mapTex.wrapV = BABYLON.Texture.WRAP_ADDRESSMODE;
-      grassMat.ambientTexture = mapTex;
+      if (arenaBuilder?.lights) {
+        for (const mesh of tower.rootNode.getChildMeshes()) {
+          arenaBuilder.lights.addShadowCaster(mesh);
+        }
+        for (const mesh of tower2.rootNode.getChildMeshes()) {
+          arenaBuilder.lights.addShadowCaster(mesh);
+        }
+        for (const mesh of tower3.rootNode.getChildMeshes()) {
+          arenaBuilder.lights.addShadowCaster(mesh);
+        }
+        for (const mesh of tower4.rootNode.getChildMeshes()) {
+          arenaBuilder.lights.addShadowCaster(mesh);
+        }
+      }
 
-      const debugGrid = new GridMaterial("debugGrid", scene);
-      debugGrid.mainColor = new BABYLON.Color3(0.7, 0.7, 0.75);
-      debugGrid.lineColor = new BABYLON.Color3(0.3, 0.35, 0.45);
-      debugGrid.gridRatio = 1;
-      debugGrid.majorUnitFrequency = 10;
-      debugGrid.minorUnitVisibility = 0.6;
-      debugGrid.opacity = 1;
+      //creeps
 
-      const debugMapMaterial = new BABYLON.StandardMaterial("debugMapMaterial", scene);
-      debugMapMaterial.diffuseTexture = mapTex;
-      debugMapMaterial.diffuseTexture.hasAlpha = false;
-      debugMapMaterial.emissiveColor = new BABYLON.Color3(0.2, 0.2, 0.2);
-      debugMapMaterial.alpha = 0.45;
-      debugMapMaterial.backFaceCulling = false;
+        const blueBasePos = new BABYLON.Vector3(200, 0, 200);
+        const redBasePos = new BABYLON.Vector3(-386, 0, -386);
 
-      const debugMapOverlay = BABYLON.MeshBuilder.CreateGround(
-        "debugMapOverlay",
-        { width: groundWidth, height: groundHeight, subdivisions: 1 },
-        scene,
-      );
-      debugMapOverlay.position.y = 0.03;
-      debugMapOverlay.material = debugMapMaterial;
-      debugMapOverlay.isPickable = false;
-      debugMapOverlay.setEnabled(cameraMode === "debug");
+        // Player-side lane: red base pushes toward blue base.
+        const redLaneCreeps = Creep.spawnGroup(scene, redBasePos, blueBasePos, 3, 10);
+        if (arenaBuilder?.lights) {
+          for (const creep of redLaneCreeps) {
+            arenaBuilder.lights.addShadowCaster(creep.mesh);
+          }
+        }
 
-      gameGroundMaterial = grassMat;
-      debugGroundMaterial = debugGrid;
-      ground.material = cameraMode === "debug" ? debugGrid : grassMat;
-      ground.receiveShadows = true;
+        // Enemy-side lane: blue base pushes toward red base.
+        const blueLaneCreeps = Creep.spawnGroup(scene, blueBasePos, redBasePos, 3, 10);
+        if (arenaBuilder?.lights) {
+          for (const creep of blueLaneCreeps) {
+            arenaBuilder.lights.addShadowCaster(creep.mesh);
+          }
+        }
 
-      const updateDebugOverlay = () => {
-        const isDebug = cameraMode === "debug";
-        debugMapOverlay.setEnabled(isDebug);
-        debugMapMaterial.alpha = isDebug ? 0.45 : 0;
-      };
+//fence
 
-      updateDebugOverlay();
-      scene.onBeforeRenderObservable.add(() => {
-        updateDebugOverlay();
-      });
+const fence = new Fence(
+  scene,
+  [
+    { x: -67, z: -406 },
+    { x: -79, z: -353 },
+    { x: -179, z: -227 },
+  ],
+  30,   // height
+  1,  // post radius
+  1, // rail radius
+  0,    // base Y
+);
 
+if (arenaBuilder?.lights) {
+  fence.addShadowCasters(arenaBuilder.lights.shadowGen);
+}
 
-
-
-	  //walls
-	  
-      const wallHeight = 50;
-      const wallThickness = 1;
-      const wallPositions = [
-        {
-          name: "wallNorth",
-          width: groundWidth,
-          depth: wallThickness,
-          x: 0,
-          z: -groundHalfHeight,
-          y: wallHeight / 2,
-        },
-        {
-          name: "wallSouth",
-          width: groundWidth,
-          depth: wallThickness,
-          x: 0,
-          z: groundHalfHeight,
-          y: wallHeight / 2,
-        },
-        {
-          name: "wallEast",
-          width: wallThickness,
-          depth: groundHeight,
-          x: groundHalfWidth,
-          z: 0,
-          y: wallHeight / 2,
-        },
-        {
-          name: "wallWest",
-          width: wallThickness,
-          depth: groundHeight,
-          x: -groundHalfWidth,
-          z: 0,
-          y: wallHeight / 2,
-        },
-      ];
-
-      wallMeshes = wallPositions.map(({ name, width, depth, x, z, y }) => {
-        const wall = BABYLON.MeshBuilder.CreateBox(
-          name,
-          { width, height: wallHeight, depth },
-          scene,
-        );
-        wall.position = new BABYLON.Vector3(x, y, z);
-        wall.material = cameraMode === "debug" ? debugGrid : grassMat;
-        wall.isPickable = false;
-        return wall;
-      });
-
-    
-
+fence.rootNode.position = new BABYLON.Vector3(0, 0, 0);
       // TOP-DOWN DEBUG CAMERA
       const heroStartPosition = new BABYLON.Vector3(-380, 0, -380);
 
@@ -390,32 +367,35 @@
           panY = (pointerY - (height - edgeMargin)) / edgeMargin;
         }
 
-        if (panX === 0 && panY === 0) return;
+        isCameraEdgePanning = panX !== 0 || panY !== 0;
 
         const dt = engine.getDeltaTime() / 1000;
 
-        const cosA = Math.cos(gameCamera.alpha);
-        const sinA = Math.sin(gameCamera.alpha);
+        if (isCameraEdgePanning) {
+          const cosA = Math.cos(gameCamera.alpha);
+          const sinA = Math.sin(gameCamera.alpha);
+          const forwardX = -cosA;
+          const forwardZ = -sinA;
+          const rightX = -sinA;
+          const rightZ = cosA;
 
-        const forwardX = -cosA;
-        const forwardZ = -sinA;
+          const moveX = (rightX * panX - forwardX * panY) * panSpeed * dt;
+          const moveZ = (rightZ * panX - forwardZ * panY) * panSpeed * dt;
 
-        const rightX = -sinA;
-        const rightZ = cosA;
+          gameCamera.target.x = BABYLON.Scalar.Clamp(
+            gameCamera.target.x + moveX,
+            -clampExtent,
+            clampExtent,
+          );
+          gameCamera.target.z = BABYLON.Scalar.Clamp(
+            gameCamera.target.z + moveZ,
+            -clampExtent,
+            clampExtent,
+          );
+          return;
+        }
 
-        const moveX = (rightX * panX - forwardX * panY) * panSpeed * dt;
-        const moveZ = (rightZ * panX - forwardZ * panY) * panSpeed * dt;
-
-        gameCamera.target.x = BABYLON.Scalar.Clamp(
-          gameCamera.target.x + moveX,
-          -clampExtent,
-          clampExtent,
-        );
-        gameCamera.target.z = BABYLON.Scalar.Clamp(
-          gameCamera.target.z + moveZ,
-          -clampExtent,
-          clampExtent,
-        );
+        if (!heroMesh || currentTarget) return;
       });
 
 
@@ -427,25 +407,8 @@
 
 	  
 
-		// 5) Light: a sun-style directional light gives the field a stronger outdoor shadow.
-			const hemi = new BABYLON.HemisphericLight(
-		"hemi",
-		new BABYLON.Vector3(0, 1, 0),
-		scene,
-		);
-		hemi.intensity = 0.1; // Lower ambient keeps map edges moody
-		// hemi.groundColor = new BABYLON.Color3(0.2, 0.25, 0.15); // Warm grass bounce
-
-		const sun = new BABYLON.DirectionalLight(
-		"sun",
-		new BABYLON.Vector3(-0.4, -1, -0.3), // Angled sun direction for long MOBA shadows
-		scene,
-		);
-		sun.position = new BABYLON.Vector3(0, 300, 0);
-		sun.intensity = 0.3;
-			cameraLight = null;
-
-
+		// World lighting is owned by ArenaBuilder; hero-local shadows remain in Hero.
+		cameraLight = null;
 
 	  //shadow
 
@@ -474,6 +437,9 @@
         if (sky) {
           sky.setEnabled(cameraMode !== "debug");
         }
+        if (arenaBuilder) {
+          arenaBuilder.tickTime(engine.getDeltaTime());
+        }
       });
 
       // Load hero character.
@@ -498,6 +464,9 @@
 
       void hero.load().then(() => {
         heroMesh = hero!.mesh;
+        if (arenaBuilder?.lights && heroMesh) {
+          arenaBuilder.lights.addShadowCaster(heroMesh);
+        }
         heroPosition = hero!.position;
         hero!.playAnimation("Idle");
 
@@ -513,12 +482,6 @@
 
       scene.onBeforeRenderObservable.add(() => {
         if (!hero || !hero.mesh) return;
-
-        if (cameraMode === "game" && gameCamera && heroMesh) {
-          const heroPos = heroMesh.position.clone();
-          gameCamera.target.x = BABYLON.Scalar.Lerp(gameCamera.target.x, heroPos.x, 0.08);
-          gameCamera.target.z = BABYLON.Scalar.Lerp(gameCamera.target.z, heroPos.z, 0.08);
-        }
 
         if (mobileMoveVector.x !== 0 || mobileMoveVector.y !== 0) {
           const deadZone = 0.12;
@@ -587,6 +550,7 @@
   debugPoint={debugPoint}
   onCameraChange={(mode: "debug" | "game") => (cameraMode = mode)}
   onMoveInput={applyMobileMovement}
+  onMinimapSelect={handleMinimapSelect}
 />
 
 <canvas bind:this={canvas} class="babylon-canvas"></canvas>

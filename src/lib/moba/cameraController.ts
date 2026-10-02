@@ -1,25 +1,26 @@
 import * as BABYLON from "@babylonjs/core";
 
 export const defaultGameCameraConfig = {
-  alpha: -Math.PI / 4, // Fixed isometric angle (-45 degrees)
-  beta: Math.PI / 3.6,  // Fixed pitch / downward tilt angle
-  radius: 120,          // Fixed distance from hero
+  // -Math.PI / 2 (-90°) looks straight North (+Z), placing an X=Z lane at a clean diagonal
+  alpha: -Math.PI / 2, 
+  beta: Math.PI / 3.2, // ~34° pitch above ground level
+  radius: 150,
 };
 
 /**
- * Locks camera angles and prevents user input from changing alpha, beta, or zoom.
+ * Locks camera angles and completely disables manual camera movement.
  */
 export function configureFixedGameCamera(
   camera: BABYLON.ArcRotateCamera,
   canvas: HTMLCanvasElement,
   settings = defaultGameCameraConfig,
 ) {
-  // 1. Enforce default angle and distance values
+  // 1. Set default angle and distance values
   camera.alpha = settings.alpha;
   camera.beta = settings.beta;
   camera.radius = settings.radius;
 
-  // 2. Strict limits to prevent any rotation/zoom shifts
+  // 2. Lock strict rotation/zoom bounds
   camera.lowerAlphaLimit = settings.alpha;
   camera.upperAlphaLimit = settings.alpha;
   camera.lowerBetaLimit = settings.beta;
@@ -30,21 +31,9 @@ export function configureFixedGameCamera(
   // 3. Disable panning & inertia
   camera.inertia = 0;
   camera.panningSensibility = 0;
-  camera.attachControl(canvas, false);
 
-  // 4. Strip pointer/mouse wheel controls
-  const mouseInput = camera.inputs.attached.mouse as any;
-  const pointerInput = camera.inputs.attached.pointers as any;
-
-  if (mouseInput) {
-    mouseInput.buttons = [];
-    mouseInput.wheelDeltaPercentage = 0;
-    mouseInput.wheelPrecision = 0;
-  }
-
-  if (pointerInput) {
-    pointerInput.buttons = [];
-  }
+  // 4. Strip all default user inputs cleanly
+  camera.inputs.clear();
 }
 
 /**
@@ -64,7 +53,7 @@ export function resetGameCameraToTarget(
 }
 
 /**
- * Recenters camera target on target (e.g. key '1' press).
+ * Recenters camera target smoothly or instantly.
  */
 export function centerCameraOnTarget(
   camera: BABYLON.ArcRotateCamera,
@@ -77,13 +66,12 @@ export function centerCameraOnTarget(
     return;
   }
 
-  // Smooth pan to hero position
   BABYLON.Animation.CreateAndStartAnimation(
     "cameraPanToHero",
     camera,
     "target",
     60,
-    12, // ~0.2s pan time
+    12, // ~0.2s transition
     camera.target.clone(),
     targetPosition.clone(),
     BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT,

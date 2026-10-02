@@ -9,12 +9,14 @@
     debugPoint = { x: 0, y: 0 },
     onCameraChange,
     onMoveInput,
+    onMinimapSelect,
   }: {
     heroPosition?: { x: number; z: number } | null;
     cameraMode?: "debug" | "game";
     debugPoint?: DebugPoint;
     onCameraChange?: (mode: "debug" | "game") => void;
     onMoveInput?: (input: { x: number; y: number }) => void;
+    onMinimapSelect?: (point: { x: number; z: number }) => void;
   } = $props();
 
   const mapSize = 1000;
@@ -54,8 +56,8 @@
     onCameraChange?.(mode);
   }
 
-  let movePadRef: HTMLDivElement | null = null;
-  let activeMovePointerId: number | null = null;
+  let movePadRef: HTMLDivElement | null = $state(null);
+  let activeMovePointerId: number | null = $state(null);
 
   function updateMoveInput(clientX: number, clientY: number) {
     if (!movePadRef) return;
@@ -103,6 +105,20 @@
     }
     onMoveInput?.({ x: 0, y: 0 });
   }
+
+  function handleMinimapClick(event: MouseEvent) {
+    const frame = event.currentTarget as HTMLElement | null;
+    if (!frame) return;
+
+    const rect = frame.getBoundingClientRect();
+    const px = (event.clientX - rect.left) / rect.width;
+    const py = (event.clientY - rect.top) / rect.height;
+
+    const worldX = (px - 0.5) * mapSize;
+    const worldZ = (0.5 - py) * mapSize;
+
+    onMinimapSelect?.({ x: worldX, z: worldZ });
+  }
 </script>
 
 <div class="moba-ui" aria-label="MOBA heads-up display">
@@ -114,7 +130,7 @@
   </div>
 
   <div class="minimap-panel" aria-label="MOBA minimap">
-    <div class="minimap-frame">
+    <div class="minimap-frame" onclick={handleMinimapClick} role="button" tabindex="0" aria-label="Minimap">
       <div class="minimap-grid"></div>
       <div
         class="hero-marker"
@@ -206,6 +222,15 @@
     inset: 0;
     z-index: 20;
     pointer-events: none;
+  }
+
+  .minimap-panel,
+  .minimap-frame,
+  .camera-toolbar,
+  .camera-toolbar button,
+  .move-pad,
+  .action-button {
+    pointer-events: auto;
   }
 
   .bottom-center-hud {
@@ -520,9 +545,9 @@
 
   .minimap-grid {
     position: absolute;
-    inset: 12px;
+    inset: 0px;
     border-radius: 10px;
-    border: 1px solid rgba(138, 235, 170, 0.35);
+    border: 0px solid transparent;
     background:
       linear-gradient(rgba(10, 22, 15, 0.45), rgba(10, 22, 15, 0.45)),
       url("/map.png") center center / cover no-repeat;

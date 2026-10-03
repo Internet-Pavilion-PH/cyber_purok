@@ -1,6 +1,6 @@
 import * as BABYLON from "@babylonjs/core";
 import { GridMaterial } from "@babylonjs/materials";
-import { GrassProceduralTexture } from "@babylonjs/procedural-textures";
+// import { GrassProceduralTexture } from "@babylonjs/procedural-textures";
 import { ArenaLights } from "./lights";
 
 export class ArenaBuilder {
@@ -69,21 +69,25 @@ export class ArenaBuilder {
 
   private createGroundMaterials() {
     const grassMat = new BABYLON.StandardMaterial("grassMat", this.scene);
-    const grassTex = new GrassProceduralTexture("grassTex", 1024, this.scene);
-    grassTex.uScale = 6;
-    grassTex.vScale = 6;
-    grassTex.wrapU = BABYLON.Texture.WRAP_ADDRESSMODE;
-    grassTex.wrapV = BABYLON.Texture.WRAP_ADDRESSMODE;
-    grassTex.anisotropicFilteringLevel = 8;
-    grassMat.diffuseTexture = grassTex;
+
+    // The generative grass texture is left here for reference, but the arena is
+    // intentionally using the authored paint_map.png instead of a generated base.
+    // const grassTex = new GrassProceduralTexture("grassTex", 1024, this.scene);
+    // grassTex.uScale = 6;
+    // grassTex.vScale = 6;
+    // grassTex.wrapU = BABYLON.Texture.WRAP_ADDRESSMODE;
+    // grassTex.wrapV = BABYLON.Texture.WRAP_ADDRESSMODE;
+    // grassTex.anisotropicFilteringLevel = 8;
+    // grassMat.diffuseTexture = grassTex;
+
     grassMat.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
     grassMat.ambientColor = new BABYLON.Color3(0.25, 0.25, 0.25);
 
-    const mapTex = new BABYLON.Texture("/map.png", this.scene);
+    const mapTex = new BABYLON.Texture("/paint_map.png", this.scene);
     mapTex.uScale = 1;
     mapTex.vScale = 1;
     mapTex.hasAlpha = true;
-mapTex.getAlphaFromRGB = true;
+    mapTex.getAlphaFromRGB = true;
     mapTex.wrapU = BABYLON.Texture.WRAP_ADDRESSMODE;
     mapTex.wrapV = BABYLON.Texture.WRAP_ADDRESSMODE;
     grassMat.ambientTexture = mapTex;
@@ -124,7 +128,7 @@ mapTex.getAlphaFromRGB = true;
     overlay.setEnabled(false);
 
     const debugMapMaterial = new BABYLON.StandardMaterial("debugMapMaterial", this.scene);
-    const mapTex = new BABYLON.Texture("/map.png", this.scene);
+    const mapTex = new BABYLON.Texture("/paint_map.png", this.scene);
     mapTex.uScale = 1;
     mapTex.vScale = 1;
     mapTex.hasAlpha = true;

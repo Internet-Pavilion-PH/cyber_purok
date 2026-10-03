@@ -14,6 +14,7 @@
 
   import {
     configureFixedGameCamera,
+    configureMobileFollowCamera,
     defaultGameCameraConfig,
     resetGameCameraToTarget,
   } from "$lib/moba/cameraController";
@@ -339,14 +340,25 @@ fence.rootNode.position = new BABYLON.Vector3(0, 0, 0);
       );
       scene.activeCamera = gameCamera;
 
-      configureFixedGameCamera(gameCamera, canvas);
+      if (isMobile) {
+        configureMobileFollowCamera(gameCamera, heroStartPosition);
+      } else {
+        configureFixedGameCamera(gameCamera, canvas);
+      }
 
       const panSpeed = 50;
       const edgeMargin = 80;
       const clampExtent = cameraBounds;
 
       scene.onBeforeRenderObservable.add(() => {
-        if (cameraMode !== "game" || !gameCamera || !canvas || isMobile) return;
+        if (cameraMode !== "game" || !gameCamera || !canvas) return;
+
+        if (isMobile) {
+          if (heroMesh && !currentTarget) {
+            gameCamera.setTarget(heroMesh.position.clone());
+          }
+          return;
+        }
 
         const pointerX = scene.pointerX;
         const pointerY = scene.pointerY;

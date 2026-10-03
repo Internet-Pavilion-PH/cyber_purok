@@ -9,6 +9,8 @@ import {
   manaRegen,
 } from "$lib/moba/heroStore";
 
+export const ARENA_BOUNDS = 470;
+
 export type HeroAnimationState = "Idle" | "Walking" | "Attack" | "Q" | "W" | "E" | "R";
 
 export interface HeroSkillAnimations {
@@ -312,6 +314,9 @@ export class Hero {
   private updateMovement() {
     if (!this.mesh) return;
 
+    const clampToArena = (value: number) =>
+      BABYLON.Scalar.Clamp(value, -ARENA_BOUNDS, ARENA_BOUNDS);
+
     const hasMoveVector = this.moveDirection.lengthSquared() > 0.0001;
 
     if (hasMoveVector) {
@@ -330,7 +335,9 @@ export class Hero {
           this.config.rotationSpeed,
         );
 
-        this.mesh.position.addInPlace(normalized.scaleInPlace(this.config.moveSpeed * 3.4));
+        this.mesh.position.addInPlace(normalized.scaleInPlace(this.config.moveSpeed));
+        this.mesh.position.x = clampToArena(this.mesh.position.x);
+        this.mesh.position.z = clampToArena(this.mesh.position.z);
 
         if (!this.isMoving) {
           this.isMoving = true;
@@ -364,6 +371,8 @@ export class Hero {
       );
 
       this.mesh.position.addInPlace(direction.scaleInPlace(this.config.moveSpeed));
+      this.mesh.position.x = clampToArena(this.mesh.position.x);
+      this.mesh.position.z = clampToArena(this.mesh.position.z);
 
       if (!this.isMoving) {
         this.isMoving = true;

@@ -37,6 +37,33 @@ export function configureFixedGameCamera(
 }
 
 /**
+ * Mobile variant: keeps the fixed orbit framing but follows the hero position
+ * continuously instead of allowing free camera panning.
+ */
+export function configureMobileFollowCamera(
+  camera: BABYLON.ArcRotateCamera,
+  target: BABYLON.Vector3,
+  settings = defaultGameCameraConfig,
+) {
+  camera.alpha = settings.alpha;
+  camera.beta = settings.beta;
+  camera.radius = settings.radius;
+
+  camera.lowerAlphaLimit = settings.alpha;
+  camera.upperAlphaLimit = settings.alpha;
+  camera.lowerBetaLimit = settings.beta;
+  camera.upperBetaLimit = settings.beta;
+  camera.lowerRadiusLimit = settings.radius;
+  camera.upperRadiusLimit = settings.radius;
+
+  camera.inertia = 0;
+  camera.panningSensibility = 0;
+  camera.inputs.clear();
+  camera.setTarget(target.clone());
+  camera.upVector = BABYLON.Vector3.Up();
+}
+
+/**
  * Resets camera target position while keeping fixed orientation locked.
  */
 export function resetGameCameraToTarget(

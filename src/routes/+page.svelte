@@ -10,6 +10,7 @@
   import { Creep } from "$lib/moba/creeps";
   import { ArenaBuilder } from "$lib/moba/arenaBuilder";
   import { Fence } from "$lib/moba/fence";
+  import { Tree } from "$lib/moba/tree";
   
 
   import {
@@ -247,6 +248,24 @@
         }
       });
 
+      //trees
+      const tree1 = new Tree(scene, new BABYLON.Vector3(-110, 0, -220), 10, 2);
+      const tree2 = new Tree(scene, new BABYLON.Vector3(-61, 0, -322), 12, 2.5);
+      const tree3 = new Tree(scene, new BABYLON.Vector3(-11, 0, -298), 8, 1.8);
+      const tree4 = new Tree(scene, new BABYLON.Vector3(-36, 0, -407), 8, 1.8);
+
+      if (arenaBuilder?.lights) {
+        for (const mesh of tree1.rootNode.getChildMeshes()) {
+          arenaBuilder.lights.addShadowCaster(mesh);
+        }
+        for (const mesh of tree2.rootNode.getChildMeshes()) {
+          arenaBuilder.lights.addShadowCaster(mesh);
+        }
+        for (const mesh of tree3.rootNode.getChildMeshes()) {
+          arenaBuilder.lights.addShadowCaster(mesh);
+        }
+      }
+
       //tower
       const tower = new Tower(scene, new BABYLON.Vector3(-216, -0, -216), 50, 2, 40, Math.PI / 4);
       const tower2 = new Tower(scene, new BABYLON.Vector3(-100, -0, -100), 50, 2, 40, Math.PI / 4);
@@ -453,6 +472,11 @@ fence.rootNode.position = new BABYLON.Vector3(0, 0, 0);
           arenaBuilder.tickTime(engine.getDeltaTime());
         }
       });
+
+
+
+      //trees
+
 
       // Load hero character.
       hero = new Hero(scene, {

@@ -5,16 +5,12 @@
 
   let {
     heroPosition = null,
-    cameraMode = "debug",
     debugPoint = { x: 0, y: 0 },
-    onCameraChange,
     onMoveInput,
     onMinimapSelect,
   }: {
     heroPosition?: { x: number; z: number } | null;
-    cameraMode?: "debug" | "game";
     debugPoint?: DebugPoint;
-    onCameraChange?: (mode: "debug" | "game") => void;
     onMoveInput?: (input: { x: number; y: number }) => void;
     onMinimapSelect?: (point: { x: number; z: number }) => void;
   } = $props();
@@ -51,10 +47,6 @@
         }
       : { x: 50, z: 50 },
   );
-
-  function setCameraMode(mode: "debug" | "game") {
-    onCameraChange?.(mode);
-  }
 
   let movePadRef: HTMLDivElement | null = $state(null);
   let activeMovePointerId: number | null = $state(null);
@@ -119,6 +111,23 @@
 
     onMinimapSelect?.({ x: worldX, z: worldZ });
   }
+
+  function handleMinimapKeydown(event: KeyboardEvent) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+
+    const frame = event.currentTarget as HTMLElement | null;
+    if (!frame) return;
+
+    event.preventDefault();
+    const rect = frame.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+
+    const worldX = ((cx - rect.left) / rect.width - 0.5) * mapSize;
+    const worldZ = (0.5 - (cy - rect.top) / rect.height) * mapSize;
+
+    onMinimapSelect?.({ x: worldX, z: worldZ });
+  }
 </script>
 
 <div class="moba-ui" aria-label="MOBA heads-up display">
@@ -130,7 +139,14 @@
   </div>
 
   <div class="minimap-panel" aria-label="MOBA minimap">
-    <div class="minimap-frame" onclick={handleMinimapClick} role="button" tabindex="0" aria-label="Minimap">
+    <div
+      class="minimap-frame"
+      onclick={handleMinimapClick}
+      onkeydown={handleMinimapKeydown}
+      role="button"
+      tabindex="0"
+      aria-label="Minimap"
+    >
       <div class="minimap-grid"></div>
       <div
         class="hero-marker"
@@ -138,6 +154,11 @@
         style:--marker-y={`${normalized.z}%`}
         aria-label="Hero location"
       ></div>
+    </div>
+
+    <div class="ground-coords" aria-live="polite">
+      <div>x: {debugPoint.x}</div>
+      <div>y: {debugPoint.y}</div>
     </div>
   </div>
 
@@ -198,21 +219,7 @@
   </div>
 
   {#if !isMobile}
-    <div class="right-panel">
-      <div class="debug-readout" aria-live="polite">
-        <div>x: {debugPoint.x}</div>
-        <div>y: {debugPoint.y}</div>
-      </div>
-
-      <div class="camera-toolbar" aria-label="Camera mode toggle">
-        <button class:active={cameraMode === "debug"} onclick={() => setCameraMode("debug")}>
-          Debug
-        </button>
-        <button class:active={cameraMode === "game"} onclick={() => setCameraMode("game")}>
-          Game
-        </button>
-      </div>
-    </div>
+    <div class="right-panel"></div>
   {/if}
 </div>
 
@@ -226,8 +233,6 @@
 
   .minimap-panel,
   .minimap-frame,
-  .camera-toolbar,
-  .camera-toolbar button,
   .move-pad,
   .action-button {
     pointer-events: auto;
@@ -444,28 +449,6 @@
     gap: 8px;
   }
 
-  .camera-toolbar {
-    display: flex;
-    gap: 8px;
-    pointer-events: auto;
-  }
-
-  .camera-toolbar button {
-    padding: 6px 10px;
-    border: 1px solid rgba(125, 221, 141, 0.5);
-    background: rgba(12, 26, 18, 0.7);
-    color: #dfffe6;
-    border-radius: 999px;
-    cursor: pointer;
-    font: 11px/1.1 inherit;
-  }
-
-  .camera-toolbar button.active {
-    background: rgba(76, 218, 105, 0.9);
-    border-color: rgba(170, 255, 186, 1);
-    color: #06290d;
-  }
-
   .top-center-clock {
     position: absolute;
     top: 12px;
@@ -486,14 +469,6 @@
     box-shadow: inset 0 0 0 1px rgba(170, 255, 186, 0.08), 0 8px 18px rgba(0, 0, 0, 0.2);
   }
 
-  .clock-label {
-    font-size: 9px;
-    letter-spacing: 0.18em;
-    color: #d7ffe4;
-    text-transform: uppercase;
-    opacity: 0.9;
-  }
-
   .clock-time {
     font-size: 1.1rem;
     font-weight: 700;
@@ -506,7 +481,22 @@
     position: absolute;
     top: 16px;
     left: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
     pointer-events: none;
+  }
+
+  .ground-coords {
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: rgba(7, 20, 12, 0.72);
+    border: 1px solid rgba(128, 233, 156, 0.45);
+    color: #dfffe6;
+    font: 12px/1.5 monospace;
+    min-width: 120px;
+    box-shadow: inset 0 0 14px rgba(95, 255, 142, 0.08);
   }
 
   .minimap-frame {
@@ -570,17 +560,6 @@
     transform: translateZ(0);
   }
 
-  .debug-readout {
-    padding: 10px 12px;
-    border-radius: 10px;
-    background: rgba(7, 20, 12, 0.72);
-    border: 1px solid rgba(128, 233, 156, 0.45);
-    color: #dfffe6;
-    font: 12px/1.5 monospace;
-    min-width: 120px;
-    box-shadow: inset 0 0 14px rgba(95, 255, 142, 0.08);
-  }
-
   @media (max-width: 900px) {
     .minimap-frame {
       width: 120px;
@@ -590,10 +569,6 @@
     .clock-pill {
       gap: 6px;
       padding: 5px 12px;
-    }
-
-    .clock-label {
-      letter-spacing: 0.12em;
     }
 
     .clock-time {
@@ -620,8 +595,5 @@
       padding: 4px 10px;
     }
 
-    .clock-label {
-      font-size: 8px;
-    }
   }
 </style>

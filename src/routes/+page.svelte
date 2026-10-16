@@ -30,16 +30,13 @@
 
   let canvas: HTMLCanvasElement;
   let heroPosition: HeroPosition = { x: 0, z: 0 };
-  let cameraMode: "debug" | "game" = "game";
   let sceneRef: BABYLON.Scene | null = null;
-  let debugCamera: BABYLON.ArcRotateCamera | null = null;
   let gameCamera: BABYLON.ArcRotateCamera | null = null;
   let heroMesh: BABYLON.AbstractMesh | null = null;
   let debugPoint = { x: 0, y: 0 };
   let groundMesh: BABYLON.Mesh | null = null;
   let wallMeshes: BABYLON.Mesh[] = [];
   let gameGroundMaterial: BABYLON.StandardMaterial | null = null;
-  let debugGroundMaterial: BABYLON.Material | null = null;
   let arenaBuilder: ArenaBuilder | null = null;
   let currentTarget: BABYLON.Vector3 | null = null;
   let cameraLight: BABYLON.SpotLight | null = null;
@@ -84,51 +81,36 @@
   };
 
   const preventGameWheel: EventListener = (event) => {
-    if (cameraMode !== "game") return;
     const wheelEvent = event as WheelEvent;
     wheelEvent.stopPropagation();
   };
 
-  $: if (
-    sceneRef &&
-    debugCamera &&
-    gameCamera &&
-    gameGroundMaterial &&
-    debugGroundMaterial
-  ) {
+  $: if (sceneRef && gameCamera && gameGroundMaterial) {
     if (arenaBuilder) {
-      arenaBuilder.updateCameraMode(cameraMode);
+      arenaBuilder.updateCameraMode();
     }
 
-    sceneRef.activeCamera = cameraMode === "debug" ? debugCamera : gameCamera;
+    sceneRef.activeCamera = gameCamera;
     if (cameraLight) {
-      cameraLight.parent = cameraMode === "debug" ? debugCamera : gameCamera;
+      cameraLight.parent = gameCamera;
       cameraLight.position = new BABYLON.Vector3(0, 10, 0);
       cameraLight.direction = new BABYLON.Vector3(0, -1, 0.35);
     }
-    const activeGroundMaterial =
-      cameraMode === "debug" ? debugGroundMaterial : gameGroundMaterial;
     if (groundMesh) {
-      groundMesh.material = activeGroundMaterial;
+      groundMesh.material = gameGroundMaterial;
     }
     wallMeshes.forEach((wall) => {
-      wall.material = activeGroundMaterial;
+      wall.material = gameGroundMaterial;
     });
-    debugCamera.detachControl();
     gameCamera.detachControl();
-    if (cameraMode === "debug") {
-      debugCamera.attachControl(canvas, true);
-      canvas.removeEventListener("wheel", preventGameWheel);
-    } else {
-      const gameMouseInput = gameCamera.inputs.attached.mouse as any;
-      if (gameMouseInput) {
-        gameMouseInput.wheelDeltaPercentage = 0;
-        gameMouseInput.wheelPrecision = 0;
-      }
-      gameCamera.wheelPrecision = 0;
-      canvas.addEventListener("wheel", preventGameWheel, { passive: true });
-      gameCamera.attachControl(canvas, true);
+    const gameMouseInput = gameCamera.inputs.attached.mouse as any;
+    if (gameMouseInput) {
+      gameMouseInput.wheelDeltaPercentage = 0;
+      gameMouseInput.wheelPrecision = 0;
     }
+    gameCamera.wheelPrecision = 0;
+    canvas.addEventListener("wheel", preventGameWheel, { passive: true });
+    gameCamera.attachControl(canvas, true);
   }
 
   onMount(() => {
@@ -157,7 +139,9 @@
 
     const engine = new BABYLON.Engine(canvas, true);
     BABYLON.SceneLoader.ShowLoadingScreen = true;
-    engine.loadingScreen = new CustomLoadingScreen("/cyber_purok.png");
+    const loadingScreen = new CustomLoadingScreen("/cyber_purok.png");
+    engine.loadingScreen = loadingScreen;
+    loadingScreen.displayLoadingUI();
 
     const createScene = () => {
       const scene = new BABYLON.Scene(engine);
@@ -170,11 +154,10 @@
       const groundHalfWidth = groundWidth / 2;
       const groundHalfHeight = groundHeight / 2;
 
-      arenaBuilder = new ArenaBuilder(scene, cameraMode);
+      arenaBuilder = new ArenaBuilder(scene);
       groundMesh = arenaBuilder.ground;
       wallMeshes = arenaBuilder.walls;
       gameGroundMaterial = arenaBuilder.gameGroundMaterial;
-      debugGroundMaterial = arenaBuilder.debugGroundMaterial;
 
       
 
@@ -237,32 +220,35 @@
 
         const point = pick.pickedPoint;
         debugPoint = {
-          x: Number(point.x.toFixed(2)),
-          y: Number(point.z.toFixed(2)),
+          x: Math.round(point.x),
+          y: Math.round(point.z),
         };
 
-        if (cameraMode === "game") {
-          if (event.event.button !== 2) return;
-          currentTarget = new BABYLON.Vector3(point.x, 0, point.z);
-          spawnDirectionPulse(new BABYLON.Vector3(point.x, 0, point.z));
-        }
+        if (event.event.button !== 2) return;
+        currentTarget = new BABYLON.Vector3(point.x, 0, point.z);
+        spawnDirectionPulse(new BABYLON.Vector3(point.x, 0, point.z));
       });
 
       //trees
-      const tree1 = new Tree(scene, new BABYLON.Vector3(-110, 0, -220), 10, 2);
-      const tree2 = new Tree(scene, new BABYLON.Vector3(-61, 0, -322), 12, 2.5);
-      const tree3 = new Tree(scene, new BABYLON.Vector3(-11, 0, -298), 8, 1.8);
-      const tree4 = new Tree(scene, new BABYLON.Vector3(-36, 0, -407), 8, 1.8);
+      const treePositions = [
+        { x: -110, z: -220, scale: 10, height: 2 },
+        { x: -61, z: -322, scale: 12, height: 2.5 },
+        { x: -11, z: -298, scale: 8, height: 1.8 },
+        { x: -36, z: -407, scale: 8, height: 1.8 },
+        { x: 185, z: -394, scale: 8, height: 1.8 },
+         { x: -11, z: -170, scale: 8, height: 1.8 },
+           { x: 76, z: -300, scale: 20, height: 3 },
+      ];
+
+      const trees = treePositions.map(({ x, z, scale, height }) =>
+        new Tree(scene, new BABYLON.Vector3(x, 0, z), scale, height),
+      );
 
       if (arenaBuilder?.lights) {
-        for (const mesh of tree1.rootNode.getChildMeshes()) {
-          arenaBuilder.lights.addShadowCaster(mesh);
-        }
-        for (const mesh of tree2.rootNode.getChildMeshes()) {
-          arenaBuilder.lights.addShadowCaster(mesh);
-        }
-        for (const mesh of tree3.rootNode.getChildMeshes()) {
-          arenaBuilder.lights.addShadowCaster(mesh);
+        for (const tree of trees) {
+          for (const mesh of tree.rootNode.getChildMeshes()) {
+            arenaBuilder.lights.addShadowCaster(mesh);
+          }
         }
       }
 
@@ -328,25 +314,7 @@ if (arenaBuilder?.lights) {
 }
 
 fence.rootNode.position = new BABYLON.Vector3(0, 0, 0);
-      // TOP-DOWN DEBUG CAMERA
       const heroStartPosition = new BABYLON.Vector3(-380, 0, -380);
-
-      debugCamera = new BABYLON.ArcRotateCamera(
-        "debugCamera",
-        -Math.PI / 2,
-        0.001,
-        300,
-        new BABYLON.Vector3(0, 0, 0),
-        scene,
-      );
-
-      debugCamera.attachControl(canvas, true);
-
-      debugCamera.panningSensibility = 15;
-      debugCamera.wheelPrecision = 1;
-      debugCamera.inertia = 0.05;
-      debugCamera.lowerBetaLimit = 0.001;
-      debugCamera.upperBetaLimit = Math.PI / 2.1;
 
       // GAME CAMERA SETUP
       gameCamera = new BABYLON.ArcRotateCamera(
@@ -370,7 +338,7 @@ fence.rootNode.position = new BABYLON.Vector3(0, 0, 0);
       const clampExtent = cameraBounds;
 
       scene.onBeforeRenderObservable.add(() => {
-        if (cameraMode !== "game" || !gameCamera || !canvas) return;
+        if (!gameCamera || !canvas) return;
 
         if (isMobile) {
           if (heroMesh && !currentTarget) {
@@ -446,7 +414,7 @@ fence.rootNode.position = new BABYLON.Vector3(0, 0, 0);
       // Keep the sun for general scene lighting, but do not depend on a cascaded shadow map
       // for the hero. A local point-light shadow under the character is much more reliable.
 
-      // 6) Sky: simple atmospheric backdrop, but hidden in debug mode for map clarity.
+      // 6) Sky: simple atmospheric backdrop.
       scene.clearColor = new BABYLON.Color4(0.04, 0.1, 0.16, 1.0);
       const sky = BABYLON.MeshBuilder.CreateSphere(
         "sky",
@@ -456,7 +424,7 @@ fence.rootNode.position = new BABYLON.Vector3(0, 0, 0);
       sky.position = new BABYLON.Vector3(0, 0, 0);
       sky.infiniteDistance = true;
       sky.isPickable = false;
-      sky.setEnabled(cameraMode !== "debug");
+      sky.setEnabled(true);
 
       const skyMaterial = new BABYLON.StandardMaterial("skyMaterial", scene);
       skyMaterial.backFaceCulling = false;
@@ -466,7 +434,7 @@ fence.rootNode.position = new BABYLON.Vector3(0, 0, 0);
 
       scene.onBeforeRenderObservable.add(() => {
         if (sky) {
-          sky.setEnabled(cameraMode !== "debug");
+          sky.setEnabled(true);
         }
         if (arenaBuilder) {
           arenaBuilder.tickTime(engine.getDeltaTime());
@@ -506,14 +474,13 @@ fence.rootNode.position = new BABYLON.Vector3(0, 0, 0);
         heroPosition = hero!.position;
         hero!.playAnimation("Idle");
 
-        if (debugCamera) {
-          debugCamera.setTarget(hero!.mesh!.position);
-        }
         resetGameCameraToHero();
         BABYLON.SceneLoader.ShowLoadingScreen = false;
+        loadingScreen.hideLoadingUI();
       }).catch((error) => {
         console.error("Hero failed to load:", error);
         BABYLON.SceneLoader.ShowLoadingScreen = false;
+        loadingScreen.hideLoadingUI();
       });
 
       scene.onBeforeRenderObservable.add(() => {
@@ -554,12 +521,8 @@ fence.rootNode.position = new BABYLON.Vector3(0, 0, 0);
 
 	
 
-    scene.activeCamera = cameraMode === "debug" ? debugCamera : gameCamera;
-    if (cameraMode === "debug") {
-      debugCamera?.attachControl(canvas, true);
-    } else {
-      gameCamera?.attachControl(canvas, true);
-    }
+    scene.activeCamera = gameCamera;
+    gameCamera?.attachControl(canvas, true);
 
     engine.runRenderLoop(() => {
       scene.render();
@@ -582,9 +545,7 @@ fence.rootNode.position = new BABYLON.Vector3(0, 0, 0);
 
 <Ui_Moba
   heroPosition={heroPosition}
-  cameraMode={cameraMode}
   debugPoint={debugPoint}
-  onCameraChange={(mode: "debug" | "game") => (cameraMode = mode)}
   onMoveInput={applyMobileMovement}
   onMinimapSelect={handleMinimapSelect}
 />

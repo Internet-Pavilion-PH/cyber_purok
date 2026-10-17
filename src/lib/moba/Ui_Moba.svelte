@@ -156,10 +156,12 @@
       ></div>
     </div>
 
-    <div class="ground-coords" aria-live="polite">
-      <div>x: {debugPoint.x}</div>
-      <div>y: {debugPoint.y}</div>
-    </div>
+    {#if !isMobile}
+      <div class="ground-coords" aria-live="polite">
+        <div>x: {debugPoint.x}</div>
+        <div>y: {debugPoint.y}</div>
+      </div>
+    {/if}
   </div>
 
   <div class="bottom-center-hud" class:mobile-layout={isMobile} aria-label="Hero abilities and portrait">

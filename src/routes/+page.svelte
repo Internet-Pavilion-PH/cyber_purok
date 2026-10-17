@@ -5,12 +5,14 @@
   import * as ADDONS from "@babylonjs/addons";
   import "@babylonjs/loaders/glTF";
   import { CustomLoadingScreen } from "$lib/CustomLoadingScreen";
+  import { preloadAssets } from "$lib/assetPreloader";
   import { Hero } from "$lib/moba/hero";
   import { Tower } from "$lib/moba/tower";
   import { Creep } from "$lib/moba/creeps";
   import { ArenaBuilder } from "$lib/moba/arenaBuilder";
   import { Fence } from "$lib/moba/fence";
   import { Tree } from "$lib/moba/tree";
+  import {PlaceModel} from "$lib/moba/placeModel";
   
 
   import {
@@ -25,6 +27,7 @@
     isSkillKey,
   } from "$lib/moba/keyboard";
   import Ui_Moba from "$lib/moba/Ui_Moba.svelte";
+  
 
   type HeroPosition = { x: number; z: number };
 
@@ -252,6 +255,18 @@
         }
       }
 
+      //glb
+
+      //
+      const fountain = new PlaceModel(scene, "Fountain.glb", new BABYLON.Vector3(-451, 1, -413), {
+        scaleFactor: 3,
+      });
+
+           const statue = new PlaceModel(scene, "roger.glb", new BABYLON.Vector3(-128, 1, -67), {
+        scaleFactor: 4,
+        rotation: new BABYLON.Vector3(0, Math.PI /2, 0),
+      });
+
       //tower
       const tower = new Tower(scene, new BABYLON.Vector3(-216, -0, -216), 50, 2, 40, Math.PI / 4);
       const tower2 = new Tower(scene, new BABYLON.Vector3(-100, -0, -100), 50, 2, 40, Math.PI / 4);
@@ -278,21 +293,26 @@
         const blueBasePos = new BABYLON.Vector3(200, 0, 200);
         const redBasePos = new BABYLON.Vector3(-386, 0, -386);
 
-        // Player-side lane: red base pushes toward blue base.
-        const redLaneCreeps = Creep.spawnGroup(scene, redBasePos, blueBasePos, 3, 10);
-        if (arenaBuilder?.lights) {
-          for (const creep of redLaneCreeps) {
-            arenaBuilder.lights.addShadowCaster(creep.mesh);
-          }
-        }
+        const spawnLaneCreeps = () => {
+          // Player-side lane: red base pushes toward blue base.
 
-        // Enemy-side lane: blue base pushes toward red base.
-        const blueLaneCreeps = Creep.spawnGroup(scene, blueBasePos, redBasePos, 3, 10);
-        if (arenaBuilder?.lights) {
-          for (const creep of blueLaneCreeps) {
-            arenaBuilder.lights.addShadowCaster(creep.mesh);
+          // const redLaneCreeps = Creep.spawnGroup(scene, redBasePos, blueBasePos, 3, 10);
+          // if (arenaBuilder?.lights) {
+          //   for (const creep of redLaneCreeps) {
+          //     arenaBuilder.lights.addShadowCaster(creep.mesh);
+          //   }
+          // }
+
+          // Enemy-side lane: blue base pushes toward red base.
+          const blueLaneCreeps = Creep.spawnGroup(scene, blueBasePos, redBasePos, 10, 30);
+          if (arenaBuilder?.lights) {
+            for (const creep of blueLaneCreeps) {
+              arenaBuilder.lights.addShadowCaster(creep.mesh);
+            }
           }
-        }
+        };
+
+        window.setTimeout(spawnLaneCreeps, 20000);
 
 //fence
 
@@ -300,8 +320,8 @@ const fence = new Fence(
   scene,
   [
     { x: -67, z: -406 },
-    { x: -79, z: -353 },
-    { x: -179, z: -227 },
+    { x: -100, z: -353 },
+    { x: -194, z: -236 },
   ],
   30,   // height
   1,  // post radius
@@ -312,9 +332,28 @@ const fence = new Fence(
 if (arenaBuilder?.lights) {
   fence.addShadowCasters(arenaBuilder.lights.shadowGen);
 }
-
 fence.rootNode.position = new BABYLON.Vector3(0, 0, 0);
-      const heroStartPosition = new BABYLON.Vector3(-380, 0, -380);
+      
+const fence2 = new Fence(
+  scene,
+  [
+    { x: -244, z: -190 },
+    { x: -290, z: -174 },
+    { x: -408, z: -127},
+  ],
+  30,   // height
+  1,  // post radius
+  1, // rail radius
+  0,    // base Y
+);
+
+if (arenaBuilder?.lights) {
+  fence2.addShadowCasters(arenaBuilder.lights.shadowGen);
+}
+fence2.rootNode.position = new BABYLON.Vector3(0, 0, 0);
+
+
+const heroStartPosition = new BABYLON.Vector3(-380, 0, -380);
 
       // GAME CAMERA SETUP
       gameCamera = new BABYLON.ArcRotateCamera(
@@ -466,22 +505,26 @@ fence.rootNode.position = new BABYLON.Vector3(0, 0, 0);
         },
       });
 
-      void hero.load().then(() => {
-        heroMesh = hero!.mesh;
-        if (arenaBuilder?.lights && heroMesh) {
-          arenaBuilder.lights.addShadowCaster(heroMesh);
-        }
-        heroPosition = hero!.position;
-        hero!.playAnimation("Idle");
+      const preloadTasks = [fountain.load(), hero.load(), statue.load()];
 
-        resetGameCameraToHero();
-        BABYLON.SceneLoader.ShowLoadingScreen = false;
-        loadingScreen.hideLoadingUI();
-      }).catch((error) => {
-        console.error("Hero failed to load:", error);
-        BABYLON.SceneLoader.ShowLoadingScreen = false;
-        loadingScreen.hideLoadingUI();
-      });
+      void preloadAssets(preloadTasks)
+        .then(() => {
+          heroMesh = hero!.mesh;
+          if (arenaBuilder?.lights && heroMesh) {
+            arenaBuilder.lights.addShadowCaster(heroMesh);
+          }
+          heroPosition = hero!.position;
+          hero!.playAnimation("Idle");
+
+          resetGameCameraToHero();
+          BABYLON.SceneLoader.ShowLoadingScreen = false;
+          loadingScreen.hideLoadingUI();
+        })
+        .catch((error) => {
+          console.error("Game assets failed to preload:", error);
+          BABYLON.SceneLoader.ShowLoadingScreen = false;
+          loadingScreen.hideLoadingUI();
+        });
 
       scene.onBeforeRenderObservable.add(() => {
         if (!hero || !hero.mesh) return;

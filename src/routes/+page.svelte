@@ -29,7 +29,6 @@
   } from "$lib/moba/keyboard";
   import Ui_Moba from "$lib/moba/Ui_Moba.svelte";
   
-
   type HeroPosition = { x: number; z: number };
 
   let canvas: HTMLCanvasElement;

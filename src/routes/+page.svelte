@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import * as BABYLON from "@babylonjs/core";
   import * as GUI from "@babylonjs/gui";
+  import { MultiplayerSocket } from "$lib/socket";
   import * as ADDONS from "@babylonjs/addons";
   import "@babylonjs/loaders/glTF";
   import { CustomLoadingScreen } from "$lib/CustomLoadingScreen";
@@ -44,6 +45,16 @@
   let currentTarget: BABYLON.Vector3 | null = null;
   let cameraLight: BABYLON.SpotLight | null = null;
   let hero: Hero | null = null;
+  let remoteHeroes = new Map<string, Hero>();
+  const loadingRemoteIds = new Set<string>();
+  // Server spawns everyone at (0,0) and integrates moveX*0.3, so we send deltas and offset by our start.
+  const SPAWN_OFFSET = -380;
+  const SERVER_STEP = 0.3;
+  let lastSentAt = 0;
+  let lastSentPos: { x: number; z: number } | null = null;
+  let lastSentYaw = 0;
+  let multiplayerSocket: MultiplayerSocket | null = null;
+  let localPlayerId: string | null = null;
   let keyboardController: ReturnType<typeof createKeyboardController> | null = null;
   let mobileMoveVector = { x: 0, y: 0 };
   let isCameraEdgePanning = false;
@@ -83,6 +94,62 @@
     hero?.setTarget(null);
   };
 
+  const ensureRemoteHero = async (player: {
+    id: string;
+    name: string;
+    x: number;
+    y: number;
+    z: number;
+    yaw: number;
+    hp: number;
+  }) => {
+    if (!sceneRef) return;
+    if (player.id === localPlayerId) return;
+
+    let remoteHero = remoteHeroes.get(player.id);
+    if (!remoteHero) {
+      if (loadingRemoteIds.has(player.id)) return;
+      loadingRemoteIds.add(player.id);
+      remoteHero = new Hero(sceneRef, {
+        id: player.id,
+        name: player.name,
+        moveSpeed: 0.15,
+        rotationSpeed: 0.08,
+        spawnPosition: new BABYLON.Vector3(player.x + SPAWN_OFFSET, 0, player.z + SPAWN_OFFSET),
+        modelUrl: "",
+        fileName: "JFK_2.glb",
+        forwardOffset: Math.PI,
+        idleAnimationName: "mixamo_gangnam",
+        walkAnimationName: "mixamo_catwalk",
+        skillAnimations: {
+          q: "mixamo_arms hiphop dancing",
+          w: "mixamo_arms hiphop dancing.002",
+          e: "E",
+          r: "R",
+        },
+      });
+
+      try {
+        await remoteHero.load(arenaBuilder?.lights?.shadowGen);
+        if (arenaBuilder?.lights && remoteHero.mesh) {
+          arenaBuilder.lights.addShadowCaster(remoteHero.mesh);
+        }
+        remoteHeroes.set(player.id, remoteHero);
+        remoteHero.playAnimation("Idle");
+      } catch (error) {
+        console.error("Failed to load remote hero", player.id, error);
+        return;
+      } finally {
+        loadingRemoteIds.delete(player.id);
+      }
+    }
+
+    if (remoteHero.mesh) {
+      remoteHero.mesh.position.set(player.x + SPAWN_OFFSET, 0, player.z + SPAWN_OFFSET);
+      remoteHero.mesh.rotation.y = player.yaw;
+    }
+  };
+
   const preventGameWheel: EventListener = (event) => {
     const wheelEvent = event as WheelEvent;
     wheelEvent.stopPropagation();
@@ -117,6 +184,43 @@
   }
 
   onMount(() => {
+    multiplayerSocket = new MultiplayerSocket();
+    multiplayerSocket.connect({
+      userId: "local-player",
+      name: "Player Hero",
+      onWelcome: (message) => {
+        localPlayerId = message.you;
+        if (hero) {
+          hero.config.id = message.you;
+        }
+        console.log("welcome", message);
+      },
+      onState: (message) => {
+        console.log("remote players", localPlayerId, message.players.filter((p) => p.id !== localPlayerId).map((p) => `${p.id}:${p.x.toFixed(1)},${p.z.toFixed(1)}`));
+        message.players.forEach((player) => {
+          if (player.id === localPlayerId) return;
+
+          void ensureRemoteHero(player);
+        });
+
+        remoteHeroes.forEach((remoteHero, playerId) => {
+          const matchingPlayer = message.players.find((player) => player.id === playerId);
+          if (!matchingPlayer && remoteHero.mesh) {
+            remoteHero.dispose();
+            remoteHeroes.delete(playerId);
+          }
+        });
+      },
+      onPresence: (message) => {
+        console.log("presence", message);
+      },
+      onError: (event) => {
+        console.error("multiplayer socket error", event);
+      },
+    });
+
+    console.log("multiplayer socket created", multiplayerSocket);
+
     keyboardController = createKeyboardController((key, isPressed) => {
       if (!isPressed) return;
 
@@ -555,6 +659,21 @@ const heroStartPosition = new BABYLON.Vector3(-380, 0, -380);
 
         hero.update(scene.getEngine().getDeltaTime() / 1000);
         heroPosition = hero.position;
+
+        const now = performance.now();
+        if (multiplayerSocket?.connected && now - lastSentAt > 50) {
+          const pos = hero.position;
+          const yaw = hero.mesh.rotation.y;
+          const prev = lastSentPos ?? pos;
+          const dx = pos.x - prev.x;
+          const dz = pos.z - prev.z;
+          if (dx !== 0 || dz !== 0 || yaw !== lastSentYaw) {
+            multiplayerSocket.sendMove(dx / SERVER_STEP, dz / SERVER_STEP, yaw);
+          }
+          lastSentPos = { x: pos.x, z: pos.z };
+          lastSentYaw = yaw;
+          lastSentAt = now;
+        }
       });
 
       return scene;
@@ -580,6 +699,9 @@ const heroStartPosition = new BABYLON.Vector3(-380, 0, -380);
     return () => {
       window.removeEventListener("resize", handleResize);
       keyboardController?.dispose();
+      multiplayerSocket?.close();
+      remoteHeroes.forEach((remoteHero) => remoteHero.dispose());
+      remoteHeroes.clear();
       scene.dispose();
       engine.dispose();
     };

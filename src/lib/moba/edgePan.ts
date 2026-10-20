@@ -19,6 +19,12 @@ export const attachEdgePan = ({
   panSpeed = 50,
   edgeMargin = 80,
 }: EdgePanOptions) => {
+  let pointerInsideCanvas = true;
+
+  const updatePointerState = () => {
+    pointerInsideCanvas = canvas.matches(':hover');
+  };
+
   // Returns -1..0..1 depending on how deep the pointer is inside the edge margin.
   const edgeAxis = (pos: number, size: number) => {
     if (pos < edgeMargin) return -((edgeMargin - pos) / edgeMargin);
@@ -26,7 +32,18 @@ export const attachEdgePan = ({
     return 0;
   };
 
+  canvas.addEventListener('pointerenter', updatePointerState);
+  canvas.addEventListener('pointerleave', () => {
+    pointerInsideCanvas = false;
+  });
+  window.addEventListener('blur', () => {
+    pointerInsideCanvas = false;
+  });
+  window.addEventListener('focus', updatePointerState);
+
   scene.onBeforeRenderObservable.add(() => {
+    if (!pointerInsideCanvas) return;
+
     const panX = edgeAxis(scene.pointerX, canvas.width);
     const panY = edgeAxis(scene.pointerY, canvas.height);
     if (panX === 0 && panY === 0) return;

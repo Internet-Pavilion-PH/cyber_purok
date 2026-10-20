@@ -8,15 +8,19 @@
     remoteMarkers = [],
     onlinePlayers = [],
     debugPoint = { x: 0, y: 0 },
+    serverConnected = false,
     onMoveInput,
     onMinimapSelect,
+    onReconnect,
   }: {
     heroPosition?: { x: number; z: number } | null;
     remoteMarkers?: { id: string; name: string; x: number; z: number; color: string }[];
     onlinePlayers?: Array<{ id: string; name: string }>;
     debugPoint?: DebugPoint;
+    serverConnected?: boolean;
     onMoveInput?: (input: { x: number; y: number }) => void;
     onMinimapSelect?: (point: { x: number; z: number }) => void;
+    onReconnect?: () => void;
   } = $props();
 
   const mapSize = 1000;
@@ -196,6 +200,13 @@
 
   <aside class="right-panel" aria-label="Online players">
     <div class="players-panel">
+      <div class="connection-status" aria-live="polite">
+        {#if !serverConnected}
+          <span class="status-dot offline"></span>
+          <span class="status-label">Server offline</span>
+          <button class="reconnect-button" type="button" onclick={onReconnect}>Reconnect</button>
+        {/if}
+      </div>
       <div class="players-header">Online</div>
       {#if onlinePlayers.length === 0}
         <div class="player-empty">No players yet</div>
@@ -246,6 +257,47 @@
     border: none;
     box-shadow: none;
     color: #ebfff1;
+  }
+
+  .connection-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #d7ffe3;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 10px rgba(126, 252, 154, 0.8);
+  }
+
+  .status-dot.offline {
+    background: #ff7b7b;
+    box-shadow: 0 0 10px rgba(255, 123, 123, 0.8);
+  }
+
+  .status-label {
+    flex: 1;
+    white-space: nowrap;
+  }
+
+  .reconnect-button {
+    border: 1px solid rgba(163, 255, 187, 0.8);
+    border-radius: 999px;
+    background: rgba(14, 33, 20, 0.7);
+    color: #ebfff1;
+    font-size: 0.56rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    cursor: pointer;
   }
 
   .players-header {

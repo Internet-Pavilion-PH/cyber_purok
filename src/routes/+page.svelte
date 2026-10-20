@@ -62,6 +62,7 @@
 
   let multiplayerSocket: MultiplayerSocket | null = null;
   let localPlayerId: string | null = null;
+  let clientUserId = "";
   let keyboardController: ReturnType<typeof createKeyboardController> | null = null;
   let lastSentAt = 0;
   let lastSentPos: HeroPosition | null = null;
@@ -138,9 +139,14 @@
 
   // --- Multiplayer ---
   const connectMultiplayer = () => {
+    clientUserId =
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : `player-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
     multiplayerSocket = new MultiplayerSocket();
     multiplayerSocket.connect({
-      userId: "local-player",
+      userId: clientUserId,
       name: playerName,
       onWelcome: (message) => {
         localPlayerId = message.you;

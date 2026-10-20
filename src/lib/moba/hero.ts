@@ -54,6 +54,7 @@ export class Hero {
 
   // Scene & GUI Resources for Cleanup
   private uiTexture: GUI.AdvancedDynamicTexture | null = null;
+  private nameLabel: GUI.TextBlock | null = null;
   private healthBarFill: GUI.Rectangle | null = null;
   private manaBarFill: GUI.Rectangle | null = null;
   private heroLight: BABYLON.PointLight | null = null;
@@ -260,9 +261,21 @@ export class Hero {
     this.uiTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("HeroUI", true, this.scene);
 
     const stack = new GUI.StackPanel("overheadStack");
-    stack.width = "90px";
-    stack.height = "22px";
+    stack.width = "120px";
+    stack.height = "42px";
     stack.isVertical = true;
+
+    this.nameLabel = new GUI.TextBlock("heroName");
+    this.nameLabel.text = this.config.name;
+    this.nameLabel.color = "#eaf6ff";
+    this.nameLabel.fontSize = 14;
+    this.nameLabel.fontFamily = "Segoe UI, sans-serif";
+    this.nameLabel.fontStyle = "bold";
+    this.nameLabel.resizeToFit = true;
+    this.nameLabel.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+    this.nameLabel.paddingBottom = "4px";
+    this.nameLabel.shadowColor = "#000000";
+    this.nameLabel.shadowBlur = 8;
 
     // HP Bar
     const hpBg = new GUI.Rectangle("hpBg");
@@ -294,6 +307,7 @@ export class Hero {
     this.manaBarFill.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
     manaBg.addControl(this.manaBarFill);
 
+    stack.addControl(this.nameLabel);
     stack.addControl(hpBg);
     stack.addControl(manaBg);
 

@@ -64,6 +64,7 @@
   let multiplayerSocket: MultiplayerSocket | null = null;
   let localPlayerId: string | null = null;
   let clientUserId = "";
+  let isServerConnected = false;
   let keyboardController: ReturnType<typeof createKeyboardController> | null = null;
   let lastSentAt = 0;
   let lastSentPos: HeroPosition | null = null;
@@ -149,10 +150,18 @@
   };
 
   // --- Multiplayer ---
+  const syncLocalHeroVisibility = (visible: boolean) => {
+    if (heroMesh) heroMesh.setEnabled(visible);
+    if (hero) hero.mesh?.setEnabled(visible);
+  };
+
   const connectMultiplayer = () => {
     clientUserId = clientUserId || generateClientUserId();
+    multiplayerSocket?.close();
 
     onlinePlayers = [{ id: clientUserId, name: playerName }];
+    isServerConnected = false;
+    syncLocalHeroVisibility(false);
 
     multiplayerSocket = new MultiplayerSocket();
     multiplayerSocket.connect({
@@ -161,6 +170,8 @@
       onWelcome: (message) => {
         localPlayerId = message.you;
         if (hero) hero.config.id = message.you;
+        isServerConnected = true;
+        syncLocalHeroVisibility(true);
       },
       onState: (message) => {
         remoteHeroes.sync(message.players);
@@ -171,7 +182,22 @@
         }));
       },
       onPresence: (message) => console.log("presence", message),
-      onError: (event) => console.error("multiplayer socket error", event),
+      onClose: () => {
+        isServerConnected = false;
+        localPlayerId = null;
+        remoteHeroes.sync([]);
+        remoteMarkers = [];
+        onlinePlayers = [{ id: clientUserId, name: playerName }];
+        if (hero) {
+          hero.setMoveDirection(null);
+          hero.setTarget(null);
+        }
+        syncLocalHeroVisibility(false);
+      },
+      onError: (event) => {
+        isServerConnected = false;
+        console.error("multiplayer socket error", event);
+      },
     });
   };
 
@@ -290,6 +316,7 @@
         if (arenaBuilder?.lights && heroMesh) arenaBuilder.lights.addShadowCaster(heroMesh);
         heroPosition = hero!.position;
         hero!.playAnimation("Idle");
+        syncLocalHeroVisibility(isServerConnected);
         resetGameCameraToHero();
       })
       .catch((error) => console.error("Game assets failed to preload:", error))
@@ -367,8 +394,10 @@
   {remoteMarkers}
   {onlinePlayers}
   debugPoint={debugPoint}
+  serverConnected={isServerConnected}
   onMoveInput={applyMobileMovement}
   onMinimapSelect={handleMinimapSelect}
+  onReconnect={connectMultiplayer}
 />
 
 <canvas bind:this={canvas} class="babylon-canvas"></canvas>

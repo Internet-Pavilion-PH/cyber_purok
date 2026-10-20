@@ -5,11 +5,13 @@
 
   let {
     heroPosition = null,
+    remoteMarkers = [],
     debugPoint = { x: 0, y: 0 },
     onMoveInput,
     onMinimapSelect,
   }: {
     heroPosition?: { x: number; z: number } | null;
+    remoteMarkers?: { id: string; name: string; x: number; z: number; color: string }[];
     debugPoint?: DebugPoint;
     onMoveInput?: (input: { x: number; y: number }) => void;
     onMinimapSelect?: (point: { x: number; z: number }) => void;
@@ -148,6 +150,15 @@
       aria-label="Minimap"
     >
       <div class="minimap-grid"></div>
+      {#each remoteMarkers as marker (marker.id)}
+        <div
+          class="remote-marker"
+          style:--marker-x={`${((marker.x + halfMap) / mapSize) * 100}%`}
+          style:--marker-y={`${((-marker.z + halfMap) / mapSize) * 100}%`}
+          style:--marker-color={marker.color}
+          title={marker.name}
+        ></div>
+      {/each}
       <div
         class="hero-marker"
         style:--marker-x={`${normalized.x}%`}
@@ -560,6 +571,20 @@
     border: 2px solid rgba(236, 255, 210, 0.95);
     box-shadow: 0 0 0 3px rgba(185, 255, 109, 0.18), 0 0 12px rgba(169, 255, 109, 0.7);
     transform: translateZ(0);
+  }
+
+  .remote-marker {
+    position: absolute;
+    left: var(--marker-x);
+    top: var(--marker-y);
+    width: 10px;
+    height: 10px;
+    margin-left: -5px;
+    margin-top: -5px;
+    border-radius: 50%;
+    background: var(--marker-color);
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 10px var(--marker-color);
   }
 
   @media (max-width: 900px) {

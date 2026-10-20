@@ -47,6 +47,7 @@
   let debugPoint = { x: 0, y: 0 };
   let playerName = "Player Hero";
   let remoteMarkers: MapMarker[] = [];
+  let onlinePlayers: Array<{ id: string; name: string }> = [];
 
   let sceneRef: BABYLON.Scene | null = null;
   let gameCamera: BABYLON.ArcRotateCamera | null = null;
@@ -110,11 +111,21 @@
     event.stopPropagation();
   };
 
+  const generateClientUserId = () => {
+    const raw =
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : `player-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+    return raw.replace(/[^a-z0-9]/gi, "").slice(0, 5).toLowerCase();
+  };
+
   const resolvePlayerName = () => {
     if (typeof window === "undefined") return playerName;
 
-    const entered = window.prompt("Choose your hero name:", playerName);
-    return entered?.trim() || playerName;
+    const defaultName = clientUserId || generateClientUserId();
+    const entered = window.prompt("Choose your hero name:", defaultName);
+    return (entered?.trim() || defaultName).slice(0, 12);
   };
 
   const handleHeroKey = (key: string, isPressed: boolean) => {
@@ -139,10 +150,9 @@
 
   // --- Multiplayer ---
   const connectMultiplayer = () => {
-    clientUserId =
-      typeof crypto !== "undefined" && "randomUUID" in crypto
-        ? crypto.randomUUID()
-        : `player-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    clientUserId = clientUserId || generateClientUserId();
+
+    onlinePlayers = [{ id: clientUserId, name: playerName }];
 
     multiplayerSocket = new MultiplayerSocket();
     multiplayerSocket.connect({
@@ -155,6 +165,10 @@
       onState: (message) => {
         remoteHeroes.sync(message.players);
         remoteMarkers = toMapMarkers(message.players, localPlayerId);
+        onlinePlayers = message.players.map((player) => ({
+          id: player.id,
+          name: player.name || "Hero",
+        }));
       },
       onPresence: (message) => console.log("presence", message),
       onError: (event) => console.error("multiplayer socket error", event),
@@ -316,6 +330,7 @@
   }
 
   onMount(() => {
+    clientUserId = clientUserId || generateClientUserId();
     playerName = resolvePlayerName();
     connectMultiplayer();
     keyboardController = createKeyboardController(handleHeroKey);
@@ -350,6 +365,7 @@
 <Ui_Moba
   heroPosition={heroPosition}
   {remoteMarkers}
+  {onlinePlayers}
   debugPoint={debugPoint}
   onMoveInput={applyMobileMovement}
   onMinimapSelect={handleMinimapSelect}

@@ -6,12 +6,14 @@
   let {
     heroPosition = null,
     remoteMarkers = [],
+    onlinePlayers = [],
     debugPoint = { x: 0, y: 0 },
     onMoveInput,
     onMinimapSelect,
   }: {
     heroPosition?: { x: number; z: number } | null;
     remoteMarkers?: { id: string; name: string; x: number; z: number; color: string }[];
+    onlinePlayers?: Array<{ id: string; name: string }>;
     debugPoint?: DebugPoint;
     onMoveInput?: (input: { x: number; y: number }) => void;
     onMinimapSelect?: (point: { x: number; z: number }) => void;
@@ -168,72 +170,47 @@
     </div>
 
     {#if !isMobile}
-      <div class="ground-coords" aria-live="polite">
-        <div>x: {debugPoint.x}</div>
-        <div>y: {debugPoint.y}</div>
-      </div>
+      <div class="ground-coords" aria-live="polite">({debugPoint.x},{debugPoint.y})</div>
     {/if}
   </div>
 
-  <div class="bottom-center-hud" class:mobile-layout={isMobile} aria-label="Hero abilities and portrait">
-    {#if !isMobile}
-      <div class="portrait-panel" aria-label="Hero portrait">
-        <div class="portrait-ring">
-          <div class="portrait-art" aria-label="Hero portrait placeholder"></div>
-        </div>
+  {#if isMobile}
+    <div class="mobile-controls" aria-label="Mobile controls">
+      <div
+        bind:this={movePadRef}
+        class="move-pad"
+        aria-label="Movement controls"
+        onpointerdown={handleMovePadStart}
+        onpointermove={handleMovePadMove}
+        onpointerup={handleMovePadEnd}
+        onpointercancel={handleMovePadEnd}
+      >
+        <div class="move-pad-thumb"></div>
       </div>
-    {/if}
 
-    {#if isMobile}
-      <div class="mobile-controls" aria-label="Mobile controls">
-        <div
-          bind:this={movePadRef}
-          class="move-pad"
-          aria-label="Movement controls"
-          onpointerdown={handleMovePadStart}
-          onpointermove={handleMovePadMove}
-          onpointerup={handleMovePadEnd}
-          onpointercancel={handleMovePadEnd}
-        >
-          <div class="move-pad-thumb"></div>
-        </div>
-
-        <div class="action-pad" aria-label="Action controls">
-          <button class="action-button" type="button" aria-label="Attack button">A</button>
-        </div>
+      <div class="action-pad" aria-label="Action controls">
+        <button class="action-button" type="button" aria-label="Attack button">A</button>
       </div>
-    {:else}
-      <div class="ability-column" aria-label="Hero abilities">
-        <div class="ability-grid" aria-label="Quick cast abilities">
-          <div class="ability-slot"><span>Q</span></div>
-          <div class="ability-slot"><span>W</span></div>
-          <div class="ability-slot"><span>E</span></div>
-          <div class="ability-slot"><span>R</span></div>
-        </div>
-
-        <div class="resource-stack" aria-label="Hero resource bars">
-          <div class="resource-bar hp">
-            <span class="resource-label">HP</span>
-            <div
-              class="resource-fill hp-fill"
-              style:width={`${Math.max(0, Math.min(100, (($heroState.currentHp / $maxHp) * 100))) }%`}
-            ></div>
-          </div>
-          <div class="resource-bar mana">
-            <span class="resource-label">MP</span>
-            <div
-              class="resource-fill mana-fill"
-              style:width={`${Math.max(0, Math.min(100, (($heroState.currentMana / $maxMana) * 100))) }%`}
-            ></div>
-          </div>
-        </div>
-      </div>
-    {/if}
-  </div>
-
-  {#if !isMobile}
-    <div class="right-panel"></div>
+    </div>
   {/if}
+
+  <aside class="right-panel" aria-label="Online players">
+    <div class="players-panel">
+      <div class="players-header">Online</div>
+      {#if onlinePlayers.length === 0}
+        <div class="player-empty">No players yet</div>
+      {:else}
+        <ul class="player-list">
+          {#each onlinePlayers as player (player.id)}
+            <li class="player-item">
+              <span class="player-dot"></span>
+              <span>{player.name}</span>
+            </li>
+          {/each}
+        </ul>
+      {/if}
+    </div>
+  </aside>
 </div>
 
 <style>
@@ -245,61 +222,170 @@
   }
 
   .minimap-panel,
-  .minimap-frame,
-  .move-pad,
-  .action-button {
+  .minimap-frame {
     pointer-events: auto;
   }
 
-  .bottom-center-hud {
+  .right-panel {
     position: absolute;
-    left: 50%;
-    bottom: 10px;
-    transform: translateX(-50%);
+    top: 16px;
+    right: 16px;
     display: flex;
+    flex-direction: column;
     align-items: flex-end;
-    gap: 12px;
-    pointer-events: none;
-    z-index: 10;
+    gap: 8px;
+    z-index: 4;
   }
 
-  .bottom-center-hud.mobile-layout {
-    left: 0;
-    width: 100%;
-    bottom: 0;
-    transform: none;
-    display: block;
-    pointer-events: none;
+  .players-panel {
+    width: min(110px, 18vw);
+    min-width: 90px;
+    padding: 4px 0 0;
+    border-radius: 8px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    color: #ebfff1;
   }
 
-  .portrait-panel {
-    width: 120px;
-    height: 120px;
+  .players-header {
+    font-size: 0.54rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #a9f2c0;
+    margin-bottom: 4px;
+    padding: 0 2px;
+  }
+
+  .player-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .player-item {
     display: flex;
     align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    background: rgba(64, 191, 99, 0.18);
-    border: 1px solid rgba(162, 255, 183, 0.8);
-    box-shadow: inset 0 0 0 1px rgba(170, 255, 186, 0.12);
+    gap: 5px;
+    padding: 1px 2px;
+    border-radius: 6px;
+    background: transparent;
+    border: none;
+    font-size: 0.68rem;
+    line-height: 1.1;
+    color: #f2fff4;
   }
 
-  .portrait-ring {
-    width: 86px;
-    height: 86px;
-    border-radius: 7px;
+  .player-item span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .player-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #7efc9a;
+    box-shadow: 0 0 10px rgba(126, 252, 154, 0.8);
+    flex-shrink: 0;
+  }
+
+  .player-empty {
+    font-size: 0.82rem;
+    color: rgba(235, 255, 241, 0.75);
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 4px 4px;
+  }
+
+  .top-center-clock {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .clock-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     padding: 0;
-    background: rgba(64, 191, 99, 0.18);
+    border-radius: 999px;
+    border: none;
+    background: transparent;
     box-shadow: none;
   }
 
-  .portrait-art {
-    width: 100%;
-    height: 100%;
-    border-radius: 7px;
-    background: rgba(64, 191, 99, 0.18);
-    border: 1px solid rgba(162, 255, 183, 0.9);
-    box-shadow: inset 0 0 0 1px rgba(170, 255, 186, 0.08);
+  .clock-time {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #eafff0;
+    letter-spacing: 0.08em;
+    text-shadow: 0 0 12px rgba(135, 255, 161, 0.45);
+  }
+
+  .minimap-panel {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    pointer-events: none;
+  }
+
+  .ground-coords {
+    color: #ebfff1;
+    font: 12px/1.4 monospace;
+    letter-spacing: 0.04em;
+    text-shadow: 0 0 8px rgba(123, 255, 159, 0.22);
+    background: transparent;
+    border: none;
+    padding: 0;
+    min-width: 0;
+    box-shadow: none;
+  }
+
+  .minimap-frame {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(9, 27, 14, 0.9), rgba(10, 18, 13, 0.75));
+    border: 1px solid rgba(121, 220, 150, 0.7);
+    box-shadow: 0 0 0 1px rgba(84, 200, 118, 0.2), 0 18px 30px rgba(0, 0, 0, 0.28);
+    overflow: hidden;
+    transition: width 0.2s ease, height 0.2s ease;
+  }
+
+  .minimap-frame::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(rgba(72, 203, 119, 0.08), rgba(72, 203, 119, 0.02)),
+      repeating-linear-gradient(
+        0deg,
+        rgba(119, 221, 150, 0.06),
+        rgba(119, 221, 150, 0.06) 1px,
+        transparent 1px,
+        transparent 12px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        rgba(119, 221, 150, 0.06),
+        rgba(119, 221, 150, 0.06) 1px,
+        transparent 1px,
+        transparent 12px
+      );
   }
 
   .mobile-controls {
@@ -371,181 +457,6 @@
     cursor: pointer;
   }
 
-  .ability-column {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: stretch;
-  }
-
-  .ability-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 58px);
-    gap: 8px;
-  }
-
-  .ability-slot {
-    position: relative;
-    width: 58px;
-    height: 58px;
-    border-radius: 7px;
-    border: 1px solid rgba(162, 255, 183, 0.8);
-    background: rgba(64, 191, 99, 0.18);
-    box-shadow: inset 0 0 0 1px rgba(170, 255, 186, 0.08);
-    display: grid;
-    place-items: center;
-    color: #e9fff0;
-    font-weight: 700;
-    font-size: 0.95rem;
-    text-shadow: none;
-  }
-
-  .ability-slot::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 7px;
-    border: none;
-  }
-
-  .resource-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    width: 100%;
-  }
-
-  .resource-bar {
-    position: relative;
-    height: 12px;
-    width: 100%;
-    border-radius: 999px;
-    overflow: hidden;
-    background: rgba(11, 20, 15, 0.8);
-    border: 1px solid rgba(146, 228, 170, 0.45);
-  }
-
-  .resource-label {
-    position: absolute;
-    left: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 8px;
-    letter-spacing: 0.08em;
-    color: #dfffe8;
-    z-index: 1;
-  }
-
-  .resource-fill {
-    position: absolute;
-    inset: 0 auto 0 0;
-    border-radius: inherit;
-  }
-
-  .hp-fill {
-    width: 72%;
-    background: linear-gradient(90deg, #7efc9a 0%, #3ecf70 100%);
-  }
-
-  .mana-fill {
-    width: 68%;
-    background: linear-gradient(90deg, #75d3ff 0%, #2d9dfd 100%);
-  }
-
-  .right-panel {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 8px;
-  }
-
-  .top-center-clock {
-    position: absolute;
-    top: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 3;
-    pointer-events: none;
-  }
-
-  .clock-pill {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 6px 16px;
-    border-radius: 999px;
-    border: 1px solid rgba(139, 223, 162, 0.7);
-    background: rgba(10, 20, 16, 0.72);
-    box-shadow: inset 0 0 0 1px rgba(170, 255, 186, 0.08), 0 8px 18px rgba(0, 0, 0, 0.2);
-  }
-
-  .clock-time {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #eafff0;
-    letter-spacing: 0.08em;
-    text-shadow: 0 0 12px rgba(135, 255, 161, 0.45);
-  }
-
-  .minimap-panel {
-    position: absolute;
-    top: 16px;
-    left: 16px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-    pointer-events: none;
-  }
-
-  .ground-coords {
-    padding: 8px 10px;
-    border-radius: 10px;
-    background: rgba(7, 20, 12, 0.72);
-    border: 1px solid rgba(128, 233, 156, 0.45);
-    color: #dfffe6;
-    font: 12px/1.5 monospace;
-    min-width: 120px;
-    box-shadow: inset 0 0 14px rgba(95, 255, 142, 0.08);
-  }
-
-  .minimap-frame {
-    position: relative;
-    width: 180px;
-    height: 180px;
-    border-radius: 14px;
-    background: linear-gradient(180deg, rgba(9, 27, 14, 0.9), rgba(10, 18, 13, 0.75));
-    border: 1px solid rgba(121, 220, 150, 0.7);
-    box-shadow: 0 0 0 1px rgba(84, 200, 118, 0.2), 0 18px 30px rgba(0, 0, 0, 0.28);
-    overflow: hidden;
-    transition: width 0.2s ease, height 0.2s ease;
-  }
-
-  .minimap-frame::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-      linear-gradient(rgba(72, 203, 119, 0.08), rgba(72, 203, 119, 0.02)),
-      repeating-linear-gradient(
-        0deg,
-        rgba(119, 221, 150, 0.06),
-        rgba(119, 221, 150, 0.06) 1px,
-        transparent 1px,
-        transparent 12px
-      ),
-      repeating-linear-gradient(
-        90deg,
-        rgba(119, 221, 150, 0.06),
-        rgba(119, 221, 150, 0.06) 1px,
-        transparent 1px,
-        transparent 12px
-      );
-  }
-
   .minimap-grid {
     position: absolute;
     inset: 0px;
@@ -612,6 +523,28 @@
     .minimap-frame {
       width: 96px;
       height: 96px;
+    }
+
+    .right-panel {
+      top: 10px;
+      right: 10px;
+    }
+
+    .players-panel {
+      width: min(90px, 22vw);
+      min-width: 82px;
+      padding-top: 2px;
+    }
+
+    .players-header {
+      font-size: 0.5rem;
+      margin-bottom: 3px;
+    }
+
+    .player-item {
+      font-size: 0.62rem;
+      gap: 4px;
+      padding: 1px 1px;
     }
 
     .top-center-clock {

@@ -46,6 +46,7 @@
   let heroPosition: HeroPosition = { x: 0, z: 0 };
   let debugPoint = { x: 0, y: 0 };
   let playerName = "Player Hero";
+  const knownPlayerNames = new Map<string, string>();
   let remoteMarkers: MapMarker[] = [];
   let onlinePlayers: Array<{ id: string; name: string }> = [];
 
@@ -80,7 +81,6 @@
   const resetGameCameraToHero = () => {
     if (!gameCamera || !heroMesh) return;
     resetGameCameraToTarget(gameCamera, heroMesh.position.clone(), defaultGameCameraConfig);
-    currentTarget = null;
   };
 
   const applyMobileMovement = (input: { x: number; y: number }) => {
@@ -121,18 +121,56 @@
     return raw.replace(/[^a-z0-9]/gi, "").slice(0, 5).toLowerCase();
   };
 
+  const rememberPlayerName = (playerId: string, name: string | undefined) => {
+    const nextName = (name || "Hero").trim().slice(0, 12) || "Hero";
+    if (playerId && nextName.toLowerCase() !== "hero") {
+      knownPlayerNames.set(playerId, nextName);
+    }
+    return nextName;
+  };
+
+  const isLocalPlayerId = (playerId: string) =>
+    playerId === localPlayerId || playerId === clientUserId;
+
+  const resolveOnlinePlayerName = (playerId: string, incomingName?: string) => {
+    const trimmed = (incomingName ?? "").trim();
+    const remembered = knownPlayerNames.get(playerId);
+
+    if (trimmed && trimmed.toLowerCase() !== "hero") {
+      const nextName = trimmed.slice(0, 12);
+      knownPlayerNames.set(playerId, nextName);
+      return nextName;
+    }
+
+    if (remembered) return remembered;
+    if (isLocalPlayerId(playerId)) return playerName;
+    return "Hero";
+  };
+
+  const applyLocalPlayerName = (name: string) => {
+    const nextName = (name || "Hero").trim().slice(0, 12) || "Hero";
+    playerName = nextName;
+    knownPlayerNames.set(clientUserId, nextName);
+    hero?.updateDisplayName(nextName);
+    return nextName;
+  };
+
   const resolvePlayerName = () => {
     if (typeof window === "undefined") return playerName;
 
     const defaultName = clientUserId || generateClientUserId();
     const entered = window.prompt("Choose your hero name:", defaultName);
-    return (entered?.trim() || defaultName).slice(0, 12);
+    return applyLocalPlayerName(entered?.trim() || defaultName);
   };
 
   const handleHeroKey = (key: string, isPressed: boolean) => {
     if (!isPressed) return;
 
-    if (key === "1") resetGameCameraToHero();
+    if (key === "1") {
+      resetGameCameraToHero();
+      return;
+    }
+
     if (!hero) return;
 
     if (key === "a") {
@@ -169,25 +207,30 @@
       name: playerName,
       onWelcome: (message) => {
         localPlayerId = message.you;
+        knownPlayerNames.set(message.you, playerName);
         if (hero) hero.config.id = message.you;
         isServerConnected = true;
         syncLocalHeroVisibility(true);
       },
       onState: (message) => {
-        remoteHeroes.sync(message.players);
-        remoteMarkers = toMapMarkers(message.players, localPlayerId);
-        onlinePlayers = message.players.map((player) => ({
-          id: player.id,
-          name: player.name || "Hero",
+        const players = message.players.map((player) => ({
+          ...player,
+          name: resolveOnlinePlayerName(player.id, player.name),
         }));
+        remoteHeroes.sync(players, localPlayerId);
+        remoteMarkers = toMapMarkers(players, localPlayerId);
+        onlinePlayers = players.map((player) => {
+          if (isLocalPlayerId(player.id)) applyLocalPlayerName(player.name);
+          return { id: player.id, name: player.name };
+        });
       },
       onPresence: (message) => console.log("presence", message),
       onClose: () => {
         isServerConnected = false;
         localPlayerId = null;
-        remoteHeroes.sync([]);
+        remoteHeroes.clear();
         remoteMarkers = [];
-        onlinePlayers = [{ id: clientUserId, name: playerName }];
+        onlinePlayers = [];
         if (hero) {
           hero.setMoveDirection(null);
           hero.setTarget(null);
@@ -309,6 +352,8 @@
     });
 
     hero = new Hero(scene, createHeroConfig("player-hero", playerName, HERO_START.clone()));
+    hero.updateDisplayName(playerName);
+    remoteHeroes.setLocalHero(hero);
 
     void preloadAssets([fountain.load(), hero.load(), statue.load()])
       .then(() => {
@@ -382,6 +427,7 @@
       canvas.removeEventListener("wheel", preventGameWheel);
       keyboardController?.dispose();
       multiplayerSocket?.close();
+      remoteHeroes.setLocalHero(null);
       remoteHeroes.disposeAll();
       scene.dispose();
       engine.dispose();

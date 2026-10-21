@@ -110,6 +110,12 @@ export class Hero {
     this.currentTarget = destination ? destination.clone() : null;
   }
 
+  public updateDisplayName(name: string) {
+    const nextName = (name || "Hero").trim().slice(0, 12) || "Hero";
+    this.config.name = nextName;
+    if (this.nameLabel) this.nameLabel.text = nextName;
+  }
+
   public setMoveDirection(direction: BABYLON.Vector3 | null) {
     if (!direction || direction.lengthSquared() < 0.0001) {
       this.moveDirection = BABYLON.Vector3.Zero();

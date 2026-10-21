@@ -198,6 +198,15 @@
     </div>
   {/if}
 
+  {#if !serverConnected}
+    <div class="disconnect-overlay" aria-live="polite">
+      <div class="disconnect-card">
+        <div class="disconnect-title">You are disconnected from the server</div>
+        <button class="reconnect-button large" type="button" onclick={onReconnect}>Reconnect</button>
+      </div>
+    </div>
+  {/if}
+
   <aside class="right-panel" aria-label="Online players">
     <div class="players-panel">
       <div class="connection-status" aria-live="polite">
@@ -205,10 +214,14 @@
           <span class="status-dot offline"></span>
           <span class="status-label">Server offline</span>
           <button class="reconnect-button" type="button" onclick={onReconnect}>Reconnect</button>
+        {:else}
+          <span class="status-dot online"></span>
+          <span class="status-label">Online {onlinePlayers.length}</span>
         {/if}
       </div>
-      <div class="players-header">Online</div>
-      {#if onlinePlayers.length === 0}
+      {#if !serverConnected}
+        <div class="player-empty">Waiting for arena sync…</div>
+      {:else if onlinePlayers.length === 0}
         <div class="player-empty">No players yet</div>
       {:else}
         <ul class="player-list">
@@ -283,6 +296,11 @@
     box-shadow: 0 0 10px rgba(255, 123, 123, 0.8);
   }
 
+  .status-dot.online {
+    background: #7efc9a;
+    box-shadow: 0 0 10px rgba(126, 252, 154, 0.8);
+  }
+
   .status-label {
     flex: 1;
     white-space: nowrap;
@@ -300,13 +318,45 @@
     cursor: pointer;
   }
 
-  .players-header {
-    font-size: 0.54rem;
-    letter-spacing: 0.12em;
+  .reconnect-button.large {
+    font-size: 0.72rem;
+    padding: 8px 18px;
+    background: rgba(23, 63, 35, 0.9);
+    box-shadow: 0 0 24px rgba(115, 255, 148, 0.2);
+  }
+
+  .disconnect-overlay {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: rgba(6, 12, 9, 0.48);
+    backdrop-filter: blur(2px);
+    z-index: 30;
+    pointer-events: none;
+  }
+
+  .disconnect-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 28px;
+    border-radius: 18px;
+    border: 1px solid rgba(162, 255, 188, 0.45);
+    background: rgba(12, 22, 16, 0.72);
+    box-shadow: 0 18px 32px rgba(0, 0, 0, 0.28);
+    text-align: center;
+    pointer-events: auto;
+  }
+
+  .disconnect-title {
+    font-size: clamp(1.1rem, 2vw, 2rem);
+    font-weight: 700;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: #a9f2c0;
-    margin-bottom: 4px;
-    padding: 0 2px;
+    color: #ebfff1;
+    text-shadow: 0 0 18px rgba(150, 255, 166, 0.25);
   }
 
   .player-list {
@@ -586,11 +636,6 @@
       width: min(90px, 22vw);
       min-width: 82px;
       padding-top: 2px;
-    }
-
-    .players-header {
-      font-size: 0.5rem;
-      margin-bottom: 3px;
     }
 
     .player-item {

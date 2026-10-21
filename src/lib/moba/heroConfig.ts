@@ -9,7 +9,7 @@ export const createHeroConfig = (
 ): HeroConfig => ({
   id,
   name,
-  moveSpeed: 0.15,
+  moveSpeed: 0.20,
   rotationSpeed: 0.08,
   spawnPosition,
   modelUrl: "",

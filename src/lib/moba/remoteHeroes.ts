@@ -62,28 +62,61 @@ interface RemoteHeroContext {
 /** Creates, updates and removes heroes that represent other connected players. */
 export class RemoteHeroes {
   private heroes = new Map<string, Hero>();
+  private localHero: Hero | null = null;
   private loadingIds = new Set<string>();
+  private latestPlayers = new Map<string, RemotePlayer>();
 
   constructor(private ctx: RemoteHeroContext) {}
 
-  public sync(players: RemotePlayer[]) {
-    const localId = this.ctx.getLocalPlayerId();
+  public setLocalHero(hero: Hero | null) {
+    this.localHero = hero;
+    if (!hero) return;
 
+    hero.mesh?.setEnabled(true);
+    hero.updateDisplayName(hero.config.name);
+  }
+
+  public sync(players: RemotePlayer[], localId: string | null = this.ctx.getLocalPlayerId()) {
+    this.latestPlayers.clear();
+    players.forEach((player) => this.latestPlayers.set(player.id, player));
+
+    const activeIds = new Set<string>();
     for (const player of players) {
-      if (player.id !== localId) void this.upsert(player);
+      if (player.id === localId) {
+        if (this.localHero) {
+          this.localHero.updateDisplayName(player.name);
+          this.localHero.mesh?.setEnabled(true);
+        }
+        continue;
+      }
+
+      activeIds.add(player.id);
+      void this.upsert(player);
+    }
+
+    if (localId && this.localHero && !players.some((player) => player.id === localId)) {
+      this.localHero.mesh?.setEnabled(false);
     }
 
     this.heroes.forEach((hero, id) => {
-      if (!players.some((player) => player.id === id)) {
+      if (!activeIds.has(id)) {
         hero.dispose();
         this.heroes.delete(id);
       }
     });
   }
 
-  public disposeAll() {
+  public clear() {
+    this.loadingIds.clear();
+    this.latestPlayers.clear();
+    this.localHero?.mesh?.setEnabled(false);
     this.heroes.forEach((hero) => hero.dispose());
     this.heroes.clear();
+    this.localHero = null;
+  }
+
+  public disposeAll() {
+    this.clear();
   }
 
   private async upsert(player: RemotePlayer) {
@@ -117,6 +150,9 @@ export class RemoteHeroes {
         this.loadingIds.delete(player.id);
       }
     }
+
+    const resolvedName = this.latestPlayers.get(player.id)?.name ?? player.name;
+    if (hero.config.name !== resolvedName) hero.updateDisplayName(resolvedName);
 
     if (hero.mesh) {
       hero.mesh.position.set(player.x + SPAWN_OFFSET, 0, player.z + SPAWN_OFFSET);

@@ -105,3 +105,18 @@ export function centerCameraOnTarget(
     new BABYLON.CubicEase(),
   );
 }
+/** Re-centers the camera on a world point, keeping its current orbit angles. */
+export function focusCameraOn(camera: BABYLON.ArcRotateCamera, point: { x: number; z: number }) {
+  const target = new BABYLON.Vector3(point.x, 0, point.z);
+  camera.setTarget(target);
+  camera.target.copyFrom(target);
+
+  const horizontal = camera.radius * Math.cos(camera.beta);
+  camera.position = target.add(
+    new BABYLON.Vector3(
+      Math.sin(camera.alpha) * horizontal,
+      camera.radius * Math.sin(camera.beta),
+      Math.cos(camera.alpha) * horizontal,
+    ),
+  );
+}

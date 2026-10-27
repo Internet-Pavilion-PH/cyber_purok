@@ -17,8 +17,17 @@
     configureFixedGameCamera,
     configureMobileFollowCamera,
     defaultGameCameraConfig,
+    focusCameraOn,
     resetGameCameraToTarget,
   } from "$lib/moba/cameraController";
+  import {
+    CAMERA_EDGE_INSET,
+    GROUND_SIZE,
+    HERO_START,
+    NETWORK_SEND_INTERVAL_MS,
+  } from "$lib/moba/constants";
+  import { detectMobile, joystickToMoveDirection } from "$lib/moba/mobileInput";
+  import { PlayerNameRegistry, generateClientUserId, sanitizeName } from "$lib/moba/playerNames";
   import {
     createKeyboardController,
     HERO_SKILL_KEYS,
@@ -28,25 +37,14 @@
 
   type HeroPosition = { x: number; z: number };
 
-  const HERO_START = new BABYLON.Vector3(-380, 0, -380);
-  const GROUND_SIZE = 1000;
-  const CAMERA_EDGE_INSET = 50;
-  const NETWORK_SEND_INTERVAL_MS = 50;
-  const MOBILE_DEAD_ZONE = 0.12;
-  const MOBILE_SPEED_MULTIPLIER = 1.8;
-
-  const isMobile =
-    typeof window !== "undefined" &&
-    ((typeof navigator !== "undefined" &&
-      /Android|iPhone|iPad|iPod|Mobile|Windows Phone/i.test(navigator.userAgent)) ||
-      (typeof window.matchMedia === "function" && window.matchMedia("(pointer: coarse)").matches));
+  const isMobile = detectMobile();
 
   // --- State ---
   let canvas: HTMLCanvasElement;
   let heroPosition: HeroPosition = { x: 0, z: 0 };
   let debugPoint = { x: 0, y: 0 };
   let playerName = "Player Hero";
-  const knownPlayerNames = new Map<string, string>();
+  const knownPlayerNames = new PlayerNameRegistry();
   let remoteMarkers: MapMarker[] = [];
   let onlinePlayers: Array<{ id: string; name: string }> = [];
 
@@ -90,20 +88,7 @@
   const handleMinimapSelect = (point: HeroPosition) => {
     if (!gameCamera) return;
 
-    const target = new BABYLON.Vector3(point.x, 0, point.z);
-    gameCamera.setTarget(target);
-    gameCamera.target.copyFrom(target);
-
-    const orbitRadius = gameCamera.radius;
-    const horizontal = orbitRadius * Math.cos(gameCamera.beta);
-    gameCamera.position = target.add(
-      new BABYLON.Vector3(
-        Math.sin(gameCamera.alpha) * horizontal,
-        orbitRadius * Math.sin(gameCamera.beta),
-        Math.cos(gameCamera.alpha) * horizontal,
-      ),
-    );
-
+    focusCameraOn(gameCamera, point);
     currentTarget = null;
     hero?.setTarget(null);
   };
@@ -112,43 +97,14 @@
     event.stopPropagation();
   };
 
-  const generateClientUserId = () => {
-    const raw =
-      typeof crypto !== "undefined" && "randomUUID" in crypto
-        ? crypto.randomUUID()
-        : `player-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-
-    return raw.replace(/[^a-z0-9]/gi, "").slice(0, 5).toLowerCase();
-  };
-
-  const rememberPlayerName = (playerId: string, name: string | undefined) => {
-    const nextName = (name || "Hero").trim().slice(0, 12) || "Hero";
-    if (playerId && nextName.toLowerCase() !== "hero") {
-      knownPlayerNames.set(playerId, nextName);
-    }
-    return nextName;
-  };
-
   const isLocalPlayerId = (playerId: string) =>
     playerId === localPlayerId || playerId === clientUserId;
 
-  const resolveOnlinePlayerName = (playerId: string, incomingName?: string) => {
-    const trimmed = (incomingName ?? "").trim();
-    const remembered = knownPlayerNames.get(playerId);
-
-    if (trimmed && trimmed.toLowerCase() !== "hero") {
-      const nextName = trimmed.slice(0, 12);
-      knownPlayerNames.set(playerId, nextName);
-      return nextName;
-    }
-
-    if (remembered) return remembered;
-    if (isLocalPlayerId(playerId)) return playerName;
-    return "Hero";
-  };
+  const resolveOnlinePlayerName = (playerId: string, incomingName?: string) =>
+    knownPlayerNames.resolve(playerId, incomingName, isLocalPlayerId(playerId), playerName);
 
   const applyLocalPlayerName = (name: string) => {
-    const nextName = (name || "Hero").trim().slice(0, 12) || "Hero";
+    const nextName = sanitizeName(name);
     playerName = nextName;
     knownPlayerNames.set(clientUserId, nextName);
     hero?.updateDisplayName(nextName);
@@ -265,24 +221,11 @@
 
   // --- Per-frame hero control ---
   const applyHeroInput = (localHero: Hero) => {
-    const magnitude = Math.hypot(mobileMoveVector.x, mobileMoveVector.y);
+    const joystickActive = mobileMoveVector.x !== 0 || mobileMoveVector.y !== 0;
+    const direction = joystickToMoveDirection(mobileMoveVector);
 
-    if (magnitude === 0) {
-      localHero.setMoveDirection(null);
-      localHero.setTarget(currentTarget);
-      return;
-    }
-
-    const eased = magnitude < MOBILE_DEAD_ZONE ? 0 : (magnitude - MOBILE_DEAD_ZONE) / (1 - MOBILE_DEAD_ZONE);
-    if (eased > 0) {
-      const scale = (eased * MOBILE_SPEED_MULTIPLIER) / magnitude;
-      localHero.setMoveDirection(
-        new BABYLON.Vector3(mobileMoveVector.x * scale, 0, mobileMoveVector.y * scale),
-      );
-    } else {
-      localHero.setMoveDirection(null);
-    }
-    localHero.setTarget(null);
+    localHero.setMoveDirection(direction ? new BABYLON.Vector3(direction.x, 0, direction.z) : null);
+    localHero.setTarget(joystickActive ? null : currentTarget);
   };
 
   // --- Scene setup ---

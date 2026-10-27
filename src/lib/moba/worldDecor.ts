@@ -36,6 +36,25 @@ const FENCES = [
   ],
 ];
 
+type WorldModel = {
+  file: string;
+  position: [number, number, number];
+  scale: number;
+  rotationY?: number;
+};
+
+/** Static .glb scenery. Add a line here to place a new model; the 5 below are placeholders. */
+const WORLD_MODELS: Record<string, WorldModel> = {
+  fountain: { file: "Fountain.glb", position: [-342, 1, -385], scale: 3 },
+  statue: { file: "roger.glb", position: [-128, 1, -67], scale: 4, rotationY: Math.PI / 2 },
+  cottage: { file: "cottage.glb", position: [-469, -20, -438], scale: 1 },
+  conch: { file: "Conch1.glb", position: [-41, 25, -217], scale: 300 },
+  basketStore: { file: "Yellowbasketstore.glb", position: [-309, 1, -31], scale: 3 },
+  ledScreen: { file: "led.glb", position: [100, 1, -250], scale: 4, rotationY: -Math.PI / 4 },
+  gateway: { file: "gw.glb", position: [-344, 1, -185], scale: 4 },
+  salawaki: { file: "salawaki_swimming-optimized.glb", position: [-221, -50, -41], scale: .75 },
+};
+
 const BLUE_BASE = new BABYLON.Vector3(200, 0, 200);
 const RED_BASE = new BABYLON.Vector3(-386, 0, -386);
 const CREEP_SPAWN_DELAY_MS = 20000;
@@ -66,13 +85,13 @@ export const buildWorldDecor = (scene: BABYLON.Scene, arena: ArenaBuilder | null
     castShadows(arena, new Tree(scene, new BABYLON.Vector3(x, 0, z), scale, height).rootNode);
   }
 
-  const fountain = new PlaceModel(scene, "Fountain.glb", new BABYLON.Vector3(-451, 1, -413), {
-    scaleFactor: 3,
-  });
-  const statue = new PlaceModel(scene, "roger.glb", new BABYLON.Vector3(-128, 1, -67), {
-    scaleFactor: 4,
-    rotation: new BABYLON.Vector3(0, Math.PI / 2, 0),
-  });
+  const models = Object.values(WORLD_MODELS).map(
+    ({ file, position, scale, rotationY = 0 }) =>
+      new PlaceModel(scene, file, position, {
+        scaleFactor: scale,
+        rotation: [0, rotationY, 0],
+      }),
+  );
 
   for (const { position, angle } of TOWERS) {
     castShadows(arena, new Tower(scene, position, 50, 2, 40, angle).rootNode);
@@ -92,5 +111,5 @@ export const buildWorldDecor = (scene: BABYLON.Scene, arena: ArenaBuilder | null
     }
   }, CREEP_SPAWN_DELAY_MS);
 
-  return { fountain, statue };
+  return { models };
 };

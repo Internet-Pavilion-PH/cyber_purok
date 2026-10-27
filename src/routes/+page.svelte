@@ -288,7 +288,7 @@
     gameCamera = setupGameCamera(scene);
     setupRightClickMove(scene);
     createSky(scene);
-    const { fountain, statue } = buildWorldDecor(scene, arenaBuilder);
+    const { models } = buildWorldDecor(scene, arenaBuilder);
 
     scene.onBeforeRenderObservable.add(() => {
       arenaBuilder?.tickTime(engine.getDeltaTime());
@@ -298,7 +298,7 @@
     hero.updateDisplayName(playerName);
     remoteHeroes.setLocalHero(hero);
 
-    void preloadAssets([fountain.load(), hero.load(), statue.load()])
+    void preloadAssets([...models.map((model) => model.load()), hero.load()])
       .then(() => {
         heroMesh = hero!.mesh;
         if (arenaBuilder?.lights && heroMesh) arenaBuilder.lights.addShadowCaster(heroMesh);

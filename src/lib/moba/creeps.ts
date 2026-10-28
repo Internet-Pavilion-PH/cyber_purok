@@ -2,7 +2,20 @@ import * as BABYLON from "@babylonjs/core";
 
 export class Creep {
     public rootNode: BABYLON.TransformNode;
-    public mesh!: BABYLON.Mesh;
+    public mesh?: BABYLON.AbstractMesh;
+    public meshes: BABYLON.AbstractMesh[] = [];
+    /** Resolves once the GLB model has loaded. */
+    public ready: Promise<void>;
+
+    private static active = new Set<Creep>();
+    private static nextId = 1;
+    private static readonly SEPARATION_RADIUS = 6;
+    private static readonly SEPARATION_RADIUS_SQ = 36;
+    private static readonly SEPARATION_STRENGTH = 6;
+    private static readonly MODEL_SCALE = 5;
+    private id: number;
+    private animationGroups: BABYLON.AnimationGroup[] = [];
+    private hasArrived = false;
 
     public speed: number = 8;
     public targetPosition: BABYLON.Vector3;
@@ -14,14 +27,16 @@ export class Creep {
         public scene: BABYLON.Scene,
         public spawnPosition: BABYLON.Vector3,
         targetPosition: BABYLON.Vector3,
-        public size: { height: number; width: number; depth: number } = { height: 5, width: 2, depth: 2 }
+        public isLeader: boolean = false
     ) {
         this.targetPosition = targetPosition.clone();
 
         this.rootNode = new BABYLON.TransformNode("creepRoot", this.scene);
         this.rootNode.position = spawnPosition.clone();
 
-        this.createCreep();
+        this.id = Creep.nextId++;
+        Creep.active.add(this);
+        this.ready = this.createCreep();
         this.startMovement();
     }
 
@@ -54,8 +69,7 @@ export class Creep {
                 spawnZoneCenter.z + normalizedLane.z * (-laneOffset) + lateralDirection.z * lateralOffset + jitter,
             );
 
-            const creep = new Creep(scene, spawnPoint, targetPosition);
-            creep.mesh.receiveShadows = true;
+            const creep = new Creep(scene, spawnPoint, targetPosition, index === 0);
             creep.speed = 7.5 + index * 0.2;
             creep.targetPosition = new BABYLON.Vector3(
                 targetPosition.x + normalizedLane.x * (index * 2.5) + lateralDirection.x * (formationIndex * 1.2),
@@ -88,47 +102,86 @@ export class Creep {
         return new Creep(scene, spawnPoint, targetPosition);
     }
 
-    private createCreep() {
-        this.mesh = BABYLON.MeshBuilder.CreateBox("creep", this.size, this.scene);
-        this.mesh.position = new BABYLON.Vector3(0, this.size.height / 2, 0);
-        this.mesh.parent = this.rootNode;
+    private async createCreep() {
+        const file = this.isLeader ? "Ate_Tanod.glb" : "Kuya_Tanod.glb";
+        try {
+            const result = await BABYLON.SceneLoader.ImportMeshAsync("", "/", file, this.scene);
+            if (!this.isAlive) {
+                result.meshes.forEach((m) => m.dispose());
+                return;
+            }
+            this.mesh = result.meshes[0];
+            this.mesh.parent = this.rootNode;
+            this.mesh.scaling.scaleInPlace(Creep.MODEL_SCALE);
+            this.meshes = result.meshes;
+            for (const m of this.meshes) m.receiveShadows = true;
+            this.animationGroups = result.animationGroups;
+            this.playAnimation(this.hasArrived ? "Idle" : "Walk");
+        } catch (error) {
+            console.error("Failed to load creep model", file, error);
+        }
     }
 
     private startMovement() {
+        const engine = this.scene.getEngine();
         this.renderObserver = this.scene.onBeforeRenderObservable.add(() => {
-            if (!this.isAlive) return;
-
-            const deltaTime = this.scene.getEngine().getDeltaTime() / 1000;
-            this.move(deltaTime);
+            if (this.isAlive) this.move(engine.getDeltaTime() / 1000);
         });
     }
 
     private move(deltaTime: number) {
-        const currentPos = this.rootNode.position;
-        const direction = this.targetPosition.subtract(currentPos);
-        direction.y = 0;
-
-        const distance = direction.length();
+        const pos = this.rootNode.position;
+        const dx = this.targetPosition.x - pos.x;
+        const dz = this.targetPosition.z - pos.z;
+        const distance = Math.sqrt(dx * dx + dz * dz);
 
         if (distance < 1.0) {
             this.onReachDestination();
-            return;
+        } else {
+            const stepLength = (this.speed * deltaTime) / distance;
+            pos.x += dx * stepLength;
+            pos.z += dz * stepLength;
+            this.rootNode.rotation.y = Math.atan2(dx, dz);
         }
 
-        direction.normalize();
-        const step = direction.scale(this.speed * deltaTime);
-        this.rootNode.position.addInPlace(step);
+        this.separate(deltaTime);
+    }
 
-        const angle = Math.atan2(direction.x, direction.z);
-        this.rootNode.rotation = new BABYLON.Vector3(0, angle, 0);
+    /** Push away from nearby creeps so they don't overlap. */
+    private separate(deltaTime: number) {
+        const pos = this.rootNode.position;
+        const radius = Creep.SEPARATION_RADIUS;
+        for (const other of Creep.active) {
+            if (other === this) continue;
+            const dx = pos.x - other.rootNode.position.x;
+            const dz = pos.z - other.rootNode.position.z;
+            const distSq = dx * dx + dz * dz;
+            if (distSq >= Creep.SEPARATION_RADIUS_SQ) continue;
+
+            const dist = Math.sqrt(distSq);
+            // Deterministic nudge for exactly overlapping creeps
+            const nx = dist > 0.001 ? dx / dist : Math.cos(this.id);
+            const nz = dist > 0.001 ? dz / dist : Math.sin(this.id);
+            const push = (radius - dist) * Creep.SEPARATION_STRENGTH * deltaTime;
+            pos.x += nx * push;
+            pos.z += nz * push;
+        }
     }
 
     private onReachDestination() {
-        this.destroy();
+        if (this.hasArrived) return;
+        this.hasArrived = true;
+        this.playAnimation("Idle");
+    }
+
+    private playAnimation(name: string) {
+        for (const group of this.animationGroups) group.stop();
+        this.animationGroups.find((g) => g.name === name)?.start(true);
     }
 
     public destroy() {
         this.isAlive = false;
+        Creep.active.delete(this);
 
         if (this.renderObserver) {
             this.scene.onBeforeRenderObservable.remove(this.renderObserver);

@@ -107,7 +107,10 @@ export const buildWorldDecor = (scene: BABYLON.Scene, arena: ArenaBuilder | null
   window.setTimeout(() => {
     const creeps = Creep.spawnGroup(scene, BLUE_BASE, RED_BASE, 10, 30);
     if (arena?.lights) {
-      for (const creep of creeps) arena.lights.addShadowCaster(creep.mesh);
+      const lights = arena.lights;
+      for (const creep of creeps) {
+        void creep.ready.then(() => creep.meshes.forEach((m) => lights.addShadowCaster(m)));
+      }
     }
   }, CREEP_SPAWN_DELAY_MS);
 

@@ -111,12 +111,33 @@
     return nextName;
   };
 
+  const PLAYER_NAME_KEY = "cyberpurok:playerName";
+
+  const readStoredName = () => {
+    try {
+      return localStorage.getItem(PLAYER_NAME_KEY) ?? "";
+    } catch {
+      return "";
+    }
+  };
+
+  const writeStoredName = (name: string) => {
+    try {
+      localStorage.setItem(PLAYER_NAME_KEY, name);
+    } catch {
+      // storage unavailable (private mode); name just won't persist
+    }
+  };
+
   const resolvePlayerName = () => {
     if (typeof window === "undefined") return playerName;
 
-    const defaultName = clientUserId || generateClientUserId();
+    const storedName = readStoredName();
+    const defaultName = storedName || clientUserId || generateClientUserId();
     const entered = window.prompt("Choose your hero name:", defaultName);
-    return applyLocalPlayerName(entered?.trim() || defaultName);
+    const name = applyLocalPlayerName(entered?.trim() || defaultName);
+    writeStoredName(name);
+    return name;
   };
 
   const handleHeroKey = (key: string, isPressed: boolean) => {

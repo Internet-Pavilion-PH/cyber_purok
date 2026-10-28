@@ -196,6 +196,8 @@ export class Hero {
     mesh.scaling.scaleInPlace(scale);
     mesh.position.copyFrom(this.config.spawnPosition);
     mesh.rotationQuaternion = null; // Unlocks standard Euler rotation
+    mesh.ellipsoid = new BABYLON.Vector3(2, 3, 2);
+    mesh.ellipsoidOffset = new BABYLON.Vector3(0, 3, 0);
 
   // Create an anchor node positioned at head height in 3D space
   this.headAnchor = new BABYLON.TransformNode("headAnchor", this.scene);
@@ -331,80 +333,64 @@ export class Hero {
 
   // --- PRIVATE FRAME UPDATE LOOPS ---
 
+  /** Moves the hero, sliding along any mesh with `checkCollisions` instead of passing through it. */
+  private stepWithCollisions(delta: BABYLON.Vector3) {
+    if (!this.mesh) return;
+    const y = this.mesh.position.y;
+    this.mesh.moveWithCollisions(delta);
+    this.mesh.position.y = y;
+  }
+
   private updateMovement() {
     if (!this.mesh) return;
 
-    const clampToArena = (value: number) =>
-      BABYLON.Scalar.Clamp(value, -ARENA_BOUNDS, ARENA_BOUNDS);
-
-    const hasMoveVector = this.moveDirection.lengthSquared() > 0.0001;
-
-    if (hasMoveVector) {
-      const direction = this.moveDirection.clone();
-      direction.y = 0;
-      const length = direction.length();
-
-      if (length > 0.0001) {
-        const normalized = direction.scale(1 / length);
-        const modelForwardOffset = this.config.forwardOffset ?? Math.PI;
-        const wantedYaw = Math.atan2(normalized.x, normalized.z) + modelForwardOffset;
-
-        this.mesh.rotation.y = BABYLON.Scalar.LerpAngle(
-          this.mesh.rotation.y,
-          wantedYaw,
-          this.config.rotationSpeed,
-        );
-
-        this.mesh.position.addInPlace(normalized.scaleInPlace(this.config.moveSpeed));
-        this.mesh.position.x = clampToArena(this.mesh.position.x);
-        this.mesh.position.z = clampToArena(this.mesh.position.z);
-
-        if (!this.isMoving) {
-          this.isMoving = true;
-          this.playAnimation("Walking");
-        }
-        return;
-      }
+    const keyDirection = this.moveDirection.clone();
+    keyDirection.y = 0;
+    if (keyDirection.length() > 0.0001) {
+      this.walkToward(keyDirection.normalize());
+      return;
     }
 
     if (!this.currentTarget) {
-      if (this.isMoving) {
-        this.isMoving = false;
-        this.playAnimation("Idle");
-      }
+      this.setMoving(false);
       return;
     }
 
     const toTarget = this.currentTarget.subtract(this.mesh.position);
     toTarget.y = 0;
-    const distance = toTarget.length();
 
-    if (distance > 0.5) {
-      const direction = toTarget.normalize();
-      const modelForwardOffset = this.config.forwardOffset ?? Math.PI;
-      const visualTargetYaw = Math.atan2(direction.x, direction.z) + modelForwardOffset;
-
-      this.mesh.rotation.y = BABYLON.Scalar.LerpAngle(
-        this.mesh.rotation.y,
-        visualTargetYaw,
-        this.config.rotationSpeed,
-      );
-
-      this.mesh.position.addInPlace(direction.scaleInPlace(this.config.moveSpeed));
-      this.mesh.position.x = clampToArena(this.mesh.position.x);
-      this.mesh.position.z = clampToArena(this.mesh.position.z);
-
-      if (!this.isMoving) {
-        this.isMoving = true;
-        this.playAnimation("Walking");
-      }
+    if (toTarget.length() > 0.5) {
+      this.walkToward(toTarget.normalize());
     } else {
       this.currentTarget = null;
-      if (this.isMoving) {
-        this.isMoving = false;
-        this.playAnimation("Idle");
-      }
+      this.setMoving(false);
     }
+  }
+
+  /** Turns toward a unit direction, takes one collision-aware step, and keeps the hero in the arena. */
+  private walkToward(direction: BABYLON.Vector3) {
+    if (!this.mesh) return;
+
+    const forwardOffset = this.config.forwardOffset ?? Math.PI;
+    const wantedYaw = Math.atan2(direction.x, direction.z) + forwardOffset;
+    this.mesh.rotation.y = BABYLON.Scalar.LerpAngle(
+      this.mesh.rotation.y,
+      wantedYaw,
+      this.config.rotationSpeed,
+    );
+
+    this.stepWithCollisions(direction.scale(this.config.moveSpeed));
+    this.mesh.position.x = BABYLON.Scalar.Clamp(this.mesh.position.x, -ARENA_BOUNDS, ARENA_BOUNDS);
+    this.mesh.position.z = BABYLON.Scalar.Clamp(this.mesh.position.z, -ARENA_BOUNDS, ARENA_BOUNDS);
+
+    this.setMoving(true);
+  }
+
+  /** Switches between the Walking and Idle animations only when the state changes. */
+  private setMoving(moving: boolean) {
+    if (this.isMoving === moving) return;
+    this.isMoving = moving;
+    this.playAnimation(moving ? "Walking" : "Idle");
   }
 
   private updateRegeneration(dt: number) {

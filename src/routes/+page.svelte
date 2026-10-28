@@ -1,31 +1,19 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import * as BABYLON from "@babylonjs/core";
-  import * as ADDONS from "@babylonjs/addons";
   import "@babylonjs/loaders/glTF";
   import { MultiplayerSocket } from "$lib/socket";
   import { CustomLoadingScreen } from "$lib/CustomLoadingScreen";
-  import { preloadAssets } from "$lib/assetPreloader";
   import { Hero } from "$lib/moba/hero";
-  import { createHeroConfig } from "$lib/moba/heroConfig";
-  import { ArenaBuilder } from "$lib/moba/arenaBuilder";
+  import type { ArenaBuilder } from "$lib/moba/arenaBuilder";
+  import { createGameScene } from "$lib/moba/gameScene";
   import { RemoteHeroes, SERVER_STEP, toMapMarkers, type MapMarker } from "$lib/moba/remoteHeroes";
-  import { buildWorldDecor, createSky } from "$lib/moba/worldDecor";
-  import { spawnDirectionPulse } from "$lib/moba/movePulse";
-  import { attachEdgePan } from "$lib/moba/edgePan";
   import {
-    configureFixedGameCamera,
-    configureMobileFollowCamera,
     defaultGameCameraConfig,
     focusCameraOn,
     resetGameCameraToTarget,
   } from "$lib/moba/cameraController";
-  import {
-    CAMERA_EDGE_INSET,
-    GROUND_SIZE,
-    HERO_START,
-    NETWORK_SEND_INTERVAL_MS,
-  } from "$lib/moba/constants";
+  import { NETWORK_SEND_INTERVAL_MS } from "$lib/moba/constants";
   import { detectMobile, joystickToMoveDirection } from "$lib/moba/mobileInput";
   import { PlayerNameRegistry, generateClientUserId, sanitizeName } from "$lib/moba/playerNames";
   import {
@@ -250,100 +238,40 @@
   };
 
   // --- Scene setup ---
-  const setupGameCamera = (scene: BABYLON.Scene) => {
-    const camera = new BABYLON.ArcRotateCamera(
-      "gameCamera",
-      defaultGameCameraConfig.alpha,
-      defaultGameCameraConfig.beta,
-      defaultGameCameraConfig.radius,
-      HERO_START,
-      scene,
-    );
-    scene.activeCamera = camera;
-
-    if (isMobile) {
-      configureMobileFollowCamera(camera, HERO_START);
-      scene.onBeforeRenderObservable.add(() => {
-        if (heroMesh && !currentTarget) camera.setTarget(heroMesh.position.clone());
-      });
-    } else {
-      configureFixedGameCamera(camera, canvas);
-      attachEdgePan({
-        scene,
-        camera,
-        canvas,
-        clampExtent: GROUND_SIZE / 2 - CAMERA_EDGE_INSET,
-      });
-    }
-
-    return camera;
-  };
-
-  const setupRightClickMove = (scene: BABYLON.Scene) => {
-    scene.onPointerObservable.add((event) => {
-      if (!groundMesh || event.type !== BABYLON.PointerEventTypes.POINTERDOWN) return;
-
-      const pick = scene.pick(scene.pointerX, scene.pointerY);
-      if (!pick?.hit || !pick.pickedPoint || pick.pickedMesh !== groundMesh) return;
-
-      const point = pick.pickedPoint;
-      debugPoint = { x: Math.round(point.x), y: Math.round(point.z) };
-
-      if (event.event.button !== 2) return;
-      currentTarget = new BABYLON.Vector3(point.x, 0, point.z);
-      spawnDirectionPulse(scene, currentTarget);
-    });
-  };
-
   const createScene = (engine: BABYLON.Engine, loadingScreen: CustomLoadingScreen) => {
-    const scene = new BABYLON.Scene(engine);
-    sceneRef = scene;
-    new ADDONS.HtmlMeshRenderer(scene, { enableOverlayRender: true });
-
-    // World lighting is owned by ArenaBuilder; hero-local shadows remain in Hero.
-    arenaBuilder = new ArenaBuilder(scene);
-    groundMesh = arenaBuilder.ground;
-    wallMeshes = arenaBuilder.walls;
-    gameGroundMaterial = arenaBuilder.gameGroundMaterial;
-
-    gameCamera = setupGameCamera(scene);
-    setupRightClickMove(scene);
-    createSky(scene);
-    const { models } = buildWorldDecor(scene, arenaBuilder);
-
-    scene.onBeforeRenderObservable.add(() => {
-      arenaBuilder?.tickTime(engine.getDeltaTime());
-    });
-
-    hero = new Hero(scene, createHeroConfig("player-hero", playerName, HERO_START.clone()));
-    hero.updateDisplayName(playerName);
-    remoteHeroes.setLocalHero(hero);
-
-    void preloadAssets([...models.map((model) => model.load()), hero.load()])
-      .then(() => {
-        heroMesh = hero!.mesh;
-        if (arenaBuilder?.lights && heroMesh) arenaBuilder.lights.addShadowCaster(heroMesh);
-        heroPosition = hero!.position;
-        hero!.playAnimation("Idle");
+    const game = createGameScene({
+      engine,
+      canvas,
+      loadingScreen,
+      isMobile,
+      playerName,
+      remoteHeroes,
+      getHeroMesh: () => heroMesh,
+      getMoveTarget: () => currentTarget,
+      onMoveTarget: (target) => (currentTarget = target),
+      onGroundClick: ({ x, z }) => (debugPoint = { x, y: z }),
+      onBeforeHeroUpdate: applyHeroInput,
+      onAfterHeroUpdate: (localHero) => {
+        heroPosition = localHero.position;
+        sendHeroMovement(localHero as Hero & { mesh: BABYLON.AbstractMesh });
+      },
+      onHeroLoaded: (localHero) => {
+        heroMesh = localHero.mesh;
+        heroPosition = localHero.position;
         syncLocalHeroVisibility(isServerConnected);
         resetGameCameraToHero();
-      })
-      .catch((error) => console.error("Game assets failed to preload:", error))
-      .finally(() => {
-        BABYLON.SceneLoader.ShowLoadingScreen = false;
-        loadingScreen.hideLoadingUI();
-      });
-
-    scene.onBeforeRenderObservable.add(() => {
-      if (!hero?.mesh) return;
-
-      applyHeroInput(hero);
-      hero.update(engine.getDeltaTime() / 1000);
-      heroPosition = hero.position;
-      sendHeroMovement(hero as Hero & { mesh: BABYLON.AbstractMesh });
+      },
     });
 
-    return scene;
+    sceneRef = game.scene;
+    gameCamera = game.camera;
+    arenaBuilder = game.arena;
+    groundMesh = game.arena.ground;
+    wallMeshes = game.arena.walls;
+    gameGroundMaterial = game.arena.gameGroundMaterial;
+    hero = game.hero;
+
+    return game.scene;
   };
 
   // Applies the game ground material and camera input rules once the scene is ready.

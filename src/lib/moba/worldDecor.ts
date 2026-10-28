@@ -3,6 +3,7 @@ import { Tower } from "$lib/moba/tower";
 import { Creep } from "$lib/moba/creeps";
 import { Fence } from "$lib/moba/fence";
 import { Tree } from "$lib/moba/tree";
+import { Stone } from "$lib/moba/stone";
 import { PlaceModel } from "$lib/moba/placeModel";
 import type { ArenaBuilder } from "$lib/moba/arenaBuilder";
 
@@ -21,6 +22,16 @@ const TOWERS = [
   { position: new BABYLON.Vector3(-100, 0, -100), angle: Math.PI / 4 },
   { position: new BABYLON.Vector3(-437, 0, -123), angle: Math.PI / 9 },
   { position: new BABYLON.Vector3(-71, 0, -440), angle: Math.PI / 2 },
+];
+
+type StoneSpec = { x: number; z: number; height: number; x2?: number; z2?: number };
+
+/** Give x2/z2 to lay a row of stones from (x, z) to (x2, z2); omit them for a single stone. */
+const STONES: StoneSpec[] = [
+  { x: -144, z: -366, height: 5 },
+   { x: 165, z: -344, height: 10 },
+    { x: -402, z: -384, height: 10 },
+  { x: -47, z: -429, x2: 52, z2: -429, height: 8 },
 ];
 
 const FENCES = [
@@ -65,6 +76,11 @@ const castShadows = (arena: ArenaBuilder | null, node: BABYLON.TransformNode) =>
   for (const mesh of node.getChildMeshes()) arena.lights.addShadowCaster(mesh);
 };
 
+/** Makes every mesh under a node solid so heroes can't walk through it. */
+const makeSolid = (node: BABYLON.TransformNode) => {
+  for (const mesh of node.getChildMeshes()) mesh.checkCollisions = true;
+};
+
 export const createSky = (scene: BABYLON.Scene) => {
   scene.clearColor = new BABYLON.Color4(0.04, 0.1, 0.16, 1.0);
 
@@ -82,7 +98,16 @@ export const createSky = (scene: BABYLON.Scene) => {
 /** Places static scenery and returns the models the caller must `load()` during preload. */
 export const buildWorldDecor = (scene: BABYLON.Scene, arena: ArenaBuilder | null) => {
   for (const { x, z, scale, height } of TREES) {
-    castShadows(arena, new Tree(scene, new BABYLON.Vector3(x, 0, z), scale, height).rootNode);
+    const tree = new Tree(scene, new BABYLON.Vector3(x, 0, z), scale, height);
+    makeSolid(tree.rootNode);
+    castShadows(arena, tree.rootNode);
+  }
+
+  for (const { x, z, x2, z2, height } of STONES) {
+    const start = new BABYLON.Vector3(x, 0, z);
+    const position: BABYLON.Vector3 | [BABYLON.Vector3, BABYLON.Vector3] =
+      x2 !== undefined && z2 !== undefined ? [start, new BABYLON.Vector3(x2, 0, z2)] : start;
+    new Stone(scene, position, height).createStone();
   }
 
   const models = Object.values(WORLD_MODELS).map(
@@ -94,11 +119,14 @@ export const buildWorldDecor = (scene: BABYLON.Scene, arena: ArenaBuilder | null
   );
 
   for (const { position, angle } of TOWERS) {
-    castShadows(arena, new Tower(scene, position, 50, 2, 40, angle).rootNode);
+    const tower = new Tower(scene, position, 50, 2, 40, angle);
+    makeSolid(tower.rootNode);
+    castShadows(arena, tower.rootNode);
   }
 
   for (const points of FENCES) {
     const fence = new Fence(scene, points, 30, 1, 1, 0);
+    makeSolid(fence.rootNode);
     if (arena?.lights) fence.addShadowCasters(arena.lights.shadowGen);
     fence.rootNode.position = new BABYLON.Vector3(0, 0, 0);
   }

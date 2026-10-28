@@ -1,7 +1,7 @@
 import * as BABYLON from "@babylonjs/core";
 
 export class Creep {
-    public rootNode: BABYLON.TransformNode;
+    public rootNode: BABYLON.Mesh;
     public mesh?: BABYLON.AbstractMesh;
     public meshes: BABYLON.AbstractMesh[] = [];
     /** Resolves once the GLB model has loaded. */
@@ -31,7 +31,11 @@ export class Creep {
     ) {
         this.targetPosition = targetPosition.clone();
 
-        this.rootNode = new BABYLON.TransformNode("creepRoot", this.scene);
+        // An empty Mesh (not a TransformNode) so it can use moveWithCollisions.
+        this.rootNode = new BABYLON.Mesh("creepRoot", this.scene);
+        this.rootNode.ellipsoid = new BABYLON.Vector3(2, 3, 2);
+        this.rootNode.ellipsoidOffset = new BABYLON.Vector3(0, 3, 0);
+        this.rootNode.isPickable = false;
         this.rootNode.position = spawnPosition.clone();
 
         this.id = Creep.nextId++;
@@ -134,21 +138,27 @@ export class Creep {
         const dx = this.targetPosition.x - pos.x;
         const dz = this.targetPosition.z - pos.z;
         const distance = Math.sqrt(dx * dx + dz * dz);
+        const step = BABYLON.Vector3.Zero();
 
         if (distance < 1.0) {
             this.onReachDestination();
         } else {
             const stepLength = (this.speed * deltaTime) / distance;
-            pos.x += dx * stepLength;
-            pos.z += dz * stepLength;
+            step.x = dx * stepLength;
+            step.z = dz * stepLength;
             this.rootNode.rotation.y = Math.atan2(dx, dz);
         }
 
-        this.separate(deltaTime);
+        this.separate(deltaTime, step);
+
+        // Slide along solid meshes (checkCollisions) instead of passing through them.
+        const y = pos.y;
+        this.rootNode.moveWithCollisions(step);
+        this.rootNode.position.y = y;
     }
 
     /** Push away from nearby creeps so they don't overlap. */
-    private separate(deltaTime: number) {
+    private separate(deltaTime: number, step: BABYLON.Vector3) {
         const pos = this.rootNode.position;
         const radius = Creep.SEPARATION_RADIUS;
         for (const other of Creep.active) {
@@ -163,8 +173,8 @@ export class Creep {
             const nx = dist > 0.001 ? dx / dist : Math.cos(this.id);
             const nz = dist > 0.001 ? dz / dist : Math.sin(this.id);
             const push = (radius - dist) * Creep.SEPARATION_STRENGTH * deltaTime;
-            pos.x += nx * push;
-            pos.z += nz * push;
+            step.x += nx * push;
+            step.z += nz * push;
         }
     }
 

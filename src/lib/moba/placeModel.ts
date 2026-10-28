@@ -132,6 +132,7 @@ export class PlaceModel {
 
       addedMeshes.forEach((mesh) => {
         mesh.receiveShadows = false;
+        mesh.checkCollisions = true;
       });
 
       this.modelRoot = new BABYLON.TransformNode(`${this.modelName}_root`, this.scene);

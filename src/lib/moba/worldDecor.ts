@@ -60,11 +60,14 @@ const WORLD_MODELS: Record<string, WorldModel> = {
   statue: { file: "roger.glb", position: [-128, 1, -67], scale: 4, rotationY: Math.PI / 2 },
   cottage: { file: "cottage.glb", position: [-469, -20, -438], scale: 1 },
   conch: { file: "Conch1.glb", position: [-41, 25, -217], scale: 300 },
+  conch2: { file: "Conch1.glb", position: [-23, 25, -169], scale: 500},
+  conch3: { file: "Conch1.glb", position: [-10, 25, -208], scale: 400},
   basketStore: { file: "Yellowbasketstore.glb", position: [-309, 1, -31], scale: 3 },
   ledScreen: { file: "led.glb", position: [100, 1, -250], scale: 4, rotationY: -Math.PI / 4 },
   gateway: { file: "gw.glb", position: [-344, 1, -185], scale: 4 },
   salawaki: { file: "salawaki_swimming-optimized.glb", position: [-221, -50, -41], scale: .75 },
 };
+
 
 const BLUE_BASE = new BABYLON.Vector3(200, 0, 200);
 const RED_BASE = new BABYLON.Vector3(-386, 0, -386);

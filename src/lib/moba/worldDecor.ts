@@ -14,7 +14,13 @@ const TREES = [
   { x: -36, z: -407, scale: 8, height: 1.8 },
   { x: 185, z: -394, scale: 8, height: 1.8 },
   { x: -11, z: -170, scale: 8, height: 1.8 },
-  { x: 76, z: -300, scale: 20, height: 3 },
+  { x: -44, z: 350, scale: 20, height: 3 },
+
+  { x: 18, z: 191, scale: 8, height: 1.8 },
+  { x: 76, z: -300, scale: 10, height: 2 },
+  { x: 59, z: 311, scale: 20, height: 3 },
+  { x: 468, z: 355, scale: 20, height: 3 },
+  { x: 335, z: 187, scale: 20, height: 3 },
 ];
 
 const TOWERS = [
@@ -29,9 +35,15 @@ type StoneSpec = { x: number; z: number; height: number; x2?: number; z2?: numbe
 /** Give x2/z2 to lay a row of stones from (x, z) to (x2, z2); omit them for a single stone. */
 const STONES: StoneSpec[] = [
   { x: -144, z: -366, height: 5 },
-   { x: 165, z: -344, height: 10 },
-    { x: -402, z: -384, height: 10 },
-  { x: -47, z: -429, x2: 52, z2: -429, height: 8 },
+  { x: 165, z: -344, height: 10 },
+  { x: -402, z: -384, height: 10 },
+  { x: -47, z: -429, x2: 220, z2: -429, height: 8 },
+
+  { x: -49, z: 298, height: 10 },
+  { x: 306, z: 198, height: 15 },
+  { x: 325, z: 210, height: 5},
+  { x: 20, z: 173, height: 5 },
+  { x: 70, z: 365, height: 15 },
 ];
 
 const FENCES = [
@@ -57,13 +69,15 @@ type WorldModel = {
 /** Static .glb scenery. Add a line here to place a new model; the 5 below are placeholders. */
 const WORLD_MODELS: Record<string, WorldModel> = {
   fountain: { file: "Fountain.glb", position: [-342, 1, -385], scale: 3 },
-  statue: { file: "roger.glb", position: [-128, 1, -67], scale: 4, rotationY: Math.PI / 2 },
-  cottage: { file: "cottage.glb", position: [-469, -20, -438], scale: 1 },
+  statue1: { file: "roger.glb", position: [-128, 1, -67], scale: 4, rotationY: Math.PI / 2 },
+  statue2: { file: "roger.glb", position: [129, 1, 67], scale: 4, rotationY: Math.PI / -2 },
+  cottage1: { file: "cottage.glb", position: [-469, -20, -438], scale: 1.5 },
+  cottage2: { file: "cottage.glb", position: [402, -10, 300], scale: 1.5, rotationY: Math.PI / -2 },
   conch: { file: "Conch1.glb", position: [-41, 25, -217], scale: 300 },
   conch2: { file: "Conch1.glb", position: [-23, 25, -169], scale: 500},
   conch3: { file: "Conch1.glb", position: [-10, 25, -208], scale: 400},
   basketStore: { file: "Yellowbasketstore.glb", position: [-309, 1, -31], scale: 3 },
-  ledScreen: { file: "led.glb", position: [100, 1, -250], scale: 4, rotationY: -Math.PI / 4 },
+  ledScreen: { file: "led.glb", position: [100, 1, -250], scale: 1 },
   gateway: { file: "gw.glb", position: [-344, 1, -185], scale: 4 },
   salawaki: { file: "salawaki_swimming-optimized.glb", position: [-221, -50, -41], scale: .75 },
 };

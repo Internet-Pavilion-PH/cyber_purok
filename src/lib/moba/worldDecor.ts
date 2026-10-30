@@ -87,7 +87,7 @@ const WORLD_MODELS: Record<string, WorldModel> = {
   statue1: { file: "roger.glb", position: [-128, 1, -67], scale: 4, rotationY: Math.PI / 2 },
   statue2: { file: "roger.glb", position: [129, 1, 67], scale: 4, rotationY: Math.PI / -2 },
   cottage1: { file: "cottage.glb", position: [-469, 1, -438], scale: 1.5 },
-  cottage2: { file: "cottage.glb", position: [420, 1, 420], scale: 1.5, rotationY: Math.PI / -2 },
+  cottage2: { file: "pcbhouse.glb", position: [406, 1, 445], scale: 70, rotationY: Math.PI / -2.5 },
   conch: { file: "Conch1.glb", position: [-41, 25, -217], scale: 300 },
   conch2: { file: "Conch1.glb", position: [-23, 25, -169], scale: 500},
   conch3: { file: "Conch1.glb", position: [-10, 25, -208], scale: 400},
@@ -95,6 +95,7 @@ const WORLD_MODELS: Record<string, WorldModel> = {
   ledScreen: { file: "led.glb", position: [203, 1, 332], scale: 1 }, /* NOT WORKING? */
   gateway: { file: "gw.glb", position: [-344, 1, -185], scale: 4 },
   salawaki: { file: "salawaki_swimming-optimized.glb", position: [-221, -50, -41], scale: .75 },
+  circuit1: { file: "ffc1.glb", position: [279, 1, 4], scale: 300, rotationY: Math.PI / -1.5 },
 };
 
 /**  Make creeps emerge from cottages **/

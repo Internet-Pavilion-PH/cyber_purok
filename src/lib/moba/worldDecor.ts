@@ -87,20 +87,22 @@ const WORLD_MODELS: Record<string, WorldModel> = {
   statue1: { file: "roger.glb", position: [-128, 1, -67], scale: 4, rotationY: Math.PI / 2 },
   statue2: { file: "roger.glb", position: [129, 1, 67], scale: 4, rotationY: Math.PI / -2 },
   cottage1: { file: "cottage.glb", position: [-469, 1, -438], scale: 1.5 },
-  cottage2: { file: "pcbhouse.glb", position: [406, 1, 445], scale: 70, rotationY: Math.PI / -2.5 },
   conch: { file: "Conch1.glb", position: [-41, 25, -217], scale: 300 },
   conch2: { file: "Conch1.glb", position: [-23, 25, -169], scale: 500},
   conch3: { file: "Conch1.glb", position: [-10, 25, -208], scale: 400},
   basketStore: { file: "Yellowbasketstore.glb", position: [-309, 1, -31], scale: 3 },
-  ledScreen: { file: "led.glb", position: [203, 1, 332], scale: 1 }, /* NOT WORKING? */
-  gateway: { file: "gw.glb", position: [-344, 1, -185], scale: 4 },
   salawaki: { file: "salawaki_swimming-optimized.glb", position: [-221, -50, -41], scale: .75 },
+  
+  cottage2: { file: "pcbhouse.glb", position: [277, 1, 386], scale: 90, rotationY: Math.PI / -3 },
+  ghostwhisper: { file: "gw.glb", position: [216, 10, 336], scale: 4, rotationY: Math.PI / -1 },
   circuit1: { file: "ffc1.glb", position: [279, 1, 4], scale: 300, rotationY: Math.PI / -1.5 },
+  structure1: { file: "WireStructures.glb", position: [58, 10, 297], scale: 15},
+  structure2: { file: "SolidStructure.glb", position: [31, 1, 336], scale: 25},
 };
 
 /**  Make creeps emerge from cottages **/
-const BLUE_BASE = new BABYLON.Vector3(408, 0, 408);
-const RED_BASE = new BABYLON.Vector3(-386, 0, -386);
+const BLUE_BASE = new BABYLON.Vector3(298, 0, 338);
+const RED_BASE = new BABYLON.Vector3(-298, 0, -338);
 const CREEP_SPAWN_DELAY_MS = 20000;
 
 /** Adds every mesh of a node to the arena's shadow casters (no-op without lights). */
@@ -166,7 +168,7 @@ export const buildWorldDecor = (scene: BABYLON.Scene, arena: ArenaBuilder | null
 
   // Blue base pushes a creep lane toward the red base after a delay.
   window.setTimeout(() => {
-    const creeps = Creep.spawnGroup(scene, BLUE_BASE, RED_BASE, 3, 30);
+    const creeps = Creep.spawnGroup(scene, BLUE_BASE, RED_BASE, 3, 5);
     if (arena?.lights) {
       const lights = arena.lights;
       for (const creep of creeps) {

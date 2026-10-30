@@ -28,6 +28,11 @@ const TOWERS = [
   { position: new BABYLON.Vector3(-100, 0, -100), angle: Math.PI / 4 },
   { position: new BABYLON.Vector3(-437, 0, -123), angle: Math.PI / 9 },
   { position: new BABYLON.Vector3(-71, 0, -440), angle: Math.PI / 2 },
+
+  { position: new BABYLON.Vector3(216, 0, 216), angle: Math.PI / 4 },
+  { position: new BABYLON.Vector3(88, 0, 88), angle: Math.PI / 4 },
+  { position: new BABYLON.Vector3(460, 0, 111), angle: Math.PI / 9 },
+  { position: new BABYLON.Vector3(45, 0, 463), angle: Math.PI / 2.5 },
 ];
 
 type StoneSpec = { x: number; z: number; height: number; x2?: number; z2?: number };
@@ -36,7 +41,7 @@ type StoneSpec = { x: number; z: number; height: number; x2?: number; z2?: numbe
 const STONES: StoneSpec[] = [
   { x: -144, z: -366, height: 5 },
   { x: 165, z: -344, height: 10 },
-  { x: -402, z: -384, height: 10 },
+  { x: -416, z: -302, height: 10 },
   { x: -47, z: -429, x2: 220, z2: -429, height: 8 },
 
   { x: -49, z: 298, height: 10 },
@@ -56,6 +61,16 @@ const FENCES = [
     { x: -244, z: -190 },
     { x: -290, z: -174 },
     { x: -408, z: -127 },
+  ],
+  [
+    { x: 56, z: 434 },
+    { x: 100, z: 353 },
+    { x: 194, z: 236 },
+  ],
+  [
+    { x: 239, z: 196 },
+    { x: 290, z: 174 },
+    { x: 433, z: 127 },
   ],
 ];
 

@@ -99,7 +99,7 @@ const WORLD_MODELS: Record<string, WorldModel> = {
 };
 
 /**  Make creeps emerge from cottages **/
-const BLUE_BASE = new BABYLON.Vector3(420, 0, 420);
+const BLUE_BASE = new BABYLON.Vector3(408, 0, 408);
 const RED_BASE = new BABYLON.Vector3(-386, 0, -386);
 const CREEP_SPAWN_DELAY_MS = 20000;
 
@@ -166,7 +166,7 @@ export const buildWorldDecor = (scene: BABYLON.Scene, arena: ArenaBuilder | null
 
   // Blue base pushes a creep lane toward the red base after a delay.
   window.setTimeout(() => {
-    const creeps = Creep.spawnGroup(scene, BLUE_BASE, RED_BASE, 10, 30);
+    const creeps = Creep.spawnGroup(scene, BLUE_BASE, RED_BASE, 3, 30);
     if (arena?.lights) {
       const lights = arena.lights;
       for (const creep of creeps) {

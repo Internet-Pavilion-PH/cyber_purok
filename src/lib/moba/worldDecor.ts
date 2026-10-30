@@ -86,19 +86,19 @@ const WORLD_MODELS: Record<string, WorldModel> = {
   fountain: { file: "Fountain.glb", position: [-342, 1, -385], scale: 3 },
   statue1: { file: "roger.glb", position: [-128, 1, -67], scale: 4, rotationY: Math.PI / 2 },
   statue2: { file: "roger.glb", position: [129, 1, 67], scale: 4, rotationY: Math.PI / -2 },
-  cottage1: { file: "cottage.glb", position: [-469, -20, -438], scale: 1.5 },
-  cottage2: { file: "cottage.glb", position: [402, -10, 300], scale: 1.5, rotationY: Math.PI / -2 },
+  cottage1: { file: "cottage.glb", position: [-469, 1, -438], scale: 1.5 },
+  cottage2: { file: "cottage.glb", position: [420, 1, 420], scale: 1.5, rotationY: Math.PI / -2 },
   conch: { file: "Conch1.glb", position: [-41, 25, -217], scale: 300 },
   conch2: { file: "Conch1.glb", position: [-23, 25, -169], scale: 500},
   conch3: { file: "Conch1.glb", position: [-10, 25, -208], scale: 400},
   basketStore: { file: "Yellowbasketstore.glb", position: [-309, 1, -31], scale: 3 },
-  ledScreen: { file: "led.glb", position: [100, 1, -250], scale: 1 },
+  ledScreen: { file: "led.glb", position: [203, 1, 332], scale: 1 }, /* NOT WORKING? */
   gateway: { file: "gw.glb", position: [-344, 1, -185], scale: 4 },
   salawaki: { file: "salawaki_swimming-optimized.glb", position: [-221, -50, -41], scale: .75 },
 };
 
-
-const BLUE_BASE = new BABYLON.Vector3(200, 0, 200);
+/**  Make creeps emerge from cottages **/
+const BLUE_BASE = new BABYLON.Vector3(420, 0, 420);
 const RED_BASE = new BABYLON.Vector3(-386, 0, -386);
 const CREEP_SPAWN_DELAY_MS = 20000;
 

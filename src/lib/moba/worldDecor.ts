@@ -13,20 +13,20 @@ const TREES = [
   { x: -11, z: -298, scale: 8, height: 1.8 },
   { x: -36, z: -407, scale: 8, height: 1.8 },
   { x: 185, z: -394, scale: 8, height: 1.8 },
-  { x: -11, z: -170, scale: 8, height: 1.8 },
+  { x: -5, z: -208, scale: 10, height: 2 },
   { x: -44, z: 350, scale: 20, height: 3 },
 
   { x: 18, z: 191, scale: 8, height: 1.8 },
   { x: 76, z: -300, scale: 10, height: 2 },
   { x: 59, z: 311, scale: 20, height: 3 },
   { x: 468, z: 355, scale: 20, height: 3 },
-  { x: 335, z: 187, scale: 20, height: 3 },
+  { x: 226, z: 101, scale: 10, height: 2 },
 ];
 
 const TOWERS = [
   { position: new BABYLON.Vector3(-216, 0, -216), angle: Math.PI / 4 },
-  { position: new BABYLON.Vector3(-100, 0, -100), angle: Math.PI / 4 },
-  { position: new BABYLON.Vector3(-437, 0, -123), angle: Math.PI / 9 },
+  { position: new BABYLON.Vector3(-80, 0, -93), angle: Math.PI / 4 },
+  { position: new BABYLON.Vector3(-462, 0, -102), angle: Math.PI / 9.5 },
   { position: new BABYLON.Vector3(-71, 0, -440), angle: Math.PI / 2 },
 
   { position: new BABYLON.Vector3(216, 0, 216), angle: Math.PI / 4 },
@@ -40,15 +40,43 @@ type StoneSpec = { x: number; z: number; height: number; x2?: number; z2?: numbe
 /** Give x2/z2 to lay a row of stones from (x, z) to (x2, z2); omit them for a single stone. */
 const STONES: StoneSpec[] = [
   { x: -144, z: -366, height: 5 },
-  { x: 165, z: -344, height: 10 },
   { x: -416, z: -302, height: 10 },
-  { x: -47, z: -429, x2: 220, z2: -429, height: 8 },
 
   { x: -49, z: 298, height: 10 },
   { x: 306, z: 198, height: 15 },
   { x: 325, z: 210, height: 5},
   { x: 20, z: 173, height: 5 },
   { x: 70, z: 365, height: 15 },
+
+  /*Riverbank Stones - Lower Right Side*/
+  { x: -47, z: -136, height: 1 },
+  { x: -55, z: -119, height: 10 },
+  { x: -39, z: -123, height: 6 },
+  { x: -46, z: -128, x2: -16, z2: -150, height: 4 },
+  { x: -34, z: -146, height: 5 },
+  { x: -18, z: -155, height: 1 },
+  { x: -8, z: -157, height: 6 },
+  { x: -2, z: -163, x2: 16, z2: -180, height: 2 },
+  { x: 5, z: -178, height: 5 },
+  { x: 23, z: -190, height: 7 },
+  { x: 31, z: -196, x2: 54, z2: -221, height: 3 },
+  { x: 36, z: -214, height: 5 },
+  { x: 43, z: -217, height: 3 },
+  { x: 66, z: -231, height: 10 },
+  { x: 75, z: -241, x2: 113, z2: -280, height: 4 },
+  { x: 81, z: -259, height: 7 },
+  { x: 120, z: -290, height: 8 },
+  { x: 125, z: -306, height: 10 },
+  { x: 138, z: -313, x2: 160, z2: -328, height: 5 },
+  { x: 165, z: -344, height: 10 },
+  { x: 180, z: -344, height: 5 },
+  { x: 185, z: -350, x2: 190, z2: -372, height: 3 },
+  { x: 194, z: -378, height: 5 },
+  { x: 198, z: -383, x2: 218, z2: -405, height: 4 },
+  { x: 217, z: -415, height: 7 },
+  { x: 232, z: -411, height: 10 },
+
+  { x: 282, z: -468, height: 10 },
 ];
 
 const FENCES = [
@@ -60,7 +88,7 @@ const FENCES = [
   [
     { x: -244, z: -190 },
     { x: -290, z: -174 },
-    { x: -408, z: -127 },
+    { x: -429, z: -114 },
   ],
   [
     { x: 56, z: 434 },
@@ -84,8 +112,8 @@ type WorldModel = {
 /** Static .glb scenery. Add a line here to place a new model; the 5 below are placeholders. */
 const WORLD_MODELS: Record<string, WorldModel> = {
   fountain: { file: "Fountain.glb", position: [-342, 1, -385], scale: 3 },
-  statue1: { file: "roger.glb", position: [-128, 1, -67], scale: 4, rotationY: Math.PI / 2 },
-  statue2: { file: "roger.glb", position: [129, 1, 67], scale: 4, rotationY: Math.PI / -2 },
+  statue1: { file: "roger.glb", position: [-106, 1, -73], scale: 4, rotationY: Math.PI / 2 },
+  statue2: { file: "roger.glb", position: [114, 1, 66], scale: 4, rotationY: Math.PI / -2 },
   cottage1: { file: "cottage.glb", position: [-469, 1, -438], scale: 1.5 },
   conch: { file: "Conch1.glb", position: [-41, 25, -217], scale: 300 },
   conch2: { file: "Conch1.glb", position: [-23, 25, -169], scale: 500},
@@ -94,15 +122,26 @@ const WORLD_MODELS: Record<string, WorldModel> = {
   salawaki: { file: "salawaki_swimming-optimized.glb", position: [-221, -50, -41], scale: .75 },
   
   cottage2: { file: "pcbhouse.glb", position: [277, 1, 386], scale: 90, rotationY: Math.PI / -3 },
+  
   ghostwhisper: { file: "gw.glb", position: [216, 10, 336], scale: 4, rotationY: Math.PI / -1 },
+  
   circuit1: { file: "ffc1.glb", position: [279, 1, 4], scale: 300, rotationY: Math.PI / -1.5 },
-  structure1: { file: "WireStructures.glb", position: [58, 10, 297], scale: 15},
-  structure2: { file: "SolidStructure.glb", position: [31, 1, 336], scale: 25},
+  circuit2: { file: "ffc2.glb", position: [12, 20, 258], scale: 300, rotationY: Math.PI / -1.5 },
+  
+  structure1: { file: "WireStructures.glb", position: [457, 1, 218], scale: 30},
+  structure2: { file: "SolidStructure.glb", position: [403, 1, 257], scale: 25},
+  
+  structure3: { file: "SolidStructure.glb", position: [144, 1, 229], scale: 15},
+  structure4: { file: "SolidStructure.glb", position: [124, 1, 181], scale: 5, rotationY: Math.PI / -1},
+
+  structure5: { file: "SolidStructure.glb", position: [-174, 1, 402], scale: 20, rotationY: Math.PI / -1},
+  structure6: { file: "WireStructures.glb", position: [-153, 1, 384], scale: 15 },
+
 };
 
 /**  Make creeps emerge from cottages **/
-const BLUE_BASE = new BABYLON.Vector3(298, 0, 338);
-const RED_BASE = new BABYLON.Vector3(-298, 0, -338);
+const BLUE_BASE = new BABYLON.Vector3(290, 0, 290);
+const RED_BASE = new BABYLON.Vector3(-342, 0, -385);
 const CREEP_SPAWN_DELAY_MS = 20000;
 
 /** Adds every mesh of a node to the arena's shadow casters (no-op without lights). */

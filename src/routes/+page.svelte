@@ -2,25 +2,25 @@
   import { onMount } from "svelte";
   import * as BABYLON from "@babylonjs/core";
   import "@babylonjs/loaders/glTF";
-  import { MultiplayerSocket } from "$lib/socket";
-  import { CustomLoadingScreen } from "$lib/CustomLoadingScreen";
-  import { Hero } from "$lib/moba/hero";
-  import type { ArenaBuilder } from "$lib/moba/arenaBuilder";
+  import { MultiplayerSocket } from "$lib/moba/net/socket";
+  import { CustomLoadingScreen } from "$lib/v1/CustomLoadingScreen";
+  import { Hero } from "$lib/moba/entities/hero";
+  import type { ArenaBuilder } from "$lib/moba/world/arenaBuilder";
   import { createGameScene } from "$lib/moba/gameScene";
-  import { RemoteHeroes, SERVER_STEP, toMapMarkers, type MapMarker } from "$lib/moba/remoteHeroes";
+  import { RemoteHeroes, SERVER_STEP, toMapMarkers, type MapMarker } from "$lib/moba/entities/remoteHeroes";
   import {
     defaultGameCameraConfig,
     focusCameraOn,
     resetGameCameraToTarget,
-  } from "$lib/moba/cameraController";
+  } from "$lib/moba/input/cameraController";
   import { NETWORK_SEND_INTERVAL_MS } from "$lib/moba/constants";
-  import { detectMobile, joystickToMoveDirection } from "$lib/moba/mobileInput";
-  import { PlayerNameRegistry, generateClientUserId, sanitizeName } from "$lib/moba/playerNames";
+  import { detectMobile, joystickToMoveDirection } from "$lib/moba/input/mobileInput";
+  import { PlayerNameRegistry, generateClientUserId, sanitizeName } from "$lib/moba/net/playerNames";
   import {
     createKeyboardController,
     HERO_SKILL_KEYS,
     isSkillKey,
-  } from "$lib/moba/keyboard";
+  } from "$lib/moba/input/keyboard";
   import Ui_Moba from "$lib/moba/Ui_Moba.svelte";
 
   type HeroPosition = { x: number; z: number };

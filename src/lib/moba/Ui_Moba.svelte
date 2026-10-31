@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { heroState, maxHp, maxMana } from "$lib/moba/heroStore";
+  import { heroState, maxHp, maxMana } from "./entities/heroStore";
 
   type DebugPoint = { x: number; y: number };
 

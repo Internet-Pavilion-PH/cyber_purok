@@ -12,7 +12,7 @@ export const createHeroConfig = (
   moveSpeed: 0.20,
   rotationSpeed: 0.08,
   spawnPosition,
-  modelUrl: "",
+  modelUrl: "/assets/heroes/",
   fileName: "JFK_2.glb",
   forwardOffset: Math.PI,
   idleAnimationName: "mixamo_gangnam",

@@ -62,6 +62,8 @@ export class PlaceModel {
   }
 
   private resolveAssetPath(modelName: string): { rootUrl: string; fileName: string } {
+    const normalized = modelName.replace(/^\/+/, "");
+
     if (modelName.startsWith("http://") || modelName.startsWith("https://")) {
       const lastSlash = modelName.lastIndexOf("/");
       return {
@@ -70,9 +72,31 @@ export class PlaceModel {
       };
     }
 
+    const assetPathMap: Record<string, string> = {
+      "Ate_Tanod.glb": "/assets/creeps/",
+      "JFK_2.glb": "/assets/heroes/",
+      "Kuya_Tanod.glb": "/assets/creeps/",
+      "Fountain.glb": "/assets/world/",
+      "Yellowbasketstore.glb": "/assets/world/",
+      "led.glb": "/assets/world/",
+      "Conch1.glb": "/assets/world/",
+      "gw.glb": "/assets/world/",
+      "roger.glb": "/assets/world/",
+      "cottage.glb": "/assets/world/",
+      "pcbhouse.glb": "/assets/world/",
+      "ffc1.glb": "/assets/world/",
+      "salawaki_swimming-optimized.glb": "/assets/world/",
+      "salawaki_isda-optimized.glb": "/assets/world/",
+      "salawaki_swimming.glb": "/assets/world/",
+      "salawaki_isda.glb": "/assets/world/",
+      "WireStructures.glb": "/assets/world/",
+      "SolidStructure.glb": "/assets/world/",
+      "bukid.glb": "/assets/world/",
+    };
+
     return {
-      rootUrl: "/",
-      fileName: modelName.replace(/^\/+/, ""),
+      rootUrl: assetPathMap[normalized] ?? "/",
+      fileName: normalized,
     };
   }
 

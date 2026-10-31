@@ -108,8 +108,9 @@ export class Creep {
 
     private async createCreep() {
         const file = this.isLeader ? "Ate_Tanod.glb" : "Kuya_Tanod.glb";
+        const rootUrl = "/assets/creeps/";
         try {
-            const result = await BABYLON.SceneLoader.ImportMeshAsync("", "/", file, this.scene);
+            const result = await BABYLON.SceneLoader.ImportMeshAsync("", rootUrl, file, this.scene);
             if (!this.isAlive) {
                 result.meshes.forEach((m) => m.dispose());
                 return;

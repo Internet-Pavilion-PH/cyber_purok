@@ -66,8 +66,12 @@ export async function placeModel(
 		rootUrl = modelName.substring(0, lastSlash + 1);
 		fileName = modelName.substring(lastSlash + 1);
 	} else {
-		// Local file: use /static directory
-		rootUrl = '/';
+		// Local file: models live in typed subfolders of /static
+		const folders: Record<string, string> = {
+			'JFK_2.glb': '/heroes/',
+			'bukid.glb': '/world/'
+		};
+		rootUrl = folders[modelName] ?? '/world/';
 		fileName = modelName;
 	}
 	

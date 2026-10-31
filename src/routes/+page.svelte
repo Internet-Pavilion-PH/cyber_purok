@@ -301,7 +301,7 @@
 
     const engine = new BABYLON.Engine(canvas, true);
     BABYLON.SceneLoader.ShowLoadingScreen = true;
-    const loadingScreen = new CustomLoadingScreen("/cyber_purok.png");
+    const loadingScreen = new CustomLoadingScreen("/images/cyber_purok.png");
     engine.loadingScreen = loadingScreen;
     loadingScreen.displayLoadingUI();
 

@@ -71,7 +71,7 @@ export class ArenaBuilder {
     grassMat.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
     grassMat.ambientColor = new BABYLON.Color3(0.25, 0.25, 0.25);
 
-    const mapTex = new BABYLON.Texture("/paint_map.png", this.scene);
+    const mapTex = new BABYLON.Texture("/images/paint_map.png", this.scene);
     mapTex.uScale = 1;
     mapTex.vScale = 1;
     mapTex.hasAlpha = true;

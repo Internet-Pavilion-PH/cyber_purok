@@ -47,13 +47,13 @@
 			if (!engine) return;
 
 			BABYLON.SceneLoader.ShowLoadingScreen = true;
-			engine.loadingScreen = new CustomLoadingScreen(`/cyber_purok.png`);
+			engine.loadingScreen = new CustomLoadingScreen(`/images/cyber_purok.png`);
 
 			const result = await initScene(engine, {
-				heightmapUrl: '/heightmap.png',
+				heightmapUrl: '/images/heightmap.png',
 				groundMaterial: 'grass',
 				cameraPosition: [43.43, 11.64, -1.32],
-				logoUrl: '/cyber_purok.png',
+				logoUrl: '/images/cyber_purok.png',
 				autoRotate,
 				rotateSpeed
 			});

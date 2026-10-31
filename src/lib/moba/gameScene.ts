@@ -1,20 +1,20 @@
 import * as BABYLON from "@babylonjs/core";
 import * as ADDONS from "@babylonjs/addons";
-import { preloadAssets } from "$lib/assetPreloader";
-import type { CustomLoadingScreen } from "$lib/CustomLoadingScreen";
-import { Hero } from "$lib/moba/hero";
-import { createHeroConfig } from "$lib/moba/heroConfig";
-import { ArenaBuilder } from "$lib/moba/arenaBuilder";
-import type { RemoteHeroes } from "$lib/moba/remoteHeroes";
-import { buildWorldDecor, createSky } from "$lib/moba/worldDecor";
-import { spawnDirectionPulse } from "$lib/moba/movePulse";
-import { attachEdgePan } from "$lib/moba/edgePan";
+import { preloadAssets } from "$lib/v1/assetPreloader";
+import type { CustomLoadingScreen } from "$lib/v1/CustomLoadingScreen";
+import { Hero } from "./entities/hero";
+import { createHeroConfig } from "./heroConfig";
+import { ArenaBuilder } from "./world/arenaBuilder";
+import type { RemoteHeroes } from "./entities/remoteHeroes";
+import { buildWorldDecor, createSky } from "./worldDecor";
+import { spawnDirectionPulse } from "./input/movePulse";
+import { attachEdgePan } from "./input/edgePan";
 import {
   configureFixedGameCamera,
   configureMobileFollowCamera,
   defaultGameCameraConfig,
-} from "$lib/moba/cameraController";
-import { CAMERA_EDGE_INSET, GROUND_SIZE, HERO_START } from "$lib/moba/constants";
+} from "./input/cameraController";
+import { CAMERA_EDGE_INSET, GROUND_SIZE, HERO_START } from "./constants";
 
 export type GameSceneOptions = {
   engine: BABYLON.Engine;

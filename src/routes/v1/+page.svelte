@@ -3,11 +3,11 @@
 	import { onMount } from 'svelte';
 	import * as BABYLON from '@babylonjs/core';
 	import '@babylonjs/loaders/glTF';
-	import { CustomLoadingScreen } from '$lib/CustomLoadingScreen';
-	import { placeModel } from '$lib/placeModel';
-	import assetList from '$lib/assetList.json';
-	import { initEngine } from '$lib/engineSetup';
-	import { initScene, startRenderLoop } from '$lib/sceneSetup';
+	import { CustomLoadingScreen } from '$lib/v1/CustomLoadingScreen';
+	import { placeModel } from '$lib/v1/placeModel';
+	import assetList from '$lib/v1/assetList.json';
+	import { initEngine } from '$lib/v1/engineSetup';
+	import { initScene, startRenderLoop } from '$lib/v1/sceneSetup';
 
 	type AssetEntry = {
 		type?: 'model' | 'billboard';

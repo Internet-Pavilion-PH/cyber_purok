@@ -7,7 +7,7 @@ import {
   maxMana,
   hpRegen,
   manaRegen,
-} from "$lib/moba/heroStore";
+} from "./heroStore";
 
 export const ARENA_BOUNDS = 470;
 

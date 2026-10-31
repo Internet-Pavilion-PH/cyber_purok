@@ -566,7 +566,7 @@
     border: 0px solid transparent;
     background:
       linear-gradient(rgba(10, 22, 15, 0.45), rgba(10, 22, 15, 0.45)),
-      url("/map.png") center center / cover no-repeat;
+      url("/images/map.png") center center / cover no-repeat;
     background-blend-mode: multiply;
     opacity: 0.9;
   }

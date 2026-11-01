@@ -27,10 +27,10 @@ const TOWERS = [
   { position: new BABYLON.Vector3(-216, 0, -216), angle: Math.PI / 4 },
   { position: new BABYLON.Vector3(-80, 0, -93), angle: Math.PI / 4 },
   { position: new BABYLON.Vector3(-462, 0, -102), angle: Math.PI / 9.5 },
-  { position: new BABYLON.Vector3(-71, 0, -440), angle: Math.PI / 2 },
+  { position: new BABYLON.Vector3(-63, 0, -444), angle: Math.PI / 2 },
 
   { position: new BABYLON.Vector3(216, 0, 216), angle: Math.PI / 4 },
-  { position: new BABYLON.Vector3(88, 0, 88), angle: Math.PI / 4 },
+  { position: new BABYLON.Vector3(91, 0, 85), angle: Math.PI / 4 },
   { position: new BABYLON.Vector3(460, 0, 111), angle: Math.PI / 9 },
   { position: new BABYLON.Vector3(45, 0, 463), angle: Math.PI / 2.5 },
 ];
@@ -139,7 +139,7 @@ const STONES: StoneSpec[] = [
   { x: -308, z: 461, height: 6 },
 
   /*Riverbank Stones - Upper Right Side*/
-  { x: 118, z: 54, height: 2 },
+  { x: 118, z: 54, height: 4 },
   { x: 125, z: 50, x2: 139, z2: 40, height: 5 },
   { x: 148, z: 26, height: 10 },
   { x: 148, z: 41, height: 3 },
@@ -184,7 +184,7 @@ const FENCES = [
     { x: -194, z: -236 },
   ],
   [
-    { x: -244, z: -190 },
+    { x: -238, z: -195 },
     { x: -290, z: -174 },
     { x: -429, z: -114 },
   ],
@@ -200,6 +200,34 @@ const FENCES = [
   ],
 ];
 
+const BARRIERS = [
+  [
+    { x: 244, z: -410 },
+    { x: 409, z: -254 },
+  ],
+  [
+    { x: 284, z: -456 },
+    { x: 443, z: -293 },
+  ],
+  [
+    { x: -46, z: -110 },
+    { x: 101, z: 42 },
+  ],
+  [
+    { x: -99, z: -61 },
+    { x: 56, z: 89 },
+  ],
+
+  [
+    { x: -444, z: 284 },
+    { x: -282, z: 448 },
+  ],
+  [
+    { x: -411, z: 242 },
+    { x: -249, z: 406 },
+  ],
+];
+
 type WorldModel = {
   file: string;
   position: [number, number, number];
@@ -211,7 +239,7 @@ type WorldModel = {
 const WORLD_MODELS: Record<string, WorldModel> = {
   fountain: { file: "Fountain.glb", position: [-342, 1, -385], scale: 3 },
   statue1: { file: "roger.glb", position: [-106, 1, -73], scale: 4, rotationY: Math.PI / 2 },
-  statue2: { file: "roger.glb", position: [112, 1, 54], scale: 4, rotationY: Math.PI / -2 },
+  statue2: { file: "roger.glb", position: [108, 1, 50], scale: 4, rotationY: Math.PI / -2 },
   cottage1: { file: "cottage.glb", position: [-469, 1, -438], scale: 1.5 },
   conch: { file: "Conch1.glb", position: [-41, 25, -217], scale: 300 },
   conch2: { file: "Conch1.glb", position: [-23, 25, -169], scale: 500},
@@ -298,6 +326,13 @@ export const buildWorldDecor = (scene: BABYLON.Scene, arena: ArenaBuilder | null
 
   for (const points of FENCES) {
     const fence = new Fence(scene, points, 30, 1, 1, 0);
+    makeSolid(fence.rootNode);
+    if (arena?.lights) fence.addShadowCasters(arena.lights.shadowGen);
+    fence.rootNode.position = new BABYLON.Vector3(0, 0, 0);
+  }
+
+  for (const points of BARRIERS) {
+    const fence = new Fence(scene, points, 10, .75, .75, 0);
     makeSolid(fence.rootNode);
     if (arena?.lights) fence.addShadowCasters(arena.lights.shadowGen);
     fence.rootNode.position = new BABYLON.Vector3(0, 0, 0);

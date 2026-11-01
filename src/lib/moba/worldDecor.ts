@@ -1,11 +1,11 @@
 import * as BABYLON from "@babylonjs/core";
-import { Tower } from "$lib/moba/tower";
-import { Creep } from "$lib/moba/creeps";
-import { Fence } from "$lib/moba/fence";
-import { Tree } from "$lib/moba/tree";
-import { Stone } from "$lib/moba/stone";
-import { PlaceModel } from "$lib/moba/placeModel";
-import type { ArenaBuilder } from "$lib/moba/arenaBuilder";
+import { Tower } from "./entities/tower";
+import { Creep } from "./entities/creeps";
+import { Fence } from "./world/fence";
+import { Tree } from "./world/tree";
+import { Stone } from "./world/stone";
+import { PlaceModel } from "./world/placeModel";
+import type { ArenaBuilder } from "./world/arenaBuilder";
 
 const TREES = [
   { x: -110, z: -220, scale: 10, height: 2 },

@@ -1,7 +1,7 @@
 import * as BABYLON from "@babylonjs/core";
-import { Hero } from "$lib/moba/hero";
-import { createHeroConfig } from "$lib/moba/heroConfig";
-import type { ArenaBuilder } from "$lib/moba/arenaBuilder";
+import { Hero } from "./hero";
+import { createHeroConfig } from "../heroConfig";
+import type { ArenaBuilder } from "../world/arenaBuilder";
 
 // Server spawns everyone at (0,0) and integrates moveX*SERVER_STEP, so clients send deltas
 // and offset positions by their own start.

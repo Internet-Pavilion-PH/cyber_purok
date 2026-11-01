@@ -1,4 +1,4 @@
-import { MOBILE_DEAD_ZONE, MOBILE_SPEED_MULTIPLIER } from "$lib/moba/constants";
+import { MOBILE_DEAD_ZONE, MOBILE_SPEED_MULTIPLIER } from "../constants";
 
 export const detectMobile = () =>
   typeof window !== "undefined" &&

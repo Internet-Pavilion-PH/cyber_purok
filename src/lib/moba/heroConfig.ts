@@ -1,5 +1,5 @@
 import * as BABYLON from "@babylonjs/core";
-import type { HeroConfig } from "$lib/moba/hero";
+import type { HeroConfig } from "./entities/hero";
 
 /** Shared hero model/animation setup used by both local and remote heroes. */
 export const createHeroConfig = (

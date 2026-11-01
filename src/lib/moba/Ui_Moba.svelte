@@ -7,20 +7,26 @@
     heroPosition = null,
     remoteMarkers = [],
     onlinePlayers = [],
+    chatMessages = [],
     debugPoint = { x: 0, y: 0 },
     serverConnected = false,
+    playerName = "Player Hero",
     onMoveInput,
     onMinimapSelect,
     onReconnect,
+    onChatSend,
   }: {
     heroPosition?: { x: number; z: number } | null;
     remoteMarkers?: { id: string; name: string; x: number; z: number; color: string }[];
     onlinePlayers?: Array<{ id: string; name: string }>;
+    chatMessages?: Array<{ id: string; author: string; text: string }>;
     debugPoint?: DebugPoint;
     serverConnected?: boolean;
+    playerName?: string;
     onMoveInput?: (input: { x: number; y: number }) => void;
     onMinimapSelect?: (point: { x: number; z: number }) => void;
     onReconnect?: () => void;
+    onChatSend?: (text: string) => void;
   } = $props();
 
   const mapSize = 1000;
@@ -31,7 +37,10 @@
     ((typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod|Mobile|Windows Phone/i.test(navigator.userAgent)) ||
       (typeof window.matchMedia === "function" && window.matchMedia("(pointer: coarse)").matches));
 
+  type ChatMessage = { id: string; author: string; text: string };
+
   let gameSeconds = $state(0);
+  let chatDraft = $state("");
 
   const formatClock = (totalSeconds: number) => {
     const minutes = Math.floor(totalSeconds / 60);
@@ -136,6 +145,16 @@
 
     onMinimapSelect?.({ x: worldX, z: worldZ });
   }
+
+  function submitChat(event: SubmitEvent) {
+    event.preventDefault();
+
+    const message = chatDraft.trim();
+    if (!message) return;
+
+    onChatSend?.(message);
+    chatDraft = "";
+  }
 </script>
 
 <div class="moba-ui" aria-label="MOBA heads-up display">
@@ -176,6 +195,30 @@
     {#if !isMobile}
       <div class="ground-coords" aria-live="polite">({debugPoint.x},{debugPoint.y})</div>
     {/if}
+
+    <div class="chat-panel" aria-label="In-game chat">
+      <div class="chat-header">Chat</div>
+      <div class="chat-log-wrap">
+        <div class="chat-log">
+          {#each chatMessages as message (message.id)}
+            <div class="chat-message">
+              <span class="chat-author">{message.author}:</span>
+              <span>{message.text}</span>
+            </div>
+          {/each}
+        </div>
+      </div>
+      <form class="chat-form" onsubmit={submitChat}>
+        <input
+          bind:value={chatDraft}
+          type="text"
+          maxlength="180"
+          aria-label="Type a chat message"
+          placeholder="Send a message..."
+        />
+        <button type="submit">Send</button>
+      </form>
+    </div>
   </div>
 
   {#if isMobile}
@@ -454,6 +497,92 @@
     padding: 0;
     min-width: 0;
     box-shadow: none;
+  }
+
+  .chat-panel {
+    width: min(240px, 30vw);
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: auto;
+  }
+
+  @media (max-width: 768px) {
+    .chat-panel {
+      width: min(180px, 42vw);
+      min-width: 150px;
+      margin-top: 4px;
+    }
+
+    .chat-message,
+    .chat-form input,
+    .chat-form button,
+    .chat-header {
+      font-size: 0.58rem;
+    }
+  }
+
+  .chat-header {
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #ffffff;
+  }
+
+  .chat-log {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 120px;
+    overflow: auto;
+    padding-right: 2px;
+  }
+
+  .chat-message {
+    font-size: 0.68rem;
+    line-height: 1.45;
+    color: #ffffff;
+    word-break: break-word;
+  }
+
+  .chat-author {
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  .chat-form {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: stretch;
+  }
+
+  .chat-form input {
+    width: 100%;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    color: #ffffff;
+    padding: 4px 0;
+    font-size: 0.72rem;
+    outline: none;
+  }
+
+  .chat-form input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .chat-form button {
+    border: none;
+    background: transparent;
+    color: #ffffff;
+    font-size: 0.56rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0;
+    cursor: pointer;
+    text-align: left;
   }
 
   .minimap-frame {

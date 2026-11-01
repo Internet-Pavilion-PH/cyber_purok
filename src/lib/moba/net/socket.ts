@@ -33,7 +33,15 @@ export type PongMessage = {
   type: "pong";
 };
 
-export type SocketMessage = WelcomeMessage | StateMessage | PresenceMessage | PingMessage | PongMessage;
+export type ChatMessage = {
+  type: "chat";
+  senderId: string;
+  senderName: string;
+  text: string;
+  ts: number;
+};
+
+export type SocketMessage = WelcomeMessage | StateMessage | PresenceMessage | PingMessage | PongMessage | ChatMessage;
 
 export type InputMessage = {
   type: "input";
@@ -105,6 +113,22 @@ function parseSocketMessage(raw: string): SocketMessage | null {
       return { type: "pong" };
     }
 
+    if (
+      type === "chat" &&
+      typeof data.senderId === "string" &&
+      typeof data.senderName === "string" &&
+      typeof data.text === "string" &&
+      typeof data.ts === "number"
+    ) {
+      return {
+        type: "chat",
+        senderId: data.senderId,
+        senderName: data.senderName,
+        text: data.text,
+        ts: data.ts,
+      };
+    }
+
     return null;
   } catch (error) {
     console.error("Failed to parse multiplayer socket message:", error);
@@ -125,6 +149,7 @@ export class MultiplayerSocket {
   private stateHandler: ((message: StateMessage) => void) | null = null;
   private welcomeHandler: ((message: WelcomeMessage) => void) | null = null;
   private presenceHandler: ((message: PresenceMessage) => void) | null = null;
+  private chatHandler: ((message: ChatMessage) => void) | null = null;
   private closeHandler: (() => void) | null = null;
   private errorHandler: ((event: Event) => void) | null = null;
 
@@ -135,6 +160,7 @@ export class MultiplayerSocket {
     onState?: (message: StateMessage) => void;
     onWelcome?: (message: WelcomeMessage) => void;
     onPresence?: (message: PresenceMessage) => void;
+    onChat?: (message: ChatMessage) => void;
     onClose?: () => void;
     onError?: (event: Event) => void;
   };
@@ -202,6 +228,7 @@ export class MultiplayerSocket {
     onState?: (message: StateMessage) => void;
     onWelcome?: (message: WelcomeMessage) => void;
     onPresence?: (message: PresenceMessage) => void;
+    onChat?: (message: ChatMessage) => void;
     onClose?: () => void;
     onError?: (event: Event) => void;
   }) {
@@ -221,6 +248,7 @@ export class MultiplayerSocket {
     this.stateHandler = options?.onState ?? null;
     this.welcomeHandler = options?.onWelcome ?? null;
     this.presenceHandler = options?.onPresence ?? null;
+    this.chatHandler = options?.onChat ?? null;
     this.closeHandler = options?.onClose ?? null;
     this.errorHandler = options?.onError ?? null;
 
@@ -269,6 +297,11 @@ export class MultiplayerSocket {
 
       if (data.type === "presence") {
         this.presenceHandler?.(data);
+        return;
+      }
+
+      if (data.type === "chat") {
+        this.chatHandler?.(data);
       }
     };
 
@@ -327,6 +360,20 @@ export class MultiplayerSocket {
     this.socket.send(JSON.stringify(input));
   }
 
+  sendChat(text: string, senderName = "Hero", senderId?: string) {
+    if (!this.socket || this.socket.readyState !== WebSocket.OPEN || !text.trim()) return;
+
+    this.socket.send(
+      JSON.stringify({
+        type: "chat",
+        senderId: senderId ?? "local",
+        senderName,
+        text: text.trim(),
+        ts: Date.now(),
+      } satisfies ChatMessage),
+    );
+  }
+
   sendMove(moveX = 0, moveY = 0, yaw = 0) {
     this.sendInput({
       type: "input",
@@ -362,6 +409,7 @@ export const createMultiplayerSocket = (options?: {
   onState?: (message: StateMessage) => void;
   onWelcome?: (message: WelcomeMessage) => void;
   onPresence?: (message: PresenceMessage) => void;
+  onChat?: (message: ChatMessage) => void;
   onClose?: () => void;
   onError?: (event: Event) => void;
 }) => new MultiplayerSocket().connect(options);

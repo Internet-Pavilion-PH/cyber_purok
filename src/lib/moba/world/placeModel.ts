@@ -85,6 +85,7 @@ export class PlaceModel {
       "cottage.glb": "/world/",
       "pcbhouse.glb": "/world/",
       "ffc1.glb": "/world/",
+      "ffc2.glb": "/world/",
       "salawaki_swimming-optimized.glb": "/world/",
       "salawaki_isda-optimized.glb": "/world/",
       "salawaki_swimming.glb": "/world/",

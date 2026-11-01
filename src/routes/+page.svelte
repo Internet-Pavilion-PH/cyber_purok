@@ -29,12 +29,15 @@
 
   // --- State ---
   let canvas: HTMLCanvasElement;
+  type ChatEntry = { id: string; author: string; text: string };
+
   let heroPosition: HeroPosition = { x: 0, z: 0 };
   let debugPoint = { x: 0, y: 0 };
   let playerName = "Player Hero";
   const knownPlayerNames = new PlayerNameRegistry();
   let remoteMarkers: MapMarker[] = [];
   let onlinePlayers: Array<{ id: string; name: string }> = [];
+  let chatMessages: ChatEntry[] = [];
 
   let sceneRef: BABYLON.Scene | null = null;
   let gameCamera: BABYLON.ArcRotateCamera | null = null;
@@ -128,6 +131,21 @@
     return name;
   };
 
+  const handleChatSend = (text: string) => {
+    const nextText = text.trim();
+    if (!nextText) return;
+
+    multiplayerSocket?.sendChat(nextText, playerName, clientUserId);
+    chatMessages = [
+      ...chatMessages,
+      {
+        id: `chat-${Date.now()}-${clientUserId}`,
+        author: playerName,
+        text: nextText,
+      },
+    ].slice(-5);
+  };
+
   const handleHeroKey = (key: string, isPressed: boolean) => {
     if (!isPressed) return;
 
@@ -190,6 +208,16 @@
         });
       },
       onPresence: (message) => console.log("presence", message),
+      onChat: (message) => {
+        chatMessages = [
+          ...chatMessages,
+          {
+            id: `chat-${message.ts}-${message.senderId}`,
+            author: message.senderName,
+            text: message.text,
+          },
+        ].slice(-5);
+      },
       onClose: () => {
         isServerConnected = false;
         localPlayerId = null;
@@ -331,11 +359,14 @@
   heroPosition={heroPosition}
   {remoteMarkers}
   {onlinePlayers}
+  {chatMessages}
   debugPoint={debugPoint}
   serverConnected={isServerConnected}
+  playerName={playerName}
   onMoveInput={applyMobileMovement}
   onMinimapSelect={handleMinimapSelect}
   onReconnect={connectMultiplayer}
+  onChatSend={handleChatSend}
 />
 
 <canvas bind:this={canvas} class="babylon-canvas"></canvas>

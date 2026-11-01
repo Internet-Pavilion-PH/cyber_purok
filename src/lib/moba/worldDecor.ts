@@ -217,7 +217,6 @@ const BARRIERS = [
     { x: -99, z: -61 },
     { x: 56, z: 89 },
   ],
-
   [
     { x: -444, z: 284 },
     { x: -282, z: 448 },
@@ -254,8 +253,8 @@ const WORLD_MODELS: Record<string, WorldModel> = {
   circuit1: { file: "ffc1.glb", position: [279, 1, 4], scale: 300, rotationY: Math.PI / -1.5 },
   circuit2: { file: "ffc2.glb", position: [12, 20, 258], scale: 300, rotationY: Math.PI / -1.5 },
   
-  structure1: { file: "WireStructures.glb", position: [457, 1, 218], scale: 30},
-  structure2: { file: "SolidStructure.glb", position: [403, 1, 257], scale: 25},
+  structure1: { file: "WireStructures.glb", position: [422, 1, -96], scale: 30},
+  structure2: { file: "SolidStructure.glb", position: [426, 1, -166], scale: 15},
   
   structure3: { file: "SolidStructure.glb", position: [144, 1, 229], scale: 15},
   structure4: { file: "SolidStructure.glb", position: [124, 1, 181], scale: 5, rotationY: Math.PI / -1},

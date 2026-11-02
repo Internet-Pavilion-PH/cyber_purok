@@ -197,7 +197,11 @@
     {/if}
 
     <div class="chat-panel" aria-label="In-game chat">
-      <div class="chat-header">Chat</div>
+      <div class="chat-header">
+        <svg class="chat-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 7.5A2.5 2.5 0 0 1 7.5 5h9A2.5 2.5 0 0 1 19 7.5v6A2.5 2.5 0 0 1 16.5 16H11l-4.5 3v-3H7.5A2.5 2.5 0 0 1 5 13.5v-6Z"></path>
+        </svg>
+      </div>
       <div class="chat-log-wrap">
         <div class="chat-log">
           {#each chatMessages as message (message.id)}
@@ -258,8 +262,11 @@
           <span class="status-label">Server offline</span>
           <button class="reconnect-button" type="button" onclick={onReconnect}>Reconnect</button>
         {:else}
-          <span class="status-dot online"></span>
-          <span class="status-label">Online {onlinePlayers.length}</span>
+          <svg class="status-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <circle class="status-head" cx="12" cy="7" r="4.2"></circle>
+            <path class="status-body" d="M5 18c1.3-3 4.1-4.5 7-4.5s5.7 1.5 7 4.5"></path>
+          </svg>
+          <span class="status-count">{onlinePlayers.length}</span>
         {/if}
       </div>
       {#if !serverConnected}
@@ -339,9 +346,30 @@
     box-shadow: 0 0 10px rgba(255, 123, 123, 0.8);
   }
 
-  .status-dot.online {
-    background: #7efc9a;
-    box-shadow: 0 0 10px rgba(126, 252, 154, 0.8);
+  .status-icon {
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+    overflow: visible;
+    flex-shrink: 0;
+  }
+
+  .status-head,
+  .status-body {
+    fill: none;
+    stroke: #7efc9a;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 6px rgba(126, 252, 154, 0.8));
+  }
+
+  .status-count {
+    color: #d7ffe3;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1;
   }
 
   .status-label {
@@ -524,10 +552,22 @@
   }
 
   .chat-header {
-    font-size: 0.6rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
     color: #ffffff;
+  }
+
+  .chat-icon {
+    width: 14px;
+    height: 14px;
+    display: block;
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.5));
   }
 
   .chat-log {

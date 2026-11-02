@@ -209,6 +209,8 @@
       },
       onPresence: (message) => console.log("presence", message),
       onChat: (message) => {
+        // own messages are already appended locally in handleChatSend
+        if (message.senderId === clientUserId) return;
         chatMessages = [
           ...chatMessages,
           {

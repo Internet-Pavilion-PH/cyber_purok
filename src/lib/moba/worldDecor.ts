@@ -244,7 +244,7 @@ const WORLD_MODELS: Record<string, WorldModel> = {
   conch2: { file: "Conch1.glb", position: [-23, 25, -169], scale: 500},
   conch3: { file: "Conch1.glb", position: [-10, 25, -208], scale: 400},
   basketStore: { file: "Yellowbasketstore.glb", position: [-309, 1, -31], scale: 3 },
-  salawaki: { file: "salawaki_swimming-optimized.glb", position: [-221, -50, -41], scale: .75 },
+  salawaki: { file: "salawaki.glb", position: [-121, -10, 109], scale: .75 },
   
   cottage2: { file: "pcbhouse.glb", position: [277, 1, 386], scale: 90, rotationY: Math.PI / -3 },
   
@@ -261,6 +261,8 @@ const WORLD_MODELS: Record<string, WorldModel> = {
 
   structure5: { file: "SolidStructure.glb", position: [-174, 1, 402], scale: 20, rotationY: Math.PI / -1},
   structure6: { file: "WireStructures.glb", position: [-153, 1, 384], scale: 15 },
+
+  riverworld: { file: "salawaki_isda-optimized.glb", position: [66, 0, -145], scale: .4 },
 
 };
 
@@ -314,6 +316,7 @@ export const buildWorldDecor = (scene: BABYLON.Scene, arena: ArenaBuilder | null
       new PlaceModel(scene, file, position, {
         scaleFactor: scale,
         rotation: [0, rotationY, 0],
+        mergeMeshes: true,
       }),
   );
 

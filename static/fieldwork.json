@@ -1,0 +1,62 @@
+[
+  {
+    "station": "A",
+    "coordinates": { "x": -18, "y": 0, "z": 12 },
+    "highlights": [
+      "Start point",
+      "Spawn area",
+      "Section A: welcome to cyberpurok"
+    ]
+  },
+  {
+    "station": "B",
+    "coordinates": { "x": 2, "y": 0, "z": 8 },
+    "highlights": [
+      "ESC Biennale contribution",
+      "Ghostwiper Kolo? version",
+      "Creative digital artifact cluster"
+    ]
+  },
+  {
+    "station": "C",
+    "coordinates": { "x": 18, "y": 0, "z": 0 },
+    "highlights": [
+      "ESC Biennale contribution",
+      "Clickable blocks via objects",
+      "Crates",
+      "Panawagan Barangay 3 model",
+      "Powerplant 3D version",
+      "Yellow Basket 3D version"
+    ]
+  },
+  {
+    "station": "D",
+    "coordinates": { "x": 22, "y": 0, "z": -18 },
+    "highlights": [
+      "ESC Biennale contribution",
+      "Cyberpurok ver 1 replica",
+      "VOV version",
+      "Early public prototype"
+    ]
+  },
+  {
+    "station": "E",
+    "coordinates": { "x": 4, "y": 0, "z": -28 },
+    "highlights": [
+      "ESC Biennale contribution",
+      "Cyberpurok ver 2 (VOV) replica",
+      "Expanded iteration",
+      "Refined spatial study"
+    ]
+  },
+  {
+    "station": "F",
+    "coordinates": { "x": -20, "y": 0, "z": -4 },
+    "highlights": [
+      "Manila Lights",
+      "3D version",
+      "Nighttime visual orientation",
+      "End point / landmark section"
+    ]
+  }
+]

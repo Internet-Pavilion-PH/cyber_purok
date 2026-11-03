@@ -3,8 +3,9 @@ import * as ADDONS from "@babylonjs/addons";
 import { preloadAssets } from "$lib/v1/assetPreloader";
 import type { CustomLoadingScreen } from "$lib/v1/CustomLoadingScreen";
 import { Hero } from "./entities/hero";
-import { createHeroConfig } from "./heroConfig";
+import { createHeroConfig } from "./entities/heroConfig";
 import { ArenaBuilder } from "./world/arenaBuilder";
+import { FieldworkDecal } from "./world/fieldworkDecal";
 import type { RemoteHeroes } from "./entities/remoteHeroes";
 import { buildWorldDecor, createSky } from "./worldDecor";
 import { spawnDirectionPulse } from "./input/movePulse";
@@ -99,6 +100,7 @@ export const createGameScene = (options: GameSceneOptions) => {
   const camera = setupGameCamera(scene, options);
   setupRightClickMove(scene, arena.ground, options);
   createSky(scene);
+  FieldworkDecal.createGroundDecals(scene, arena.ground);
   const { models } = buildWorldDecor(scene, arena);
 
   scene.onBeforeRenderObservable.add(() => arena.tickTime(engine.getDeltaTime()));

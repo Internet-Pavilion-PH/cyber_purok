@@ -75,6 +75,7 @@ export class PlaceModel {
     const assetPathMap: Record<string, string> = {
       "Ate_Tanod.glb": "/creeps/",
       "JFK_2.glb": "/heroes/",
+      "chef.glb": "/heroes/",
       "Kuya_Tanod.glb": "/creeps/",
       "Fountain.glb": "/world/",
       "Yellowbasketstore.glb": "/world/",

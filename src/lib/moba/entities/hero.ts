@@ -30,6 +30,7 @@ export interface HeroConfig {
   modelUrl?: string;
   fileName?: string;
   forwardOffset?: number;
+  headOffsetY?: number;
   idleAnimationName?: string;
   walkAnimationName?: string;
   attackAnimationName?: string;
@@ -199,13 +200,15 @@ export class Hero {
     mesh.ellipsoid = new BABYLON.Vector3(2, 3, 2);
     mesh.ellipsoidOffset = new BABYLON.Vector3(0, 3, 0);
 
-  // Create an anchor node positioned at head height in 3D space
-  this.headAnchor = new BABYLON.TransformNode("headAnchor", this.scene);
-  this.headAnchor.parent = mesh;
-  
-  // Adjust Y value based on the unscaled height of your mesh
-  this.headAnchor.position = new BABYLON.Vector3(0, 4.5, 0);
+    // Keep the UI target anchored to the model's actual height rather than a fixed magic number.
+    this.headAnchor = new BABYLON.TransformNode("headAnchor", this.scene);
+    this.headAnchor.parent = mesh;
 
+    mesh.computeWorldMatrix(true);
+    const bounds = mesh.getBoundingInfo().boundingBox;
+    const modelHeight = bounds.maximumWorld.y - bounds.minimumWorld.y;
+    const fallbackOffset = this.config.headOffsetY ?? Math.max(2, modelHeight * 0.75);
+    this.headAnchor.position = new BABYLON.Vector3(0, fallbackOffset, 0);
   }
 
   private cacheAnimations(groups: BABYLON.AnimationGroup[]) {

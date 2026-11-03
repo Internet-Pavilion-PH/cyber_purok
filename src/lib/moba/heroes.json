@@ -1,0 +1,31 @@
+{
+  "chef": {
+    "modelUrl": "/heroes/",
+    "fileName": "chef.glb",
+    "modelScale": 10,
+    "headOffsetY": 4.5,
+      "headOffsetX": 2.5,
+    "idleAnimationName": "idle",
+    "walkAnimationName": "running",
+    "skillAnimations": {
+      "q": "mixamo_arms hiphop dancing",
+      "w": "mixamo_arms hiphop dancing.002",
+      "e": "E",
+      "r": "R"
+    }
+  },
+  "jfk2": {
+    "modelUrl": "/heroes/",
+    "fileName": "JFK_2.glb",
+    "modelScale": 5,
+    "headOffsetY": 4.5,
+    "idleAnimationName": "mixamo_gangnam",
+    "walkAnimationName": "mixamo_catwalk",
+    "skillAnimations": {
+      "q": "mixamo_arms hiphop dancing",
+      "w": "mixamo_arms hiphop dancing.002",
+      "e": "E",
+      "r": "R"
+    }
+  }
+}

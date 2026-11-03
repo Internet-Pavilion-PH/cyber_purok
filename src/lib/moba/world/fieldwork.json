@@ -1,7 +1,7 @@
 [
   {
     "station": "A",
-    "coordinates": { "x": -18, "y": 0, "z": 12 },
+    "coordinates": { "x": -285, "y": 0, "z": -278 },
     "highlights": [
       "Start point",
       "Spawn area",
@@ -10,7 +10,7 @@
   },
   {
     "station": "B",
-    "coordinates": { "x": 2, "y": 0, "z": 8 },
+    "coordinates": { "x": -107, "y": 0, "z": -399 },
     "highlights": [
       "ESC Biennale contribution",
       "Ghostwiper Kolo? version",
@@ -31,7 +31,7 @@
   },
   {
     "station": "D",
-    "coordinates": { "x": 22, "y": 0, "z": -18 },
+    "coordinates": { "x": -8, "y": 0, "z": -347},
     "highlights": [
       "ESC Biennale contribution",
       "Cyberpurok ver 1 replica",
@@ -41,7 +41,7 @@
   },
   {
     "station": "E",
-    "coordinates": { "x": 4, "y": 0, "z": -28 },
+    "coordinates": { "x": 108, "y": 0, "z": -377 },
     "highlights": [
       "ESC Biennale contribution",
       "Cyberpurok ver 2 (VOV) replica",
@@ -51,7 +51,7 @@
   },
   {
     "station": "F",
-    "coordinates": { "x": -20, "y": 0, "z": -4 },
+    "coordinates": { "x": 219, "y": 0, "z": -435 },
     "highlights": [
       "Manila Lights",
       "3D version",

@@ -238,7 +238,8 @@ type WorldModel = {
 const WORLD_MODELS: Record<string, WorldModel> = {
   fountain: { file: "Fountain.glb", position: [-342, 1, -385], scale: 3 },
   statue1: { file: "roger.glb", position: [-106, 1, -73], scale: 4, rotationY: Math.PI / 2 },
-  statue2: { file: "roger.glb", position: [108, 1, 50], scale: 4, rotationY: Math.PI / -2 },
+  statue2: { file: "JoelTower.glb", position: [108, 1, 50], scale: 80, rotationY: Math.PI / -2 },
+  statue3: { file: "JoelTower.glb", position: [211, 1, 157], scale: 80, rotationY: Math.PI / -2 },
   cottage1: { file: "cottage.glb", position: [-469, 1, -438], scale: 1.5 },
   conch: { file: "Conch1.glb", position: [-41, 25, -217], scale: 300 },
   conch2: { file: "Conch1.glb", position: [-23, 25, -169], scale: 500},

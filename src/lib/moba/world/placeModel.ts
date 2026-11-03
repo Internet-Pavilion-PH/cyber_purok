@@ -92,6 +92,7 @@ export class PlaceModel {
       "WireStructures.glb": "/world/",
       "SolidStructure.glb": "/world/",
       "bukid.glb": "/world/",
+      "JoelTower.glb": "/world/"
     };
 
     return {

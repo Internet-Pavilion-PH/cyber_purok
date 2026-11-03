@@ -382,5 +382,7 @@
     display: block;
     width: 100vw;
     height: 100vh;
+    touch-action: none;
+    user-select: none;
   }
 </style>

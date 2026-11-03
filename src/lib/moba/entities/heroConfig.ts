@@ -27,7 +27,7 @@ export const createHeroConfig = (
   id: string,
   name: string,
   spawnPosition: BABYLON.Vector3,
-  preset: HeroPresetName = "chef",
+  preset: HeroPresetName = "jfk2",
 ): HeroConfig => ({
   id,
   name,

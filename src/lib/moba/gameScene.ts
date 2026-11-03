@@ -26,7 +26,7 @@ export type GameSceneOptions = {
   remoteHeroes: RemoteHeroes;
   /** The local hero's mesh once loaded; the mobile camera follows it. */
   getHeroMesh: () => BABYLON.AbstractMesh | null;
-  /** The current right-click move target; the mobile camera stops following while one is set. */
+  /** The current right-click move target; the mobile camera keeps following the hero while it moves. */
   getMoveTarget: () => BABYLON.Vector3 | null;
   onMoveTarget: (target: BABYLON.Vector3) => void;
   /** Called with the rounded ground point of every click, for the debug readout. */
@@ -38,7 +38,7 @@ export type GameSceneOptions = {
 };
 
 const setupGameCamera = (scene: BABYLON.Scene, options: GameSceneOptions) => {
-  const { canvas, isMobile, getHeroMesh, getMoveTarget } = options;
+  const { canvas, isMobile, getHeroMesh } = options;
   const camera = new BABYLON.ArcRotateCamera(
     "gameCamera",
     defaultGameCameraConfig.alpha,
@@ -53,7 +53,7 @@ const setupGameCamera = (scene: BABYLON.Scene, options: GameSceneOptions) => {
     configureMobileFollowCamera(camera, HERO_START);
     scene.onBeforeRenderObservable.add(() => {
       const heroMesh = getHeroMesh();
-      if (heroMesh && !getMoveTarget()) camera.setTarget(heroMesh.position.clone());
+      if (heroMesh) camera.setTarget(heroMesh.position.clone());
     });
   } else {
     configureFixedGameCamera(camera, canvas);

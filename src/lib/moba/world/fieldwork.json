@@ -19,7 +19,7 @@
   },
   {
     "station": "C",
-    "coordinates": { "x": 18, "y": 0, "z": 0 },
+    "coordinates": { "x": -32, "y": 0, "z": -441},
     "highlights": [
       "ESC Biennale contribution",
       "Clickable blocks via objects",

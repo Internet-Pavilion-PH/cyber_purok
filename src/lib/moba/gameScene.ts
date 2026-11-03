@@ -82,7 +82,11 @@ const setupRightClickMove = (
     const point = pick.pickedPoint;
     options.onGroundClick({ x: Math.round(point.x), z: Math.round(point.z) });
 
-    if (event.event.button !== 2) return;
+    const pointerType = (event.event as PointerEvent & { pointerType?: string }).pointerType;
+    const isTouchTap = pointerType === "touch";
+    const isContextMenu = event.event.button === 2;
+    if (!isTouchTap && !isContextMenu) return;
+
     const target = new BABYLON.Vector3(point.x, 0, point.z);
     options.onMoveTarget(target);
     spawnDirectionPulse(scene, target);

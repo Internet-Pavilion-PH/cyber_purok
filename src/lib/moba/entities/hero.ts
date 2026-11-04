@@ -156,6 +156,8 @@ export class Hero {
   public update(dt: number) {
     if (!this.mesh) return;
 
+    // moveSpeed is tuned per 60fps frame; scale by elapsed time so low-fps devices move at the same speed.
+    this.frameScale = Math.min(dt, 0.1) * 60;
     this.updateMovement();
     this.updateRegeneration(dt);
     this.updateUI();
@@ -344,6 +346,8 @@ export class Hero {
     this.mesh.position.y = y;
   }
 
+  private frameScale = 1;
+
   private updateMovement() {
     if (!this.mesh) return;
 
@@ -382,7 +386,7 @@ export class Hero {
       this.config.rotationSpeed,
     );
 
-    this.stepWithCollisions(direction.scale(this.config.moveSpeed));
+    this.stepWithCollisions(direction.scale(this.config.moveSpeed * this.frameScale));
     this.mesh.position.x = BABYLON.Scalar.Clamp(this.mesh.position.x, -ARENA_BOUNDS, ARENA_BOUNDS);
     this.mesh.position.z = BABYLON.Scalar.Clamp(this.mesh.position.z, -ARENA_BOUNDS, ARENA_BOUNDS);
 

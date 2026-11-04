@@ -31,7 +31,7 @@ export const createHeroConfig = (
 ): HeroConfig => ({
   id,
   name,
-  moveSpeed: 0.20,
+  moveSpeed: 0.45,
   rotationSpeed: 0.08,
   spawnPosition,
   modelScale: HERO_PRESETS[preset].modelScale,

@@ -10,6 +10,7 @@ export const HERO_PRESETS = heroCatalog as Record<
     modelUrl: string;
     fileName: string;
     modelScale: number;
+    headOffsetX?: number;
     headOffsetY?: number;
     idleAnimationName: string;
     walkAnimationName: string;
@@ -27,7 +28,7 @@ export const createHeroConfig = (
   id: string,
   name: string,
   spawnPosition: BABYLON.Vector3,
-  preset: HeroPresetName = "jfk2",
+  preset: HeroPresetName = "chef",
 ): HeroConfig => ({
   id,
   name,
@@ -38,6 +39,7 @@ export const createHeroConfig = (
   modelUrl: HERO_PRESETS[preset].modelUrl,
   fileName: HERO_PRESETS[preset].fileName,
   forwardOffset: Math.PI,
+  headOffsetX: HERO_PRESETS[preset].headOffsetX,
   headOffsetY: HERO_PRESETS[preset].headOffsetY,
   idleAnimationName: HERO_PRESETS[preset].idleAnimationName,
   walkAnimationName: HERO_PRESETS[preset].walkAnimationName,

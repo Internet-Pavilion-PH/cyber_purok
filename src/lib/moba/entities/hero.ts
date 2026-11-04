@@ -30,6 +30,7 @@ export interface HeroConfig {
   modelUrl?: string;
   fileName?: string;
   forwardOffset?: number;
+  headOffsetX?: number;
   headOffsetY?: number;
   idleAnimationName?: string;
   walkAnimationName?: string;
@@ -202,15 +203,16 @@ export class Hero {
     mesh.ellipsoid = new BABYLON.Vector3(2, 3, 2);
     mesh.ellipsoidOffset = new BABYLON.Vector3(0, 3, 0);
 
-    // Keep the UI target anchored to the model's actual height rather than a fixed magic number.
+    // Keep the UI target attached in the mesh's local space so it rotates with the hero.
     this.headAnchor = new BABYLON.TransformNode("headAnchor", this.scene);
     this.headAnchor.parent = mesh;
 
     mesh.computeWorldMatrix(true);
-    const bounds = mesh.getBoundingInfo().boundingBox;
-    const modelHeight = bounds.maximumWorld.y - bounds.minimumWorld.y;
-    const fallbackOffset = this.config.headOffsetY ?? Math.max(2, modelHeight * 0.75);
-    this.headAnchor.position = new BABYLON.Vector3(0, fallbackOffset, 0);
+    const { min, max } = mesh.getHierarchyBoundingVectors(true);
+    const localHeight = Math.max(1, max.y - min.y);
+    const baseOffsetX = this.config.headOffsetX ?? 0;
+    const baseOffsetY = this.config.headOffsetY ?? Math.max(2, localHeight * 0.75);
+    this.headAnchor.position = new BABYLON.Vector3(baseOffsetX, baseOffsetY, 0);
   }
 
   private cacheAnimations(groups: BABYLON.AnimationGroup[]) {
@@ -325,15 +327,11 @@ export class Hero {
     stack.addControl(manaBg);
 
     this.uiTexture.addControl(stack);
-    stack.linkWithMesh(mesh);
-    stack.linkOffsetY = -150;
 
-  if (this.headAnchor) {
-    stack.linkWithMesh(this.headAnchor);
-    stack.linkOffsetY = 0; // No hardcoded pixel offset needed!
-  }
-
-
+    const anchor = this.headAnchor ?? mesh;
+    stack.linkWithMesh(anchor);
+    stack.linkOffsetX = 0;
+    stack.linkOffsetY = 0;
   }
 
   // --- PRIVATE FRAME UPDATE LOOPS ---

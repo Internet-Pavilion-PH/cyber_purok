@@ -115,6 +115,14 @@ export const createGameScene = (options: GameSceneOptions) => {
 
   void preloadAssets([...models.map((model) => model.load()), hero.load()])
     .then(() => {
+      if (hero.mesh) {
+        const heroMeshes = [hero.mesh, ...hero.mesh.getChildMeshes()];
+        heroMeshes.forEach((mesh) => {
+          if (mesh instanceof BABYLON.Mesh) {
+            mesh.showBoundingBox = false;
+          }
+        });
+      }
       if (arena.lights && hero.mesh) arena.lights.addShadowCaster(hero.mesh);
       hero.playAnimation("Idle");
       options.onHeroLoaded(hero);

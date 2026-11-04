@@ -7,13 +7,14 @@
   import { Hero } from "$lib/moba/entities/hero";
   import type { ArenaBuilder } from "$lib/moba/world/arenaBuilder";
   import { createGameScene } from "$lib/moba/gameScene";
-  import { RemoteHeroes, SERVER_STEP, toMapMarkers, type MapMarker } from "$lib/moba/entities/remoteHeroes";
+  import { RemoteHeroes, toMapMarkers, type MapMarker } from "$lib/moba/entities/remoteHeroes";
+  import { createMovementSender } from "$lib/moba/net/movementSender";
+  import { readStoredName, writeStoredName } from "$lib/moba/net/storedName";
   import {
     defaultGameCameraConfig,
     focusCameraOn,
     resetGameCameraToTarget,
   } from "$lib/moba/input/cameraController";
-  import { NETWORK_SEND_INTERVAL_MS } from "$lib/moba/constants";
   import { detectMobile, joystickToMoveDirection } from "$lib/moba/input/mobileInput";
   import { PlayerNameRegistry, generateClientUserId, sanitizeName } from "$lib/moba/net/playerNames";
   import {
@@ -56,9 +57,6 @@
   let clientUserId = "";
   let isServerConnected = false;
   let keyboardController: ReturnType<typeof createKeyboardController> | null = null;
-  let lastSentAt = 0;
-  let lastSentPos: HeroPosition | null = null;
-  let lastSentYaw = 0;
 
   const remoteHeroes = new RemoteHeroes({
     getScene: () => sceneRef,
@@ -100,24 +98,6 @@
     knownPlayerNames.set(clientUserId, nextName);
     hero?.updateDisplayName(nextName);
     return nextName;
-  };
-
-  const PLAYER_NAME_KEY = "cyberpurok:playerName";
-
-  const readStoredName = () => {
-    try {
-      return localStorage.getItem(PLAYER_NAME_KEY) ?? "";
-    } catch {
-      return "";
-    }
-  };
-
-  const writeStoredName = (name: string) => {
-    try {
-      localStorage.setItem(PLAYER_NAME_KEY, name);
-    } catch {
-      // storage unavailable (private mode); name just won't persist
-    }
   };
 
   const resolvePlayerName = () => {
@@ -239,33 +219,20 @@
     });
   };
 
-  /** Sends movement deltas (in server steps) at most every NETWORK_SEND_INTERVAL_MS. */
-  const sendHeroMovement = (localHero: Hero & { mesh: BABYLON.AbstractMesh }) => {
-    const now = performance.now();
-    if (!multiplayerSocket?.connected || now - lastSentAt <= NETWORK_SEND_INTERVAL_MS) return;
-
-    const pos = localHero.position;
-    const yaw = localHero.mesh.rotation.y;
-    const prev = lastSentPos ?? pos;
-    const dx = pos.x - prev.x;
-    const dz = pos.z - prev.z;
-
-    if (dx !== 0 || dz !== 0 || yaw !== lastSentYaw) {
-      multiplayerSocket.sendMove(dx / SERVER_STEP, dz / SERVER_STEP, yaw);
-    }
-    lastSentPos = { x: pos.x, z: pos.z };
-    lastSentYaw = yaw;
-    lastSentAt = now;
-  };
+  const sendMovement = createMovementSender(() => multiplayerSocket);
+  const sendHeroMovement = (localHero: Hero & { mesh: BABYLON.AbstractMesh }) =>
+    sendMovement(localHero.position, localHero.mesh.rotation.y);
 
   // --- Per-frame hero control ---
-  const applyHeroInput = (localHero: Hero) => {
-    const joystickActive = mobileMoveVector.x !== 0 || mobileMoveVector.y !== 0;
-    const direction = joystickToMoveDirection(mobileMoveVector);
+const applyHeroInput = (localHero: Hero) => {
+  const joystickActive = mobileMoveVector.x !== 0 || mobileMoveVector.y !== 0;
+  const direction = joystickToMoveDirection(mobileMoveVector);
 
-    localHero.setMoveDirection(direction ? new BABYLON.Vector3(direction.x, 0, direction.z) : null);
-    localHero.setTarget(joystickActive ? null : currentTarget);
-  };
+  if (joystickActive) currentTarget = null;
+
+  localHero.setMoveDirection(direction ? new BABYLON.Vector3(direction.x, 0, direction.z) : null);
+  localHero.setTarget(currentTarget);
+};
 
   // --- Scene setup ---
   const createScene = (engine: BABYLON.Engine, loadingScreen: CustomLoadingScreen) => {

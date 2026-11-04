@@ -14,13 +14,6 @@ const TREES = [
   { x: -36, z: -407, scale: 8, height: 1.8 },
   { x: 185, z: -394, scale: 8, height: 1.8 },
   { x: -5, z: -208, scale: 10, height: 2 },
-  { x: -44, z: 350, scale: 20, height: 3 },
-
-  { x: 18, z: 191, scale: 8, height: 1.8 },
-  { x: 76, z: -300, scale: 10, height: 2 },
-  { x: 59, z: 311, scale: 20, height: 3 },
-  { x: 468, z: 355, scale: 20, height: 3 },
-  { x: 226, z: 101, scale: 10, height: 2 },
 ];
 
 const TOWERS = [
@@ -39,14 +32,6 @@ type StoneSpec = { x: number; z: number; height: number; x2?: number; z2?: numbe
 
 /** Give x2/z2 to lay a row of stones from (x, z) to (x2, z2); omit them for a single stone. */
 const STONES: StoneSpec[] = [
-  { x: -144, z: -366, height: 5 },
-  { x: -416, z: -302, height: 10 },
-
-  { x: -49, z: 298, height: 10 },
-  { x: 306, z: 198, height: 15 },
-  { x: 325, z: 210, height: 5},
-  { x: 20, z: 173, height: 5 },
-  { x: 70, z: 365, height: 15 },
 
   /*Riverbank Stones - Lower Right Side*/
   { x: -47, z: -136, height: 1 },
@@ -236,38 +221,38 @@ type WorldModel = {
 
 /** Static .glb scenery. Add a line here to place a new model; the 5 below are placeholders. */
 const WORLD_MODELS: Record<string, WorldModel> = {
-  fountain: { file: "Fountain.glb", position: [-342, 1, -385], scale: 3 },
+
   statue1: { file: "roger.glb", position: [-106, 1, -73], scale: 4, rotationY: Math.PI / 2 },
   statue2: { file: "roger.glb", position: [108, 1, 50], scale: 4, rotationY: Math.PI / -2 },
   cottage1: { file: "cottage.glb", position: [-469, 1, -438], scale: 1.5 },
-  conch: { file: "Conch1.glb", position: [-41, 25, -217], scale: 300 },
-  conch2: { file: "Conch1.glb", position: [-23, 25, -169], scale: 500},
-  conch3: { file: "Conch1.glb", position: [-10, 25, -208], scale: 400},
-  basketStore: { file: "Yellowbasketstore.glb", position: [-309, 1, -31], scale: 3 },
-  salawaki: { file: "salawaki.glb", position: [-121, -10, 109], scale: .75 },
-  
-  cottage2: { file: "pcbhouse.glb", position: [277, 1, 386], scale: 90, rotationY: Math.PI / -3 },
-  
-  ghostwhisper: { file: "gw.glb", position: [216, 10, 336], scale: 4, rotationY: Math.PI / -1 },
-  
-  circuit1: { file: "ffc1.glb", position: [279, 1, 4], scale: 300, rotationY: Math.PI / -1.5 },
-  circuit2: { file: "ffc2.glb", position: [12, 20, 258], scale: 300, rotationY: Math.PI / -1.5 },
-  
-  structure1: { file: "WireStructures.glb", position: [422, 1, -96], scale: 30},
-  structure2: { file: "SolidStructure.glb", position: [426, 1, -166], scale: 15},
-  
-  structure3: { file: "SolidStructure.glb", position: [144, 1, 229], scale: 15},
-  structure4: { file: "SolidStructure.glb", position: [124, 1, 181], scale: 5, rotationY: Math.PI / -1},
 
-  structure5: { file: "SolidStructure.glb", position: [-174, 1, 402], scale: 20, rotationY: Math.PI / -1},
-  structure6: { file: "WireStructures.glb", position: [-153, 1, 384], scale: 15 },
+  //Section A - Intro
+  fountain: { file: "Fountain.glb", position: [-342, 1, -385], scale: 3 },
 
-  riverworld: { file: "salawaki_isda-optimized.glb", position: [66, 0, -145], scale: .4 },
+  //Section B - GhostWhisper Systems
+  ghostwhisper: { file: "gw.glb", position: [83, 10, -337], scale: 3, rotationY: Math.PI / -1 },
+  
+  //Section C - ESC Biennale
+  //luyo, gab, franco Obj and links
+    
+  //Section D - CyberPurok V2.0
+  bukid: { file: "bukid.glb", position: [268, 1, 430], scale: 900, rotationY: Math.PI / 4 },
+  cottage2: { file: "cottage.glb", position: [230, 1, 358], scale: 1.5 },
+
+  fountain2: { file: "Fountain.glb", position: [266, 1, 292], scale: 3 },
+  riverworld: { file: "salawaki_isda-optimized.glb", position: [175, 0, 348], scale: .4, rotationY: Math.PI / -2.5 },
+  basketStore: { file: "Yellowbasketstore.glb", position: [425, 1, 352], scale: 4 },
+  salawaki1: { file: "salawaki.glb", position: [359, 10, 232], scale: .75, rotationY: Math.PI / -2.5},
+  salawaki2: { file: "salawaki.glb", position: [322, 10, 270], scale: .5, rotationY: Math.PI / -2.5},
+
+  //Section E - ?
+  
+  //Section F - Manila Lights
 
 };
 
 /**  Make creeps emerge from cottages **/
-const BLUE_BASE = new BABYLON.Vector3(290, 0, 290);
+const BLUE_BASE = new BABYLON.Vector3(238, 0, 262);
 const RED_BASE = new BABYLON.Vector3(-342, 0, -385);
 const CREEP_SPAWN_DELAY_MS = 20000;
 

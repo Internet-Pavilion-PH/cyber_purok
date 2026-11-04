@@ -4,7 +4,7 @@
     "fileName": "chef.glb",
     "modelScale": 10,
     "headOffsetY": 2.5,
-      "headOffsetX": 2.5,
+    "headOffsetX": 0,
     "idleAnimationName": "idle",
     "walkAnimationName": "running",
     "skillAnimations": {

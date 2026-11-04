@@ -230,6 +230,7 @@ const WORLD_MODELS: Record<string, WorldModel> = {
   fountain: { file: "Fountain.glb", position: [-342, 1, -385], scale: 3 },
 
   //Section B - GhostWhisper Systems
+  kolownbuild: { file: "GW-kolown-build.glb", position: [-49, 10, -238], scale: 3, rotationY: Math.PI / -1 },
   ghostwhisper: { file: "gw.glb", position: [83, 10, -337], scale: 3, rotationY: Math.PI / -1 },
   
   //Section C - ESC Biennale

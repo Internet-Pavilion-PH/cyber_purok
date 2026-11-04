@@ -1,6 +1,7 @@
 import * as BABYLON from "@babylonjs/core";
 // import { GrassProceduralTexture } from "@babylonjs/procedural-textures";
 import { ArenaLights } from "./lights";
+import { Stone } from "./stone";
 
 export class ArenaBuilder {
   public ground: BABYLON.Mesh;
@@ -21,7 +22,6 @@ export class ArenaBuilder {
     this.lights.setGround(this.ground);
 
     this.walls = this.createWalls();
-    this.lights.addShadowCasters(this.walls);
     this.walls.forEach((wall) => {
       wall.receiveShadows = true;
     });
@@ -90,54 +90,55 @@ export class ArenaBuilder {
     const groundHeight = 1000;
     const groundHalfWidth = groundWidth / 2;
     const groundHalfHeight = groundHeight / 2;
-    const wallHeight = 50;
-    const wallThickness = 20;
 
-    const wallPositions = [
-      {
-        name: "wallNorth",
-        width: groundWidth,
-        depth: wallThickness,
-        x: 0,
-        z: -(groundHalfHeight + wallThickness / 2),
-        y: wallHeight / 2,
-      },
-      {
-        name: "wallSouth",
-        width: groundWidth,
-        depth: wallThickness,
-        x: 0,
-        z: groundHalfHeight + wallThickness / 2,
-        y: wallHeight / 2,
-      },
-      {
-        name: "wallEast",
-        width: wallThickness,
-        depth: groundHeight,
-        x: groundHalfWidth + wallThickness / 2,
-        z: 0,
-        y: wallHeight / 2,
-      },
-      {
-        name: "wallWest",
-        width: wallThickness,
-        depth: groundHeight,
-        x: -(groundHalfWidth + wallThickness / 2),
-        z: 0,
-        y: wallHeight / 2,
-      },
-    ];
+    const wallSegments: BABYLON.Mesh[] = [];
 
-    return wallPositions.map(({ name, width, depth, x, z, y }) => {
-      const wall = BABYLON.MeshBuilder.CreateBox(
-        name,
-        { width, height: wallHeight, depth },
-        this.scene,
-      );
-      wall.position = new BABYLON.Vector3(x, y, z);
-      wall.material = this.gameGroundMaterial;
-      wall.isPickable = false;
-      return wall;
-    });
+    const addStoneLine = (name: string, start: BABYLON.Vector3, end: BABYLON.Vector3, height: number, yOffset: number) => {
+      const stoneFence = new Stone(this.scene, [start, end], height).createStone();
+      stoneFence.name = name;
+      stoneFence.position.y = yOffset;
+      const children = stoneFence.getChildren();
+      for (const child of children) {
+        if (child instanceof BABYLON.Mesh) {
+          child.isPickable = false;
+          child.position.y += yOffset;
+          wallSegments.push(child);
+        }
+      }
+    };
+
+    const wallY = 45;
+    const wallInset = 35;
+    const wallYOffset = 4;
+    addStoneLine(
+      "wallNorth",
+      new BABYLON.Vector3(-groundHalfWidth - wallInset, 0, -groundHalfHeight - wallInset),
+      new BABYLON.Vector3(groundHalfWidth + wallInset, 0, -groundHalfHeight - wallInset),
+      wallY,
+      wallYOffset,
+    );
+    addStoneLine(
+      "wallSouth",
+      new BABYLON.Vector3(-groundHalfWidth - wallInset, 0, groundHalfHeight + wallInset),
+      new BABYLON.Vector3(groundHalfWidth + wallInset, 0, groundHalfHeight + wallInset),
+      wallY * 0.98,
+      wallYOffset,
+    );
+    addStoneLine(
+      "wallEast",
+      new BABYLON.Vector3(groundHalfWidth + wallInset, 0, -groundHalfHeight - wallInset),
+      new BABYLON.Vector3(groundHalfWidth + wallInset, 0, groundHalfHeight + wallInset),
+      wallY,
+      wallYOffset,
+    );
+    addStoneLine(
+      "wallWest",
+      new BABYLON.Vector3(-groundHalfWidth - wallInset, 0, -groundHalfHeight - wallInset),
+      new BABYLON.Vector3(-groundHalfWidth - wallInset, 0, groundHalfHeight + wallInset),
+      wallY,
+      wallYOffset,
+    );
+
+    return wallSegments;
   }
 }

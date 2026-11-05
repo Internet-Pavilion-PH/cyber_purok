@@ -1,62 +1,90 @@
 [
   {
     "station": "A",
-    "coordinates": { "x": -285, "y": 0, "z": -278 },
+    "coordinates": { "x": -285, "y": 0, "z": -297 },
     "highlights": [
       "Start point",
-      "Spawn area",
       "Section A: welcome to cyberpurok"
     ]
   },
   {
+    "station": "I1",
+    "coordinates": { "x": -62, "y": 0, "z": -437 },
+    "highlights": [
+      "information point"
+    ]
+  },
+  {
     "station": "B",
-    "coordinates": { "x": -107, "y": 0, "z": -399 },
+    "coordinates": { "x": 131, "y": 0, "z": -381 },
     "highlights": [
       "ESC Biennale contribution",
-      "Ghostwiper Kolo? version",
-      "Creative digital artifact cluster"
+      "Ghostwhisper Kolown version",
+      "GhostWhisper Roan version",
+      "Aninipot Rhaz version"
     ]
   },
   {
     "station": "C",
-    "coordinates": { "x": -32, "y": 0, "z": -441},
+    "coordinates": { "x": -318, "y": 0, "z": -67},
     "highlights": [
       "ESC Biennale contribution",
-      "Clickable blocks via objects",
       "Crates",
-      "Panawagan Barangay 3 model",
-      "Powerplant 3D version",
+      "Panawagan 3D Banner",
+      "Powerplant 2D version",
       "Yellow Basket 3D version"
     ]
   },
   {
-    "station": "D",
-    "coordinates": { "x": -8, "y": 0, "z": -347},
+    "station": "I2",
+    "coordinates": { "x": -473, "y": 0, "z": 223},
     "highlights": [
-      "ESC Biennale contribution",
-      "Cyberpurok ver 1 replica",
-      "VOV version",
-      "Early public prototype"
+      "information point"
+    ]
+  },
+  {
+    "station": "L1",
+    "coordinates": { "x": -228, "y": 0, "z": 471},
+    "highlights": [
+      "landmark section 1"
     ]
   },
   {
     "station": "E",
-    "coordinates": { "x": 108, "y": 0, "z": -377 },
+    "coordinates": { "x": 100, "y": 0, "z": 460 },
     "highlights": [
-      "ESC Biennale contribution",
       "Cyberpurok ver 2 (VOV) replica",
       "Expanded iteration",
       "Refined spatial study"
     ]
   },
   {
-    "station": "F",
-    "coordinates": { "x": 219, "y": 0, "z": -435 },
+    "station": "L2",
+    "coordinates": { "x": 467, "y": 0, "z": 122 },
     "highlights": [
-      "Manila Lights",
-      "3D version",
-      "Nighttime visual orientation",
-      "End point / landmark section"
+      "landmark section 2"
+    ]
+  },
+  {
+    "station": "F",
+    "coordinates": { "x": 277, "y": 0, "z": -21 },
+    "highlights": [
+      "Manila Lights Part 1"
+    ]
+  },
+  {
+    "station": "H",
+    "coordinates": { "x": 46, "y": 0, "z": 293 },
+    "highlights": [
+      "Manila Lights Part 2"
+    ]
+  },  
+  {
+    "station": "L3",
+    "coordinates": { "x": 91, "y": 0, "z": 85 },
+    "highlights": [
+      "End point",
+      "roll credits"
     ]
   }
 ]

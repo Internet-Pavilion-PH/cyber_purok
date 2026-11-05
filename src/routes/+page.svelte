@@ -296,7 +296,7 @@ const applyHeroInput = (localHero: Hero) => {
     connectMultiplayer();
     keyboardController = createKeyboardController(handleHeroKey);
 
-    const engine = new BABYLON.Engine(canvas, true);
+    const engine = new BABYLON.Engine(canvas, true, { audioEngine: true });
     BABYLON.SceneLoader.ShowLoadingScreen = true;
     const loadingScreen = new CustomLoadingScreen("/images/cyber_purok.png");
     engine.loadingScreen = loadingScreen;

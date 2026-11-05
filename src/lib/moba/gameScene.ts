@@ -8,6 +8,7 @@ import { ArenaBuilder } from "./world/arenaBuilder";
 import { FieldworkDecal } from "./world/fieldworkDecal";
 import type { RemoteHeroes } from "./entities/remoteHeroes";
 import { buildWorldDecor, createSky } from "./worldDecor";
+import { AmbientSound } from "./world/sound";
 import { spawnDirectionPulse } from "./input/movePulse";
 import { attachEdgePan } from "./input/edgePan";
 import {
@@ -113,6 +114,13 @@ export const createGameScene = (options: GameSceneOptions) => {
   hero.updateDisplayName(playerName);
   remoteHeroes.setLocalHero(hero);
 
+  const sound = new AmbientSound(
+    scene,
+    "https://kolown.net/storage/library/audio/field/bbc_fast-flowi_nhu0510424.mp3",
+    { volume: 0.5 },
+  );
+  sound.bindToFirstInteraction(options.canvas);
+
   void preloadAssets([...models.map((model) => model.load()), hero.load()])
     .then(() => {
       if (hero.mesh) {
@@ -140,5 +148,5 @@ export const createGameScene = (options: GameSceneOptions) => {
     options.onAfterHeroUpdate(hero);
   });
 
-  return { scene, camera, arena, hero };
+  return { scene, camera, arena, hero, sound };
 };

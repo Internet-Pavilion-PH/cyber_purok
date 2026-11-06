@@ -230,6 +230,7 @@ const WORLD_MODELS: Record<string, WorldModel> = {
   fountain: { file: "Fountain.glb", position: [-342, 1, -385], scale: 3 },
 
   //waypoint 1
+  standee: { file: "standee.glb", position: [-72, 1, -413], scale: 50 },
 
 
   //Section B - GhostWhisper Systems

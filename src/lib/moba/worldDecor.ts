@@ -229,13 +229,20 @@ const WORLD_MODELS: Record<string, WorldModel> = {
   //Section A - Intro
   fountain: { file: "Fountain.glb", position: [-342, 1, -385], scale: 3 },
 
+  //waypoint 1
+
+
   //Section B - GhostWhisper Systems
   kolownbuild: { file: "kolown-build.glb", position: [26, 10, -388], scale: 300, rotationY: Math.PI / -1.25 },
   ghostwhisper: { file: "gw.glb", position: [83, 10, -337], scale: 3, rotationY: Math.PI / -1 },
   
   //Section C - ESC Biennale
-  crate: { file: "crate.glb", position: [-247, 1, -107], scale: 50 },
+  crate: { file: "crate.glb", position: [-241, 1, -164], scale: 50 },
+  crate2: { file: "crate.glb", position: [-286, 1, 34], scale: 50, rotationY: Math.PI / 2 },
 
+  //waypoint 2
+
+  //waypoint 3
     
   //Section D - CyberPurok V2.0
   bukid: { file: "bukid.glb", position: [268, 1, 430], scale: 900, rotationY: Math.PI / 4 },
@@ -247,9 +254,13 @@ const WORLD_MODELS: Record<string, WorldModel> = {
   salawaki1: { file: "salawaki.glb", position: [359, 10, 232], scale: .75, rotationY: Math.PI / -2.5},
   salawaki2: { file: "salawaki.glb", position: [322, 10, 270], scale: .5, rotationY: Math.PI / -2.5},
 
-  //Section E - ?
+  //waypoint 4
+
+  //Section E - Manila Lights Part 1
   
-  //Section F - Manila Lights
+  //Section F - Manila Lights Part 2
+
+  //endpoint
 
 };
 

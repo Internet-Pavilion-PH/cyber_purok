@@ -6,7 +6,9 @@ import { Hero } from "./entities/hero";
 import { createHeroConfig } from "./entities/heroConfig";
 import { ArenaBuilder } from "./world/arenaBuilder";
 import { FieldworkDecal } from "./world/fieldworkDecal";
+import { InfoText } from "./world/infoText";
 import type { RemoteHeroes } from "./entities/remoteHeroes";
+import infoTextSpecs from "./world/infoTextData.json";
 import { buildWorldDecor, createSky } from "./worldDecor";
 import { AmbientSound } from "./world/sound";
 import { spawnDirectionPulse } from "./input/movePulse";
@@ -123,6 +125,12 @@ export const createGameScene = (options: GameSceneOptions) => {
 
   void preloadAssets([...models.map((model) => model.load()), hero.load()])
     .then(() => {
+      InfoText.createMany(
+        scene,
+        infoTextSpecs as Parameters<typeof InfoText.createMany>[1],
+        () => hero.mesh?.absolutePosition ?? null,
+      );
+
       if (hero.mesh) {
         const heroMeshes = [hero.mesh, ...hero.mesh.getChildMeshes()];
         heroMeshes.forEach((mesh) => {

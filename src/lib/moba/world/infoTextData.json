@@ -1,0 +1,12 @@
+[
+  {
+    "id": "fountain-billboard",
+    "position": { "x": -311, "y": 30, "z": -402 },
+    "title": "Fountain",
+    "description": "work by Salawaki",
+    "width": 48,
+    "height": 24,
+    "offsetY": 0,
+    "maxDistance": 80
+  }
+]

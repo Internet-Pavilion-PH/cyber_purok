@@ -8,6 +8,8 @@ import { PlaceModel } from "./world/placeModel";
 import type { ArenaBuilder } from "./world/arenaBuilder";
 
 const TREES = [
+  { x: -433, z: -291, scale: 12, height: 2.5 },
+  { x: -132, z: -365, scale: 12, height: 2.5 },
   { x: -110, z: -220, scale: 10, height: 2 },
   { x: -61, z: -322, scale: 12, height: 2.5 },
   { x: -11, z: -298, scale: 8, height: 1.8 },
@@ -247,12 +249,15 @@ const WORLD_MODELS: Record<string, WorldModel> = {
   basketStore: { file: "Yellowbasketstore.glb", position: [-309, 1, -31], scale: 3 },
   salawaki: { file: "salawaki.glb", position: [-121, -10, 109], scale: .75 },
   
-  standee: { file: "standee.glb", position: [-196, 1, -252], scale: 20, rotationY: Math.PI / -1.5 },
+  standee: { file: "standee.glb", position: [-66, 1, -130], scale: 25, rotationY: Math.PI / -1.5 },
 
-  crate1: { file: "crate.glb", position: [-344, 1, -281], scale: 50, rotationY: Math.PI / -1.5 },
+  crate1: { file: "crate.glb", position: [-412, 1, -86], scale: 50, rotationY: Math.PI / -2 },
+  crate2: { file: "crate.glb", position: [-200, 1, -118], scale: 50, rotationY: Math.PI / -1 },
+  crate3: { file: "crate.glb", position: [154, 1, -390], scale: 50, rotationY: Math.PI / -3 },
 
-  cottage2: { file: "pcbhouse.glb", position: [277, 1, 386], scale: 90, rotationY: Math.PI / -3 },
+  cottage2: { file: "pcbhouse.glb", position: [277, 1, 386], scale: 70, rotationY: Math.PI / -3 },
   
+  ghostwhisper1: { file: "kolown-build.glb", position: [393, 10, 0], scale: 300, rotationY: Math.PI / -1.25 },
   ghostwhisper: { file: "gw.glb", position: [216, 10, 336], scale: 4, rotationY: Math.PI / -1 },
   
   circuit1: { file: "ffc1.glb", position: [279, 1, 4], scale: 300, rotationY: Math.PI / -1.5 },

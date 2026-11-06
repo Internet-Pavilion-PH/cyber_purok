@@ -247,6 +247,10 @@ const WORLD_MODELS: Record<string, WorldModel> = {
   basketStore: { file: "Yellowbasketstore.glb", position: [-309, 1, -31], scale: 3 },
   salawaki: { file: "salawaki.glb", position: [-121, -10, 109], scale: .75 },
   
+  standee: { file: "standee.glb", position: [-196, 1, -252], scale: 20, rotationY: Math.PI / -1.5 },
+
+  crate1: { file: "crate.glb", position: [-344, 1, -281], scale: 50, rotationY: Math.PI / -1.5 },
+
   cottage2: { file: "pcbhouse.glb", position: [277, 1, 386], scale: 90, rotationY: Math.PI / -3 },
   
   ghostwhisper: { file: "gw.glb", position: [216, 10, 336], scale: 4, rotationY: Math.PI / -1 },

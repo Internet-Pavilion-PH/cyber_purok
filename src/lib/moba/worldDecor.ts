@@ -234,7 +234,7 @@ const WORLD_MODELS: Record<string, WorldModel> = {
   ghostwhisper: { file: "gw.glb", position: [83, 10, -337], scale: 3, rotationY: Math.PI / -1 },
   
   //Section C - ESC Biennale
-  luyo1: { file: "16a.png", position: [-299, 1, -63], scale: 20, rotationY: Math.PI / 4 },
+  crate: { file: "crate.glb", position: [-247, 1, -107], scale: 50 },
 
     
   //Section D - CyberPurok V2.0

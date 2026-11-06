@@ -93,6 +93,7 @@ export class PlaceModel {
       "bukid.glb": "/world/",
       "kolown-build.glb": "/world/",
       "crate.glb": "/world/",
+      "aninipot-crate-opt.glb": "/world/"
     };
 
     return {

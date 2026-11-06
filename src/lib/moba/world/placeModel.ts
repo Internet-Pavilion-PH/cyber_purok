@@ -92,6 +92,7 @@ export class PlaceModel {
       "SolidStructure.glb": "/world/",
       "bukid.glb": "/world/",
       "kolown-build.glb": "/world/",
+      "16a.png": "/world/",
     };
 
     return {

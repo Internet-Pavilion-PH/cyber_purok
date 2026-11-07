@@ -284,12 +284,15 @@ const CREEP_SPAWN_DELAY_MS = 20000;
 /** Adds every mesh of a node to the arena's shadow casters (no-op without lights). */
 const castShadows = (arena: ArenaBuilder | null, node: BABYLON.TransformNode) => {
   if (!arena?.lights) return;
-  for (const mesh of node.getChildMeshes()) arena.lights.addShadowCaster(mesh);
+  for (const mesh of node.getChildMeshes()) arena.lights.addWorldShadowCaster(mesh);
 };
 
-/** Makes every mesh under a node solid so heroes can't walk through it. */
-const makeSolid = (node: BABYLON.TransformNode) => {
-  for (const mesh of node.getChildMeshes()) mesh.checkCollisions = true;
+/** Makes an explicit barrier solid so heroes can't walk through it. */
+const makeSolidBarrier = (node: BABYLON.TransformNode) => {
+  for (const mesh of node.getChildMeshes()) {
+    mesh.checkCollisions = true;
+    mesh.isPickable = true;
+  }
 };
 
 export const createSky = (scene: BABYLON.Scene) => {
@@ -310,7 +313,6 @@ export const createSky = (scene: BABYLON.Scene) => {
 export const buildWorldDecor = (scene: BABYLON.Scene, arena: ArenaBuilder | null) => {
   for (const { x, z, scale, height } of TREES) {
     const tree = new Tree(scene, new BABYLON.Vector3(x, 0, z), scale, height);
-    makeSolid(tree.rootNode);
     castShadows(arena, tree.rootNode);
   }
 
@@ -318,9 +320,7 @@ export const buildWorldDecor = (scene: BABYLON.Scene, arena: ArenaBuilder | null
     const start = new BABYLON.Vector3(x, 0, z);
     const position: BABYLON.Vector3 | [BABYLON.Vector3, BABYLON.Vector3] =
       x2 !== undefined && z2 !== undefined ? [start, new BABYLON.Vector3(x2, 0, z2)] : start;
-    const stoneRoot = new Stone(scene, position, height).createStone();
-    // Temporarily treat the decorative stone fence/riverbank as a barrier.
-    makeSolid(stoneRoot);
+    new Stone(scene, position, height).createStone();
   }
 
   const models = Object.values(WORLD_MODELS).map(
@@ -335,21 +335,24 @@ export const buildWorldDecor = (scene: BABYLON.Scene, arena: ArenaBuilder | null
 
   for (const { position, angle } of TOWERS) {
     const tower = new Tower(scene, position, 50, 2, 40, angle);
-    makeSolid(tower.rootNode);
     castShadows(arena, tower.rootNode);
   }
 
   for (const points of FENCES) {
     const fence = new Fence(scene, points, 30, 1, 1, 0);
-    makeSolid(fence.rootNode);
-    if (arena?.lights) fence.addShadowCasters(arena.lights.shadowGen);
+    makeSolidBarrier(fence.rootNode);
+    if (arena?.lights) {
+      for (const mesh of fence.meshes) arena.lights.addWorldShadowCaster(mesh);
+    }
     fence.rootNode.position = new BABYLON.Vector3(0, 0, 0);
   }
 
   for (const points of BARRIERS) {
     const fence = new Fence(scene, points, 10, .75, .75, 0);
-    makeSolid(fence.rootNode);
-    if (arena?.lights) fence.addShadowCasters(arena.lights.shadowGen);
+    makeSolidBarrier(fence.rootNode);
+    if (arena?.lights) {
+      for (const mesh of fence.meshes) arena.lights.addWorldShadowCaster(mesh);
+    }
     fence.rootNode.position = new BABYLON.Vector3(0, 0, 0);
   }
 

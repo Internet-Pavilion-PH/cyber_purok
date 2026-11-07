@@ -7,6 +7,11 @@ export class ArenaLights {
   public timeMinutes = 14 * 60;
 
   private ground: BABYLON.Mesh | null = null;
+  private readonly worldShadowCasters = new Set<BABYLON.AbstractMesh>();
+  private readonly actorShadowCasters = new Set<BABYLON.AbstractMesh>();
+  private lastShadowBudgetLowPower = false;
+  private static readonly SHADOW_LOW_FPS = 65;
+  private static readonly SHADOW_RECOVER_FPS = 75;
 
   constructor(private readonly scene: BABYLON.Scene) {
     this.hemiLight = this.createAmbientLighting();
@@ -21,6 +26,12 @@ export class ArenaLights {
   }
 
   public addShadowCaster(mesh: BABYLON.AbstractMesh) {
+    this.actorShadowCasters.add(mesh);
+    this.shadowGen.addShadowCaster(mesh, true);
+  }
+
+  public addWorldShadowCaster(mesh: BABYLON.AbstractMesh) {
+    this.worldShadowCasters.add(mesh);
     this.shadowGen.addShadowCaster(mesh, true);
   }
 
@@ -36,7 +47,28 @@ export class ArenaLights {
   }
 
   public tickTime(deltaMs: number) {
-    this.updateSunFromTime();
+    const fps = this.scene.getEngine().getFps();
+    const desiredLowPowerMode = this.lastShadowBudgetLowPower
+      ? fps < ArenaLights.SHADOW_RECOVER_FPS
+      : fps < ArenaLights.SHADOW_LOW_FPS;
+
+    if (this.lastShadowBudgetLowPower !== desiredLowPowerMode) {
+      this.lastShadowBudgetLowPower = desiredLowPowerMode;
+
+      for (const mesh of this.worldShadowCasters) {
+        if (desiredLowPowerMode) {
+          this.shadowGen.removeShadowCaster(mesh);
+        } else if (!this.shadowGen.getShadowMap()?.renderList?.includes(mesh)) {
+          this.shadowGen.addShadowCaster(mesh, true);
+        }
+      }
+    }
+
+    for (const mesh of this.actorShadowCasters) {
+      if (!this.shadowGen.getShadowMap()?.renderList?.includes(mesh)) {
+        this.shadowGen.addShadowCaster(mesh, true);
+      }
+    }
   }
 
   public updateSunFromTime() {

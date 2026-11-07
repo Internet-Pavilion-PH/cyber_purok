@@ -234,6 +234,8 @@
     </div>
   </div>
 
+  <!-- Mobile joystick and attack UI temporarily commented out for desktop-style aiming.
+       The input logic remains in the component in case we want to restore it later.
   {#if isMobile}
     <div class="mobile-controls" aria-label="Mobile controls">
       <div
@@ -253,6 +255,7 @@
       </div>
     </div>
   {/if}
+  -->
 
   {#if !serverConnected}
     <div class="disconnect-overlay" aria-live="polite">
@@ -675,6 +678,7 @@
       );
   }
 
+  /* Mobile joystick and attack button styles are intentionally commented out while using the pointer-based UI.
   .mobile-controls {
     position: fixed;
     inset: 0;
@@ -743,6 +747,7 @@
     box-shadow: 0 0 24px rgba(123, 255, 151, 0.28), inset 0 0 12px rgba(255, 255, 255, 0.18);
     cursor: pointer;
   }
+  */
 
   .minimap-grid {
     position: absolute;

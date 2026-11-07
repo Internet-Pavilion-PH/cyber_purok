@@ -318,7 +318,9 @@ export const buildWorldDecor = (scene: BABYLON.Scene, arena: ArenaBuilder | null
     const start = new BABYLON.Vector3(x, 0, z);
     const position: BABYLON.Vector3 | [BABYLON.Vector3, BABYLON.Vector3] =
       x2 !== undefined && z2 !== undefined ? [start, new BABYLON.Vector3(x2, 0, z2)] : start;
-    new Stone(scene, position, height).createStone();
+    const stoneRoot = new Stone(scene, position, height).createStone();
+    // Temporarily treat the decorative stone fence/riverbank as a barrier.
+    makeSolid(stoneRoot);
   }
 
   const models = Object.values(WORLD_MODELS).map(
@@ -327,6 +329,7 @@ export const buildWorldDecor = (scene: BABYLON.Scene, arena: ArenaBuilder | null
         scaleFactor: scale,
         rotation: [0, rotationY, 0],
         mergeMeshes: true,
+        fadeIn: true,
       }),
   );
 

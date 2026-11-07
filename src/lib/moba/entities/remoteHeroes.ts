@@ -66,6 +66,8 @@ export class RemoteHeroes {
   private localHero: Hero | null = null;
   private loadingIds = new Set<string>();
   private latestPlayers = new Map<string, RemotePlayer>();
+  private previousPositions = new Map<string, BABYLON.Vector3>();
+  private remoteMotionState = new Map<string, boolean>();
 
   constructor(private ctx: RemoteHeroContext) {}
 
@@ -158,8 +160,24 @@ export class RemoteHeroes {
     if (hero.mesh) {
       const rx = player.x + SPAWN_OFFSET;
       const rz = player.z + SPAWN_OFFSET;
-      hero.mesh.position.set(rx, getTerrainHeight(rx, rz), rz);
+      const nextPosition = new BABYLON.Vector3(rx, getTerrainHeight(rx, rz), rz);
+      const previousPosition = this.previousPositions.get(player.id);
+      const movementDistance = previousPosition ? BABYLON.Vector3.Distance(previousPosition, nextPosition) : 0;
+      const shouldRun = movementDistance > 1.2;
+      const currentRunning = this.remoteMotionState.get(player.id) ?? false;
+
+      hero.mesh.position.copyFrom(nextPosition);
       hero.mesh.rotation.y = player.yaw;
+
+      if (shouldRun) {
+        this.remoteMotionState.set(player.id, true);
+        if (!currentRunning) hero.playAnimation("Walking");
+      } else if (movementDistance < 0.15) {
+        this.remoteMotionState.set(player.id, false);
+        if (currentRunning) hero.playAnimation("Idle");
+      }
+
+      this.previousPositions.set(player.id, nextPosition.clone());
     }
   }
 }

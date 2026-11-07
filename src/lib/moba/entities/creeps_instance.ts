@@ -1,4 +1,5 @@
 import * as BABYLON from "@babylonjs/core";
+import { getTerrainHeight } from "../world/terrainHeight";
 
 export class Creep {
     public rootNode: BABYLON.Mesh;
@@ -173,9 +174,8 @@ export class Creep {
         this.separate(deltaTime, step);
 
         // Slide along solid meshes (checkCollisions) instead of passing through them.
-        const y = pos.y;
         this.rootNode.moveWithCollisions(step);
-        this.rootNode.position.y = y;
+        this.rootNode.position.y = getTerrainHeight(pos.x, pos.z);
     }
 
     /** Push away from nearby creeps so they don't overlap. */

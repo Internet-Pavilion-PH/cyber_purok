@@ -8,8 +8,10 @@ export const spawnDirectionPulse = (scene: BABYLON.Scene, position: BABYLON.Vect
     { diameter: 5, thickness: 0.5, tessellation: 32 },
     scene,
   );
-  ring.position = new BABYLON.Vector3(position.x, 0, position.z);
+  ring.position = new BABYLON.Vector3(position.x, position.y + 0.5, position.z);
   ring.isPickable = false;
+  // Draw after the terrain with a cleared depth buffer so nearby bumps can't bury the ring.
+  ring.renderingGroupId = 1;
 
   const material = new BABYLON.StandardMaterial(`movePulseMat-${id}`, scene);
   material.diffuseColor = new BABYLON.Color3(0.15, 0.8, 1.0);

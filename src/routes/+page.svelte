@@ -34,6 +34,7 @@
 
   let heroPosition: HeroPosition = { x: 0, z: 0 };
   let debugPoint = { x: 0, y: 0 };
+  let fps = 0;
   let playerName = "Player Hero";
   const knownPlayerNames = new PlayerNameRegistry();
   let remoteMarkers: MapMarker[] = [];
@@ -306,7 +307,10 @@ const applyHeroInput = (localHero: Hero) => {
     scene.activeCamera = gameCamera;
     gameCamera?.attachControl(canvas, true);
 
-    engine.runRenderLoop(() => scene.render());
+    engine.runRenderLoop(() => {
+      scene.render();
+      fps = Math.round(engine.getFps?.() ?? 0);
+    });
 
     const handleResize = () => engine.resize();
     window.addEventListener("resize", handleResize);
@@ -330,6 +334,7 @@ const applyHeroInput = (localHero: Hero) => {
   {onlinePlayers}
   {chatMessages}
   debugPoint={debugPoint}
+  fps={fps}
   serverConnected={isServerConnected}
   playerName={playerName}
   onMoveInput={applyMobileMovement}

@@ -162,6 +162,7 @@ export class PlaceModel {
 
       addedMeshes.forEach((mesh) => {
         mesh.receiveShadows = false;
+        mesh.isPickable = this.options.collidable;
         mesh.checkCollisions = this.options.collidable;
       });
 

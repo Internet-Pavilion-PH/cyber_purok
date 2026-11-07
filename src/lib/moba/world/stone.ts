@@ -1,12 +1,12 @@
 import * as BABYLON from "@babylonjs/core";
 
-
 export class Stone {
     constructor(
         public scene: BABYLON.Scene,
         // One point = a single stone; two points = a row of stones from the first to the second.
         public position: BABYLON.Vector3 | [BABYLON.Vector3, BABYLON.Vector3],
         public height: number,
+        public collidable: boolean = false,
     ) {}
 
     public createStone(): BABYLON.TransformNode {
@@ -24,7 +24,10 @@ export class Stone {
 
         for (let i = 0; i < count; i++) {
             const point = BABYLON.Vector3.Lerp(start, end, i / (count - 1));
-            const stone = this.createSingle(`stone_${i}`, point, size, material);
+            const stone = this.createPrototype(size, `stone_${i}`);
+            stone.checkCollisions = this.collidable;
+            stone.material = material;
+            stone.position = point.clone();
             stone.rotation.y = Math.random() * Math.PI * 2;
             stone.parent = root;
         }
@@ -37,16 +40,21 @@ export class Stone {
         size: number,
         material: BABYLON.Material,
     ): BABYLON.Mesh {
-        // Type 2 = dodecahedron; uneven axes make it read as a chunky boulder.
+        const mesh = this.createPrototype(size, name);
+        mesh.checkCollisions = this.collidable;
+        mesh.material = material;
+        mesh.position = position.clone();
+        return mesh;
+    }
+
+    private createPrototype(size: number, name: string = "stonePrototype"): BABYLON.Mesh {
         const mesh = BABYLON.MeshBuilder.CreatePolyhedron(
             name,
             { type: 2, sizeX: size, sizeY: size * 0.75, sizeZ: size * 0.9 },
             this.scene,
         );
         mesh.convertToFlatShadedMesh();
-        mesh.checkCollisions = true;
-        mesh.material = material;
-        mesh.position = position.clone();
+        mesh.doNotSyncBoundingInfo = true;
         return mesh;
     }
 

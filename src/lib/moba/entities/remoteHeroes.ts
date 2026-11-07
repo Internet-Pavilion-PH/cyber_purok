@@ -2,6 +2,7 @@ import * as BABYLON from "@babylonjs/core";
 import { Hero } from "./hero";
 import { createHeroConfig } from "./heroConfig";
 import type { ArenaBuilder } from "../world/arenaBuilder";
+import { getTerrainHeight } from "../world/terrainHeight";
 
 // Server spawns everyone at (0,0) and integrates moveX*SERVER_STEP, so clients send deltas
 // and offset positions by their own start.
@@ -155,7 +156,9 @@ export class RemoteHeroes {
     if (hero.config.name !== resolvedName) hero.updateDisplayName(resolvedName);
 
     if (hero.mesh) {
-      hero.mesh.position.set(player.x + SPAWN_OFFSET, 0, player.z + SPAWN_OFFSET);
+      const rx = player.x + SPAWN_OFFSET;
+      const rz = player.z + SPAWN_OFFSET;
+      hero.mesh.position.set(rx, getTerrainHeight(rx, rz), rz);
       hero.mesh.rotation.y = player.yaw;
     }
   }

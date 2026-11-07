@@ -7,7 +7,10 @@ export class ArenaBuilder {
   public ground: BABYLON.Mesh;
   public walls: BABYLON.Mesh[] = [];
   public gameGroundMaterial: BABYLON.StandardMaterial;
+  public wallMaterial: BABYLON.StandardMaterial;
   public lights: ArenaLights;
+  /** Resolves once the heightmap terrain heights are applied. */
+  public groundReady!: Promise<void>;
 
   constructor(
     private readonly scene: BABYLON.Scene,
@@ -15,6 +18,7 @@ export class ArenaBuilder {
     this.ground = this.createGround();
     const materials = this.createGroundMaterials();
     this.gameGroundMaterial = materials.gameGroundMaterial;
+    this.wallMaterial = materials.wallMaterial;
     this.ground.material = this.gameGroundMaterial;
     this.ground.receiveShadows = true;
 
@@ -30,7 +34,7 @@ export class ArenaBuilder {
   public updateCameraMode() {
     this.ground.material = this.gameGroundMaterial;
     this.walls.forEach((wall) => {
-      wall.material = this.gameGroundMaterial;
+      wall.material = this.wallMaterial;
     });
   }
 
@@ -46,11 +50,30 @@ export class ArenaBuilder {
     const groundWidth = 1000;
     const groundHeight = 1000;
 
-    const ground = BABYLON.MeshBuilder.CreateGround(
-      "ground",
-      { height: groundHeight, width: groundWidth, subdivisions: 4 },
-      this.scene,
-    );
+    let resolveReady!: () => void;
+    this.groundReady = new Promise<void>((resolve) => {
+      resolveReady = resolve;
+    });
+
+    const ground = BABYLON.Mesh.CreateGroundFromHeightMap
+      ? BABYLON.Mesh.CreateGroundFromHeightMap(
+          "ground",
+          "/images/height_map.png",
+          groundWidth,
+          groundHeight,
+          200,
+          0,
+          18,
+          this.scene,
+          false,
+          () => resolveReady(),
+        )
+      : BABYLON.MeshBuilder.CreateGround(
+          "ground",
+          { height: groundHeight, width: groundWidth, subdivisions: 4 },
+          this.scene,
+        );
+    if (!BABYLON.Mesh.CreateGroundFromHeightMap) resolveReady();
     ground.position.y = 0;
     return ground;
   }
@@ -80,8 +103,19 @@ export class ArenaBuilder {
     mapTex.wrapV = BABYLON.Texture.WRAP_ADDRESSMODE;
     grassMat.ambientTexture = mapTex;
 
+    const wallMat = new BABYLON.StandardMaterial("wallMat", this.scene);
+    const wallTex = new BABYLON.Texture("/images/texture/rock.png", this.scene);
+    wallTex.uScale = 1;
+    wallTex.vScale = 1;
+    wallTex.wrapU = BABYLON.Texture.WRAP_ADDRESSMODE;
+    wallTex.wrapV = BABYLON.Texture.WRAP_ADDRESSMODE;
+    wallMat.diffuseTexture = wallTex;
+    wallMat.specularColor = new BABYLON.Color3(0.05, 0.05, 0.05);
+    wallMat.ambientColor = new BABYLON.Color3(0.3, 0.3, 0.3);
+
     return {
       gameGroundMaterial: grassMat,
+      wallMaterial: wallMat,
     };
   }
 
@@ -100,6 +134,7 @@ export class ArenaBuilder {
       const children = stoneFence.getChildren();
       for (const child of children) {
         if (child instanceof BABYLON.Mesh) {
+          child.material = this.wallMaterial;
           child.isPickable = false;
           child.position.y += yOffset;
           wallSegments.push(child);

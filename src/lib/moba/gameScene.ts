@@ -6,6 +6,7 @@ import { Hero } from "./entities/hero";
 import { createHeroConfig } from "./entities/heroConfig";
 import { ArenaBuilder } from "./world/arenaBuilder";
 import { FieldworkDecal } from "./world/fieldworkDecal";
+import { setTerrain } from "./world/terrainHeight";
 import { InfoText } from "./world/infoText";
 import type { RemoteHeroes } from "./entities/remoteHeroes";
 import infoTextSpecs from "./world/infoTextData.json";
@@ -92,7 +93,7 @@ const setupRightClickMove = (
 
     const target = new BABYLON.Vector3(point.x, 0, point.z);
     options.onMoveTarget(target);
-    spawnDirectionPulse(scene, target);
+    spawnDirectionPulse(scene, new BABYLON.Vector3(target.x, point.y, target.z));
   });
 };
 
@@ -107,7 +108,10 @@ export const createGameScene = (options: GameSceneOptions) => {
   const camera = setupGameCamera(scene, options);
   setupRightClickMove(scene, arena.ground, options);
   createSky(scene);
-  FieldworkDecal.createGroundDecals(scene, arena.ground);
+  void arena.groundReady.then(() => {
+    setTerrain(arena.ground);
+    FieldworkDecal.createGroundDecals(scene, arena.ground);
+  });
   const { models } = buildWorldDecor(scene, arena);
 
   scene.onBeforeRenderObservable.add(() => arena.tickTime(engine.getDeltaTime()));

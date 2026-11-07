@@ -277,7 +277,7 @@ const applyHeroInput = (localHero: Hero) => {
 
     sceneRef.activeCamera = gameCamera;
     if (groundMesh) groundMesh.material = gameGroundMaterial;
-    wallMeshes.forEach((wall) => (wall.material = gameGroundMaterial));
+    wallMeshes.forEach((wall) => (wall.material = arenaBuilder?.wallMaterial ?? gameGroundMaterial));
 
     gameCamera.detachControl();
     const mouseInput = gameCamera.inputs.attached.mouse as any;

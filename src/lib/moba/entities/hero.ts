@@ -1,5 +1,6 @@
 import * as BABYLON from "@babylonjs/core";
 import * as GUI from "@babylonjs/gui";
+import { getTerrainHeight } from "../world/terrainHeight";
 import { get } from "svelte/store";
 import {
   heroState,
@@ -339,9 +340,8 @@ export class Hero {
   /** Moves the hero, sliding along any mesh with `checkCollisions` instead of passing through it. */
   private stepWithCollisions(delta: BABYLON.Vector3) {
     if (!this.mesh) return;
-    const y = this.mesh.position.y;
     this.mesh.moveWithCollisions(delta);
-    this.mesh.position.y = y;
+    this.mesh.position.y = getTerrainHeight(this.mesh.position.x, this.mesh.position.z);
   }
 
   private frameScale = 1;

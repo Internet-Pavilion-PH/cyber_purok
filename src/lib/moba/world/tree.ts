@@ -2,13 +2,16 @@ import * as BABYLON from "@babylonjs/core";
 
 export class Tree {
     public rootNode: BABYLON.TransformNode;
+    public foliageSubdivisions: number;
 
     constructor(
         public scene: BABYLON.Scene,
         public position: BABYLON.Vector3,
         public trunkHeight: number = 10,
         public trunkRadius: number = 2,
+        foliageSubdivisions: number = 1,
     ) {
+        this.foliageSubdivisions = foliageSubdivisions;
         this.rootNode = new BABYLON.TransformNode("treeRoot", this.scene);
         this.rootNode.position = this.position.clone();
         this.createTree();
@@ -30,15 +33,21 @@ export class Tree {
 
         const foliage = BABYLON.MeshBuilder.CreateIcoSphere(
             "foliage",
-            { radius: Math.max(4, this.trunkHeight * 1.2), subdivisions: 1 },
+            { radius: Math.max(4, this.trunkHeight * 1.2), subdivisions: this.foliageSubdivisions },
             this.scene,
         );
         foliage.parent = this.rootNode;
         foliage.position = new BABYLON.Vector3(0, this.trunkHeight * 2.2, 0);
 
         const foliageMaterial = new BABYLON.StandardMaterial("foliageMaterial", this.scene);
-        foliageMaterial.diffuseColor = new BABYLON.Color3(0.05, 0.35, 0.15);
-        foliageMaterial.emissiveColor = new BABYLON.Color3(0.03, 0.12, 0.05);
+        const foliageTexture = new BABYLON.Texture("/images/texture/trees.png", this.scene);
+        foliageTexture.uScale = 1;
+        foliageTexture.vScale = 1;
+
+        foliageMaterial.diffuseTexture = foliageTexture;
+        foliageMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+        foliageMaterial.emissiveColor = new BABYLON.Color3(0, 0, 0);
+        foliageMaterial.backFaceCulling = false;
         foliage.material = foliageMaterial;
     }
 }

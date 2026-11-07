@@ -55,25 +55,19 @@ export class ArenaBuilder {
       resolveReady = resolve;
     });
 
-    const ground = BABYLON.Mesh.CreateGroundFromHeightMap
-      ? BABYLON.Mesh.CreateGroundFromHeightMap(
-          "ground",
-          "/images/height_map.png",
-          groundWidth,
-          groundHeight,
-          200,
-          0,
-          18,
-          this.scene,
-          false,
-          () => resolveReady(),
-        )
-      : BABYLON.MeshBuilder.CreateGround(
-          "ground",
-          { height: groundHeight, width: groundWidth, subdivisions: 4 },
-          this.scene,
-        );
-    if (!BABYLON.Mesh.CreateGroundFromHeightMap) resolveReady();
+    // Temporarily flatten the arena ground to remove the expensive heightmap
+    // displacement work from the render cost profile.
+    const ground = BABYLON.MeshBuilder.CreateGround(
+      "ground",
+      {
+        width: groundWidth,
+        height: groundHeight,
+        subdivisions: 32,
+      },
+      this.scene,
+    );
+
+    resolveReady();
     ground.position.y = 0;
     return ground;
   }

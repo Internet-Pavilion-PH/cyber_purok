@@ -4,7 +4,7 @@ export class ArenaLights {
   public hemiLight: BABYLON.HemisphericLight;
   public sunLight: BABYLON.DirectionalLight;
   public shadowGen: BABYLON.ShadowGenerator;
-  public timeMinutes = 720;
+  public timeMinutes = 14 * 60;
 
   private ground: BABYLON.Mesh | null = null;
 
@@ -36,7 +36,6 @@ export class ArenaLights {
   }
 
   public tickTime(deltaMs: number) {
-    this.timeMinutes = (this.timeMinutes + deltaMs / 60000) % 1440;
     this.updateSunFromTime();
   }
 

@@ -6,6 +6,7 @@ export interface PlaceModelOptions {
   onGround?: boolean;
   mergeMeshes?: boolean;
   fadeIn?: boolean;
+  collidable?: boolean;
   rotation?: BABYLON.Vector3 | number[];
 }
 
@@ -14,7 +15,7 @@ export class PlaceModel {
   public modelName: string;
   public position: BABYLON.Vector3;
   public rotation: BABYLON.Vector3;
-  public options: Required<Pick<PlaceModelOptions, "scaleFactor" | "targetSize" | "onGround" | "mergeMeshes" | "fadeIn" | "rotation">>;
+  public options: Required<Pick<PlaceModelOptions, "scaleFactor" | "targetSize" | "onGround" | "mergeMeshes" | "fadeIn" | "collidable" | "rotation">>;
 
   public modelRoot: BABYLON.TransformNode | null = null;
   public addedMeshes: BABYLON.Mesh[] = [];
@@ -35,6 +36,7 @@ export class PlaceModel {
       onGround: options.onGround ?? true,
       mergeMeshes: options.mergeMeshes ?? false,
       fadeIn: options.fadeIn ?? false,
+      collidable: options.collidable ?? false,
       rotation: this.rotation,
     };
   }
@@ -160,7 +162,7 @@ export class PlaceModel {
 
       addedMeshes.forEach((mesh) => {
         mesh.receiveShadows = false;
-        mesh.checkCollisions = true;
+        mesh.checkCollisions = this.options.collidable;
       });
 
       this.modelRoot = new BABYLON.TransformNode(`${this.modelName}_root`, this.scene);

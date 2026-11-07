@@ -9,6 +9,7 @@
     onlinePlayers = [],
     chatMessages = [],
     debugPoint = { x: 0, y: 0 },
+    fps = 0,
     serverConnected = false,
     playerName = "Player Hero",
     onMoveInput,
@@ -21,6 +22,7 @@
     onlinePlayers?: Array<{ id: string; name: string }>;
     chatMessages?: Array<{ id: string; author: string; text: string }>;
     debugPoint?: DebugPoint;
+    fps?: number;
     serverConnected?: boolean;
     playerName?: string;
     onMoveInput?: (input: { x: number; y: number }) => void;
@@ -193,7 +195,10 @@
     </div>
 
     {#if !isMobile}
-      <div class="ground-coords" aria-live="polite">({debugPoint.x},{debugPoint.y})</div>
+      <div class="ground-coords" aria-live="polite">
+        <div>({debugPoint.x},{debugPoint.y})</div>
+        <div>FPS {Math.round(fps)}</div>
+      </div>
     {/if}
 
     <div class="chat-panel" aria-label="In-game chat">
@@ -516,6 +521,9 @@
   }
 
   .ground-coords {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
     color: #ebfff1;
     font: 12px/1.4 monospace;
     letter-spacing: 0.04em;

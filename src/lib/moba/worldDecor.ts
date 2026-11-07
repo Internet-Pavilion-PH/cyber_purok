@@ -2,13 +2,13 @@ import * as BABYLON from "@babylonjs/core";
 import { Tower } from "./entities/tower";
 import { Creep } from "./entities/creeps";
 import { Fence } from "./world/fence";
-import { Tree } from "./world/tree";
+import { TreeSprites } from "./world/treeSprites";
 import { Stone } from "./world/stone";
 import { PlaceModel } from "./world/placeModel";
 import type { ArenaBuilder } from "./world/arenaBuilder";
 
 const TREES = [
-  { x: -433, z: -291, scale: 12, height: 2.5 },
+  { x: -433, z: -291, scale: 12, height: 90},
   { x: -132, z: -365, scale: 12, height: 2.5 },
   { x: -110, z: -220, scale: 10, height: 2 },
   { x: -61, z: -322, scale: 12, height: 2.5 },
@@ -311,9 +311,10 @@ export const createSky = (scene: BABYLON.Scene) => {
 
 /** Places static scenery and returns the models the caller must `load()` during preload. */
 export const buildWorldDecor = (scene: BABYLON.Scene, arena: ArenaBuilder | null) => {
-  for (const { x, z, scale, height } of TREES) {
-    const tree = new Tree(scene, new BABYLON.Vector3(x, 0, z), scale, height);
-    castShadows(arena, tree.rootNode);
+  const treeSprites = new TreeSprites(scene, "/images/texture/artwork_tree.png", TREES.length + 32, { width: 1117, height: 1117 });
+  for (const { x, z, scale } of TREES) {
+    const spriteSize = Math.max(22, scale * 7);
+    treeSprites.addTree(new BABYLON.Vector3(x, 0, z), spriteSize);
   }
 
   for (const { x, z, x2, z2, height } of STONES) {

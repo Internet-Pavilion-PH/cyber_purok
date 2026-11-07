@@ -194,7 +194,11 @@
       ></div>
     </div>
 
-    {#if !isMobile}
+    {#if isMobile}
+      <div class="ground-coords mobile-fps" aria-live="polite">
+        <div>FPS {Math.round(fps)}</div>
+      </div>
+    {:else}
       <div class="ground-coords" aria-live="polite">
         <div>({debugPoint.x},{debugPoint.y})</div>
         <div>FPS {Math.round(fps)}</div>
@@ -533,6 +537,10 @@
     padding: 0;
     min-width: 0;
     box-shadow: none;
+  }
+
+  .mobile-fps {
+    margin-top: 2px;
   }
 
   .chat-panel {

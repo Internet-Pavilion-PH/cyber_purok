@@ -97,7 +97,8 @@ export class PlaceModel {
       "JoelTower.glb": "/world/",
       "kolown-build.glb": "/world/",
       "crate.glb": "/world/",
-      "standee.glb": "/world/"
+      "standee.glb": "/world/",
+      "guava.glb": "/world/"
     };
 
     return {

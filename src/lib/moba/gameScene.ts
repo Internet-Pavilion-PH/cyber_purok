@@ -21,6 +21,8 @@ import {
 } from "./input/cameraController";
 import { CAMERA_EDGE_INSET, GROUND_SIZE, HERO_START } from "./constants";
 
+import { GuavaHunt } from "./gameplay/guavaHunt";
+
 export type GameSceneOptions = {
   engine: BABYLON.Engine;
   canvas: HTMLCanvasElement;
@@ -39,6 +41,7 @@ export type GameSceneOptions = {
   onBeforeHeroUpdate: (hero: Hero) => void;
   onAfterHeroUpdate: (hero: Hero) => void;
   onHeroLoaded: (hero: Hero) => void;
+  isGameLive?: () => boolean;
 };
 
 const setupGameCamera = (scene: BABYLON.Scene, options: GameSceneOptions) => {
@@ -120,6 +123,8 @@ export const createGameScene = (options: GameSceneOptions) => {
   hero.updateDisplayName(playerName);
   remoteHeroes.setLocalHero(hero);
 
+  const guavaHunt = new GuavaHunt(scene);
+
   const sound = new AmbientSound(
     scene,
     "https://kolown.net/storage/library/audio/field/bbc_fast-flowi_nhu0510424.mp3",
@@ -157,8 +162,15 @@ export const createGameScene = (options: GameSceneOptions) => {
     if (!hero.mesh) return;
     options.onBeforeHeroUpdate(hero);
     hero.update(engine.getDeltaTime() / 1000);
+
+    const isGameLive = options.isGameLive?.() ?? true;
+    guavaHunt.setServerMode(isGameLive);
+    if (!isGameLive) {
+      guavaHunt.update(hero);
+    }
+
     options.onAfterHeroUpdate(hero);
   });
 
-  return { scene, camera, arena, hero, sound };
+  return { scene, camera, arena, hero, sound, guavaHunt };
 };

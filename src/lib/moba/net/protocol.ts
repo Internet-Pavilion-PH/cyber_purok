@@ -43,7 +43,32 @@ export type ChatMessage = {
   ts: number;
 };
 
-export type SocketMessage = WelcomeMessage | StateMessage | PresenceMessage | PingMessage | PongMessage | ChatMessage;
+export type GuavaStateMessage = {
+  type: "guava";
+  active: boolean;
+  x: number;
+  z: number;
+  respawnAt?: number;
+  pickedBy?: string;
+};
+
+export type GuavaPickupMessage = {
+  type: "guava_pickup";
+  playerId?: string;
+  x?: number;
+  z?: number;
+  active?: boolean;
+};
+
+export type SocketMessage =
+  | WelcomeMessage
+  | StateMessage
+  | PresenceMessage
+  | PingMessage
+  | PongMessage
+  | ChatMessage
+  | GuavaStateMessage
+  | GuavaPickupMessage;
 
 export type InputMessage = {
   type: "input";
@@ -130,6 +155,32 @@ export function parseSocketMessage(raw: string): SocketMessage | null {
         senderName: data.senderName,
         text: data.text,
         ts: data.ts,
+      };
+    }
+
+    if (
+      type === "guava" &&
+      typeof data.active === "boolean" &&
+      isFiniteNumber(data.x) &&
+      isFiniteNumber(data.z)
+    ) {
+      return {
+        type: "guava",
+        active: data.active,
+        x: data.x,
+        z: data.z,
+        respawnAt: typeof data.respawnAt === "number" ? data.respawnAt : undefined,
+        pickedBy: typeof data.pickedBy === "string" ? data.pickedBy : undefined,
+      };
+    }
+
+    if (type === "guava_pickup" && (typeof data.playerId === "string" || data.playerId === undefined)) {
+      return {
+        type: "guava_pickup",
+        playerId: typeof data.playerId === "string" ? data.playerId : undefined,
+        x: typeof data.x === "number" ? data.x : undefined,
+        z: typeof data.z === "number" ? data.z : undefined,
+        active: typeof data.active === "boolean" ? data.active : undefined,
       };
     }
 

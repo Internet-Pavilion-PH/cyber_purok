@@ -28,6 +28,7 @@ export class MultiplayerSocket {
   private welcomeHandler: ((message: WelcomeMessage) => void) | null = null;
   private presenceHandler: ((message: PresenceMessage) => void) | null = null;
   private chatHandler: ((message: ChatMessage) => void) | null = null;
+  private guavaHandler: ((message: import("./protocol").GuavaStateMessage | import("./protocol").GuavaPickupMessage) => void) | null = null;
   private closeHandler: (() => void) | null = null;
   private errorHandler: ((event: Event) => void) | null = null;
 
@@ -39,6 +40,7 @@ export class MultiplayerSocket {
     onWelcome?: (message: WelcomeMessage) => void;
     onPresence?: (message: PresenceMessage) => void;
     onChat?: (message: ChatMessage) => void;
+    onGuava?: (message: import("./protocol").GuavaStateMessage | import("./protocol").GuavaPickupMessage) => void;
     onClose?: () => void;
     onError?: (event: Event) => void;
   };
@@ -107,6 +109,7 @@ export class MultiplayerSocket {
     onWelcome?: (message: WelcomeMessage) => void;
     onPresence?: (message: PresenceMessage) => void;
     onChat?: (message: ChatMessage) => void;
+    onGuava?: (message: import("./protocol").GuavaStateMessage | import("./protocol").GuavaPickupMessage) => void;
     onClose?: () => void;
     onError?: (event: Event) => void;
   }) {
@@ -127,6 +130,7 @@ export class MultiplayerSocket {
     this.welcomeHandler = options?.onWelcome ?? null;
     this.presenceHandler = options?.onPresence ?? null;
     this.chatHandler = options?.onChat ?? null;
+    this.guavaHandler = options?.onGuava ?? null;
     this.closeHandler = options?.onClose ?? null;
     this.errorHandler = options?.onError ?? null;
 
@@ -180,6 +184,11 @@ export class MultiplayerSocket {
 
       if (data.type === "chat") {
         this.chatHandler?.(data);
+        return;
+      }
+
+      if (data.type === "guava" || data.type === "guava_pickup") {
+        this.guavaHandler?.(data);
       }
     };
 
@@ -288,6 +297,7 @@ export const createMultiplayerSocket = (options?: {
   onWelcome?: (message: WelcomeMessage) => void;
   onPresence?: (message: PresenceMessage) => void;
   onChat?: (message: ChatMessage) => void;
+  onGuava?: (message: import("./protocol").GuavaStateMessage | import("./protocol").GuavaPickupMessage) => void;
   onClose?: () => void;
   onError?: (event: Event) => void;
 }) => new MultiplayerSocket().connect(options);

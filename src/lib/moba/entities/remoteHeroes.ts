@@ -25,6 +25,7 @@ export interface MapMarker {
   x: number;
   z: number;
   color: string;
+  pulse?: boolean;
 }
 
 const PLAYER_COLORS = [

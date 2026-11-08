@@ -18,7 +18,7 @@
     onChatSend,
   }: {
     heroPosition?: { x: number; z: number } | null;
-    remoteMarkers?: { id: string; name: string; x: number; z: number; color: string }[];
+    remoteMarkers?: { id: string; name: string; x: number; z: number; color: string; pulse?: boolean }[];
     onlinePlayers?: Array<{ id: string; name: string }>;
     chatMessages?: Array<{ id: string; author: string; text: string }>;
     debugPoint?: DebugPoint;
@@ -179,7 +179,9 @@
       <div class="minimap-grid"></div>
       {#each remoteMarkers as marker (marker.id)}
         <div
-          class="remote-marker"
+          class:remote-marker={marker.id !== "guava"}
+          class:guava-marker={marker.id === "guava"}
+          class:pulse-marker={marker.pulse}
           style:--marker-x={`${((marker.x + halfMap) / mapSize) * 100}%`}
           style:--marker-y={`${((-marker.z + halfMap) / mapSize) * 100}%`}
           style:--marker-color={marker.color}
@@ -794,7 +796,8 @@
     transform: translateZ(0);
   }
 
-  .remote-marker {
+  .remote-marker,
+  .guava-marker {
     position: absolute;
     left: var(--marker-x);
     top: var(--marker-y);
@@ -806,6 +809,35 @@
     background: var(--marker-color);
     border: 2px solid rgba(255, 255, 255, 0.9);
     box-shadow: 0 0 10px var(--marker-color);
+  }
+
+  .guava-marker {
+    width: 12px;
+    height: 12px;
+    margin-left: -6px;
+    margin-top: -6px;
+    background: transparent;
+    border: 2px solid #ffd400;
+    box-shadow: none;
+  }
+
+  .pulse-marker {
+    animation: minimap-pulse 0.9s ease-in-out infinite alternate;
+  }
+
+  @keyframes minimap-pulse {
+    0% {
+      opacity: 0.5;
+      transform: scale(0.82);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.12);
+    }
+    100% {
+      opacity: 0.7;
+      transform: scale(0.96);
+    }
   }
 
   @media (max-width: 900px) {

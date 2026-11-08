@@ -26,6 +26,12 @@ export class AmbientSound {
   public bindToFirstInteraction(target: Window | HTMLElement = window) {
     if (this.started) return;
 
+    // A gesture (e.g. the intro Enter button) may already have happened before this scene booted.
+    if (typeof navigator !== "undefined" && navigator.userActivation?.hasBeenActive) {
+      this.start();
+      return;
+    }
+
     const handler = () => {
       this.start();
       target.removeEventListener("pointerdown", handler, true);
@@ -41,10 +47,16 @@ export class AmbientSound {
 
     this.started = true;
     BABYLON.Engine.audioEngine?.unlock();
-    this.sound.play();
+    if (this.sound.isReady()) {
+      this.sound.play();
+    } else {
+      // play() is a no-op until the buffer is decoded; autoplay fires on load.
+      this.sound.autoplay = true;
+    }
   }
 
   public stop() {
+    this.sound.autoplay = false;
     this.sound.stop();
     this.started = false;
   }

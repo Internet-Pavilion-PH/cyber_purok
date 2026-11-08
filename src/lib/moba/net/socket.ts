@@ -36,6 +36,7 @@ export class MultiplayerSocket {
     url?: string;
     userId?: string;
     name?: string;
+    getPosition?: () => { x: number; z: number } | null;
     onState?: (message: StateMessage) => void;
     onWelcome?: (message: WelcomeMessage) => void;
     onPresence?: (message: PresenceMessage) => void;
@@ -105,6 +106,7 @@ export class MultiplayerSocket {
     url?: string;
     userId?: string;
     name?: string;
+    getPosition?: () => { x: number; z: number } | null;
     onState?: (message: StateMessage) => void;
     onWelcome?: (message: WelcomeMessage) => void;
     onPresence?: (message: PresenceMessage) => void;
@@ -142,7 +144,7 @@ export class MultiplayerSocket {
       console.log("server connected");
       this.reconnectAttempt = 0;
       this.startHeartbeat();
-      this.sendJoin(options?.userId, options?.name ?? "Hero");
+      this.sendJoin(options?.userId, options?.name ?? "Hero", options?.getPosition?.());
     };
 
     this.socket.onmessage = (event) => {
@@ -230,13 +232,15 @@ export class MultiplayerSocket {
     return this.socket;
   }
 
-  sendJoin(userId?: string, name = "Hero") {
+  sendJoin(userId?: string, name = "Hero", position?: { x: number; z: number } | null) {
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) return;
 
     const payload: JoinMessage = {
       type: "join",
       userId,
       name,
+      x: position?.x,
+      z: position?.z,
     };
 
     this.socket.send(JSON.stringify(payload));

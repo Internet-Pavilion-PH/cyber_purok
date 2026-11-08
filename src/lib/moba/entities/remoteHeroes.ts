@@ -4,9 +4,9 @@ import { createHeroConfig } from "./heroConfig";
 import type { ArenaBuilder } from "../world/arenaBuilder";
 import { getTerrainHeight } from "../world/terrainHeight";
 
-// Server spawns everyone at (0,0) and integrates moveX*SERVER_STEP, so clients send deltas
-// and offset positions by their own start.
-export const SPAWN_OFFSET = -380;
+// All players share the same world-space origin. We do not add an extra client-side
+// spawn offset here; the authoritative server positions are already in arena coordinates.
+export const SPAWN_OFFSET = 0;
 export const SERVER_STEP = 0.3;
 
 export interface RemotePlayer {
@@ -49,10 +49,15 @@ export const toMapMarkers = (players: RemotePlayer[], localId: string | null): M
     .map((player) => ({
       id: player.id,
       name: player.name,
-      x: player.x + SPAWN_OFFSET,
-      z: player.z + SPAWN_OFFSET,
+      x: player.x,
+      z: player.z,
       color: playerColor(player.id),
     }));
+
+const lerpAngle = (from: number, to: number, amount: number) => {
+  const diff = ((to - from + Math.PI) % (Math.PI * 2)) - Math.PI;
+  return from + diff * amount;
+};
 
 interface RemoteHeroContext {
   getScene: () => BABYLON.Scene | null;
@@ -103,6 +108,8 @@ export class RemoteHeroes {
 
     this.heroes.forEach((hero, id) => {
       if (!activeIds.has(id)) {
+        this.previousPositions.delete(id);
+        this.remoteMotionState.delete(id);
         hero.dispose();
         this.heroes.delete(id);
       }
@@ -112,6 +119,8 @@ export class RemoteHeroes {
   public clear() {
     this.loadingIds.clear();
     this.latestPlayers.clear();
+    this.previousPositions.clear();
+    this.remoteMotionState.clear();
     this.localHero?.mesh?.setEnabled(false);
     this.heroes.forEach((hero) => hero.dispose());
     this.heroes.clear();
@@ -133,11 +142,7 @@ export class RemoteHeroes {
 
       hero = new Hero(
         scene,
-        createHeroConfig(
-          player.id,
-          player.name,
-          new BABYLON.Vector3(player.x + SPAWN_OFFSET, 0, player.z + SPAWN_OFFSET),
-        ),
+        createHeroConfig(player.id, player.name, new BABYLON.Vector3(player.x, 0, player.z)),
       );
 
       try {
@@ -158,23 +163,32 @@ export class RemoteHeroes {
     if (hero.config.name !== resolvedName) hero.updateDisplayName(resolvedName);
 
     if (hero.mesh) {
-      const rx = player.x + SPAWN_OFFSET;
-      const rz = player.z + SPAWN_OFFSET;
+      const rx = player.x;
+      const rz = player.z;
       const nextPosition = new BABYLON.Vector3(rx, getTerrainHeight(rx, rz), rz);
       const previousPosition = this.previousPositions.get(player.id);
       const movementDistance = previousPosition ? BABYLON.Vector3.Distance(previousPosition, nextPosition) : 0;
-      const shouldRun = movementDistance > 1.2;
       const currentRunning = this.remoteMotionState.get(player.id) ?? false;
 
-      hero.mesh.position.copyFrom(nextPosition);
-      hero.mesh.rotation.y = player.yaw;
+      const currentPosition = hero.mesh.position.clone();
+      const distanceToTarget = BABYLON.Vector3.Distance(currentPosition, nextPosition);
+      const followStrength = distanceToTarget > 24 ? 0.5 : distanceToTarget > 10 ? 0.3 : distanceToTarget > 2 ? 0.2 : 0.14;
 
-      if (shouldRun) {
-        this.remoteMotionState.set(player.id, true);
-        if (!currentRunning) hero.playAnimation("Walking");
-      } else if (movementDistance < 0.15) {
-        this.remoteMotionState.set(player.id, false);
-        if (currentRunning) hero.playAnimation("Idle");
+      if (distanceToTarget > 0.15) {
+        const eased = currentPosition.add(nextPosition.subtract(currentPosition).scale(followStrength));
+        hero.mesh.position.copyFrom(eased);
+        hero.mesh.position.y = getTerrainHeight(hero.mesh.position.x, hero.mesh.position.z);
+      } else {
+        hero.mesh.position.copyFrom(nextPosition);
+      }
+
+      const targetYaw = player.yaw ?? 0;
+      hero.mesh.rotation.y = lerpAngle(hero.mesh.rotation.y, targetYaw, 0.2);
+
+      const nextRunning = movementDistance > 0.35 || distanceToTarget > 0.6;
+      if (nextRunning !== currentRunning) {
+        this.remoteMotionState.set(player.id, nextRunning);
+        hero.playAnimation(nextRunning ? "Walking" : "Idle");
       }
 
       this.previousPositions.set(player.id, nextPosition.clone());

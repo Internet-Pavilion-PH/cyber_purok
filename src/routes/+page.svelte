@@ -27,6 +27,32 @@
 
   type HeroPosition = { x: number; z: number };
 
+  const LAST_HERO_POSITION_KEY = "cyberpurok:last-hero-position";
+
+  const readLastHeroPosition = (): HeroPosition | null => {
+    if (typeof window === "undefined") return null;
+
+    try {
+      const raw = window.localStorage.getItem(LAST_HERO_POSITION_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as Partial<HeroPosition>;
+      if (typeof parsed.x !== "number" || typeof parsed.z !== "number") return null;
+      return { x: parsed.x, z: parsed.z };
+    } catch {
+      return null;
+    }
+  };
+
+  const writeLastHeroPosition = (position: HeroPosition) => {
+    if (typeof window === "undefined") return;
+
+    try {
+      window.localStorage.setItem(LAST_HERO_POSITION_KEY, JSON.stringify(position));
+    } catch {
+      // ignore localStorage failures and fall back to server-authoritative state
+    }
+  };
+
   const isMobile = detectMobile();
 
   // --- State ---
@@ -159,13 +185,33 @@
     if (hero) hero.mesh?.setEnabled(visible);
   };
 
+  const resetLocalHeroToSpawn = (spawnX = 0, spawnZ = 0) => {
+    if (!hero) return;
+
+    const nextPosition = { x: spawnX, z: spawnZ };
+    hero.config.spawnPosition = new BABYLON.Vector3(spawnX, 0, spawnZ);
+
+    if (heroMesh) {
+      heroMesh.position.set(spawnX, 0, spawnZ);
+      heroMesh.rotation.y = 0;
+    }
+
+    hero.setMoveDirection(null);
+    hero.setTarget(null);
+    heroPosition = nextPosition;
+    writeLastHeroPosition(nextPosition);
+    currentTarget = null;
+  };
+
   const connectMultiplayer = () => {
     clientUserId = clientUserId || generateClientUserId();
     multiplayerSocket?.close();
 
+    const lastSavedPosition = readLastHeroPosition() ?? { x: 0, z: 0 };
     onlinePlayers = [{ id: clientUserId, name: playerName }];
     isServerConnected = false;
     syncLocalHeroVisibility(false);
+    resetLocalHeroToSpawn(lastSavedPosition.x, lastSavedPosition.z);
 
     multiplayerSocket = new MultiplayerSocket();
     multiplayerSocket.connect({
@@ -175,6 +221,9 @@
         localPlayerId = message.you;
         knownPlayerNames.set(message.you, playerName);
         if (hero) hero.config.id = message.you;
+        const spawnX = message.spawnX ?? lastSavedPosition.x ?? 0;
+        const spawnZ = message.spawnZ ?? lastSavedPosition.z ?? 0;
+        resetLocalHeroToSpawn(spawnX, spawnZ);
         isServerConnected = true;
         syncLocalHeroVisibility(true);
       },
@@ -190,7 +239,13 @@
           return { id: player.id, name: player.name };
         });
       },
-      onPresence: (message) => console.log("presence", message),
+      onPresence: (message) => {
+        const nextOnlinePlayers = [...new Set(message.ids)].map((id) => ({
+          id,
+          name: resolveOnlinePlayerName(id, undefined),
+        }));
+        onlinePlayers = nextOnlinePlayers;
+      },
       onChat: (message) => {
         // own messages are already appended locally in handleChatSend
         if (message.senderId === clientUserId) return;
@@ -209,11 +264,17 @@
         remoteHeroes.clear();
         remoteMarkers = [];
         onlinePlayers = [];
+        const fallbackPosition = readLastHeroPosition() ?? { x: 0, z: 0 };
         if (hero) {
           hero.setMoveDirection(null);
           hero.setTarget(null);
+          if (hero.mesh) {
+            hero.mesh.position.set(fallbackPosition.x, 0, fallbackPosition.z);
+            hero.mesh.rotation.y = 0;
+          }
         }
-        syncLocalHeroVisibility(false);
+        heroPosition = fallbackPosition;
+        syncLocalHeroVisibility(true);
       },
       onError: (event) => {
         isServerConnected = false;
@@ -253,6 +314,7 @@ const applyHeroInput = (localHero: Hero) => {
       onBeforeHeroUpdate: applyHeroInput,
       onAfterHeroUpdate: (localHero) => {
         heroPosition = localHero.position;
+        writeLastHeroPosition(localHero.position);
         sendHeroMovement(localHero as Hero & { mesh: BABYLON.AbstractMesh });
       },
       onHeroLoaded: (localHero) => {

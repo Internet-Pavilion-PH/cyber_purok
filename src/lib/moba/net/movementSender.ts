@@ -1,10 +1,13 @@
 import { NETWORK_SEND_INTERVAL_MS } from "../constants";
-import { SERVER_STEP } from "../entities/remoteHeroes";
 
 type Pos = { x: number; z: number };
 type MoveSocket = { connected: boolean; sendMove: (dx: number, dz: number, yaw: number) => void };
 
-/** Sends movement deltas (in server steps) at most every NETWORK_SEND_INTERVAL_MS. */
+/**
+ * Send the last world-space drift from the local hero instead of inflating it by the
+ * server step. The server step is a network-physics tuning value; if we divide raw
+ * deltas by it here, the client can easily overshoot and appear to run too fast.
+ */
 export function createMovementSender(getSocket: () => MoveSocket | null) {
   let lastSentAt = 0;
   let lastSentPos: Pos | null = null;
@@ -18,10 +21,14 @@ export function createMovementSender(getSocket: () => MoveSocket | null) {
     const prev = lastSentPos ?? position;
     const dx = position.x - prev.x;
     const dz = position.z - prev.z;
+    const magnitude = Math.hypot(dx, dz);
 
-    if (dx !== 0 || dz !== 0 || yaw !== lastSentYaw) {
-      socket.sendMove(dx / SERVER_STEP, dz / SERVER_STEP, yaw);
+    if (magnitude > 0.01 || yaw !== lastSentYaw) {
+      const safeDx = Math.max(-12, Math.min(12, dx));
+      const safeDz = Math.max(-12, Math.min(12, dz));
+      socket.sendMove(safeDx, safeDz, yaw);
     }
+
     lastSentPos = { x: position.x, z: position.z };
     lastSentYaw = yaw;
     lastSentAt = now;

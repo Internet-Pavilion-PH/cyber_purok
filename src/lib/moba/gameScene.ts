@@ -125,7 +125,7 @@ export const createGameScene = (options: GameSceneOptions) => {
     "https://kolown.net/storage/library/audio/field/bbc_fast-flowi_nhu0510424.mp3",
     { volume: 0.5 },
   );
-  sound.bindToFirstInteraction(options.canvas);
+  sound.bindToFirstInteraction(window);
 
   void preloadAssets([...models.map((model) => model.load()), hero.load()])
     .then(() => {

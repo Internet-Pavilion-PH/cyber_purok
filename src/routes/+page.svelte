@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { untrack } from "svelte";
   import * as BABYLON from "@babylonjs/core";
   import "@babylonjs/loaders/glTF";
   import { MultiplayerSocket } from "$lib/moba/net/socket";
@@ -23,41 +23,43 @@
     isSkillKey,
   } from "$lib/moba/input/keyboard";
   import Ui_Moba from "$lib/moba/Ui_Moba.svelte";
+  import GameIntroScene from "$lib/components/GameIntroScene.svelte";
 
   type HeroPosition = { x: number; z: number };
 
   const isMobile = detectMobile();
 
   // --- State ---
-  let canvas: HTMLCanvasElement;
+  let canvas: HTMLCanvasElement | undefined = $state();
+  let hasEnteredGame = $state(false);
   type ChatEntry = { id: string; author: string; text: string };
 
-  let heroPosition: HeroPosition = { x: 0, z: 0 };
-  let debugPoint = { x: 0, y: 0 };
-  let fps = 0;
-  let playerName = "Player Hero";
+  let heroPosition = $state<HeroPosition>({ x: 0, z: 0 });
+  let debugPoint = $state({ x: 0, y: 0 });
+  let fps = $state(0);
+  let playerName = $state("Player Hero");
   const knownPlayerNames = new PlayerNameRegistry();
-  let remoteMarkers: MapMarker[] = [];
-  let onlinePlayers: Array<{ id: string; name: string }> = [];
-  let chatMessages: ChatEntry[] = [];
+  let remoteMarkers = $state<MapMarker[]>([]);
+  let onlinePlayers = $state<Array<{ id: string; name: string }>>([]);
+  let chatMessages = $state<ChatEntry[]>([]);
 
-  let sceneRef: BABYLON.Scene | null = null;
-  let gameCamera: BABYLON.ArcRotateCamera | null = null;
-  let arenaBuilder: ArenaBuilder | null = null;
-  let groundMesh: BABYLON.Mesh | null = null;
-  let wallMeshes: BABYLON.Mesh[] = [];
-  let gameGroundMaterial: BABYLON.StandardMaterial | null = null;
+  let sceneRef = $state<BABYLON.Scene | null>(null);
+  let gameCamera = $state<BABYLON.ArcRotateCamera | null>(null);
+  let arenaBuilder = $state<ArenaBuilder | null>(null);
+  let groundMesh = $state<BABYLON.Mesh | null>(null);
+  let wallMeshes = $state<BABYLON.Mesh[]>([]);
+  let gameGroundMaterial = $state<BABYLON.StandardMaterial | null>(null);
 
-  let hero: Hero | null = null;
-  let heroMesh: BABYLON.AbstractMesh | null = null;
-  let currentTarget: BABYLON.Vector3 | null = null;
-  let mobileMoveVector = { x: 0, y: 0 };
+  let hero = $state<Hero | null>(null);
+  let heroMesh = $state<BABYLON.AbstractMesh | null>(null);
+  let currentTarget = $state<BABYLON.Vector3 | null>(null);
+  let mobileMoveVector = $state({ x: 0, y: 0 });
 
-  let multiplayerSocket: MultiplayerSocket | null = null;
-  let localPlayerId: string | null = null;
-  let clientUserId = "";
-  let isServerConnected = false;
-  let keyboardController: ReturnType<typeof createKeyboardController> | null = null;
+  let multiplayerSocket = $state<MultiplayerSocket | null>(null);
+  let localPlayerId = $state<string | null>(null);
+  let clientUserId = $state("");
+  let isServerConnected = $state(false);
+  let keyboardController = $state<ReturnType<typeof createKeyboardController> | null>(null);
 
   const remoteHeroes = new RemoteHeroes({
     getScene: () => sceneRef,
@@ -236,10 +238,10 @@ const applyHeroInput = (localHero: Hero) => {
 };
 
   // --- Scene setup ---
-  const createScene = (engine: BABYLON.Engine, loadingScreen: CustomLoadingScreen) => {
+  const createScene = (engine: BABYLON.Engine, loadingScreen: CustomLoadingScreen, gameCanvas: HTMLCanvasElement) => {
     const game = createGameScene({
       engine,
-      canvas,
+      canvas: gameCanvas,
       loadingScreen,
       isMobile,
       playerName,
@@ -273,7 +275,9 @@ const applyHeroInput = (localHero: Hero) => {
   };
 
   // Applies the game ground material and camera input rules once the scene is ready.
-  $: if (sceneRef && gameCamera && gameGroundMaterial) {
+  $effect(() => {
+    if (!sceneRef || !gameCamera || !gameGroundMaterial || !canvas) return;
+
     arenaBuilder?.updateCameraMode();
 
     sceneRef.activeCamera = gameCamera;
@@ -289,23 +293,46 @@ const applyHeroInput = (localHero: Hero) => {
     gameCamera.wheelPrecision = 0;
     canvas.addEventListener("wheel", preventGameWheel, { passive: true });
     gameCamera.attachControl(canvas, true);
-  }
+  });
 
-  onMount(() => {
+  const unlockAudioEngine = () => {
+    if (typeof BABYLON !== "undefined" && BABYLON.Engine.audioEngine) {
+      BABYLON.Engine.audioEngine.unlock();
+    }
+  };
+
+  const startGame = () => {
+    if (hasEnteredGame) return;
+
+    unlockAudioEngine();
+    hasEnteredGame = true;
+  };
+
+  // Only hasEnteredGame and canvas may trigger this effect; the boot body is untracked
+  // so state written during setup cannot re-run it and fire the cleanup (closing the socket).
+  $effect(() => {
+    if (!hasEnteredGame || !canvas) return;
+
+    const gameCanvas = canvas;
+    return untrack(() => bootGame(gameCanvas));
+  });
+
+  const bootGame = (gameCanvas: HTMLCanvasElement) => {
+    unlockAudioEngine();
     clientUserId = clientUserId || generateClientUserId();
     playerName = resolvePlayerName();
     connectMultiplayer();
     keyboardController = createKeyboardController(handleHeroKey);
 
-    const engine = new BABYLON.Engine(canvas, true, { audioEngine: true });
+    const engine = new BABYLON.Engine(gameCanvas, true, { audioEngine: true });
     BABYLON.SceneLoader.ShowLoadingScreen = true;
     const loadingScreen = new CustomLoadingScreen("/images/cyber_purok.png");
     engine.loadingScreen = loadingScreen;
     loadingScreen.displayLoadingUI();
 
-    const scene = createScene(engine, loadingScreen);
+    const scene = createScene(engine, loadingScreen, gameCanvas);
     scene.activeCamera = gameCamera;
-    gameCamera?.attachControl(canvas, true);
+    gameCamera?.attachControl(gameCanvas, true);
 
     engine.runRenderLoop(() => {
       scene.render();
@@ -317,7 +344,7 @@ const applyHeroInput = (localHero: Hero) => {
 
     return () => {
       window.removeEventListener("resize", handleResize);
-      canvas.removeEventListener("wheel", preventGameWheel);
+      gameCanvas.removeEventListener("wheel", preventGameWheel);
       keyboardController?.dispose();
       multiplayerSocket?.close();
       remoteHeroes.setLocalHero(null);
@@ -325,29 +352,38 @@ const applyHeroInput = (localHero: Hero) => {
       scene.dispose();
       engine.dispose();
     };
-  });
+  };
 </script>
 
-<Ui_Moba
-  heroPosition={heroPosition}
-  {remoteMarkers}
-  {onlinePlayers}
-  {chatMessages}
-  debugPoint={debugPoint}
-  fps={fps}
-  serverConnected={isServerConnected}
-  playerName={playerName}
-  onMoveInput={applyMobileMovement}
-  onMinimapSelect={handleMinimapSelect}
-  onReconnect={connectMultiplayer}
-  onChatSend={handleChatSend}
-/>
+{#if !hasEnteredGame}
+  <GameIntroScene onEnter={startGame} />
+{/if}
 
-<canvas bind:this={canvas} class="babylon-canvas"></canvas>
+{#if hasEnteredGame}
+  <Ui_Moba
+    heroPosition={heroPosition}
+    {remoteMarkers}
+    {onlinePlayers}
+    {chatMessages}
+    debugPoint={debugPoint}
+    fps={fps}
+    serverConnected={isServerConnected}
+    playerName={playerName}
+    onMoveInput={applyMobileMovement}
+    onMinimapSelect={handleMinimapSelect}
+    onReconnect={connectMultiplayer}
+    onChatSend={handleChatSend}
+  />
+
+  <canvas bind:this={canvas} class="babylon-canvas"></canvas>
+{/if}
 
 <style>
   :global(body) {
     margin: 0;
+    background: #04070d;
+    font-family: Inter, "Segoe UI", sans-serif;
+    color: #edf7ff;
   }
 
   .babylon-canvas {

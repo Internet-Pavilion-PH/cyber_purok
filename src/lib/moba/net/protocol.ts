@@ -45,6 +45,7 @@ export type ChatMessage = {
 
 export type GuavaStateMessage = {
   type: "guava";
+  seq: number;
   active: boolean;
   x: number;
   z: number;
@@ -54,6 +55,7 @@ export type GuavaStateMessage = {
 
 export type GuavaPickupMessage = {
   type: "guava_pickup";
+  seq: number;
   playerId?: string;
   x?: number;
   z?: number;
@@ -81,6 +83,8 @@ export type JoinMessage = {
   type: "join";
   userId?: string;
   name?: string;
+  x?: number;
+  z?: number;
 };
 
 export function isObject(value: unknown): value is Record<string, unknown> {
@@ -160,12 +164,14 @@ export function parseSocketMessage(raw: string): SocketMessage | null {
 
     if (
       type === "guava" &&
+      typeof data.seq === "number" &&
       typeof data.active === "boolean" &&
       isFiniteNumber(data.x) &&
       isFiniteNumber(data.z)
     ) {
       return {
         type: "guava",
+        seq: data.seq,
         active: data.active,
         x: data.x,
         z: data.z,
@@ -174,9 +180,14 @@ export function parseSocketMessage(raw: string): SocketMessage | null {
       };
     }
 
-    if (type === "guava_pickup" && (typeof data.playerId === "string" || data.playerId === undefined)) {
+    if (
+      type === "guava_pickup" &&
+      (typeof data.seq === "number" || typeof data.seq === "undefined") &&
+      (typeof data.playerId === "string" || data.playerId === undefined)
+    ) {
       return {
         type: "guava_pickup",
+        seq: typeof data.seq === "number" ? data.seq : 0,
         playerId: typeof data.playerId === "string" ? data.playerId : undefined,
         x: typeof data.x === "number" ? data.x : undefined,
         z: typeof data.z === "number" ? data.z : undefined,

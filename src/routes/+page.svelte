@@ -233,6 +233,7 @@
     multiplayerSocket.connect({
       userId: clientUserId,
       name: playerName,
+      getPosition: () => (hero?.mesh ? hero.position : readLastHeroPosition()),
       onWelcome: (message) => {
         localPlayerId = message.you;
         knownPlayerNames.set(message.you, playerName);
@@ -347,7 +348,7 @@ const applyHeroInput = (localHero: Hero) => {
         syncLocalHeroVisibility(isServerConnected);
         resetGameCameraToHero();
       },
-      isGameLive: () => isServerConnected && onlinePlayers.length > 0,
+      isGameLive: () => isServerConnected,
     });
 
     sceneRef = game.scene;

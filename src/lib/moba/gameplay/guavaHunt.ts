@@ -10,6 +10,7 @@ export class GuavaHunt {
   public isPicked = false;
   public object: BABYLON.Mesh | BABYLON.TransformNode | null;
   private isServerAuthoritative = false;
+  private lastSeenGuavaSeq = -1;
 
   constructor(scene: BABYLON.Scene) {
     this.scene = scene;
@@ -21,42 +22,44 @@ export class GuavaHunt {
     this.isServerAuthoritative = enabled;
   }
 
+  // Bumped on every detach so an in-flight load() can tell it was superseded.
+  private loadToken = 0;
+  private isLoading = false;
+
+  private detachObject(): void {
+    this.loadToken += 1;
+    if (!this.object) return;
+
+    this.object.dispose();
+    this.object = null;
+  }
+
   public setLocalFallbackMode(): void {
     this.isServerAuthoritative = false;
+    this.lastSeenGuavaSeq = -1;
     this.isPicked = true;
-    if (this.object) {
-      if (this.object instanceof BABYLON.Mesh) {
-        this.object.dispose();
-      } else {
-        this.object.setEnabled(false);
-      }
-      this.object = null;
-    }
+    this.detachObject();
     this.location = new BABYLON.Vector3(0, 5, 0);
   }
 
-  public syncFromServer(message: { active?: boolean; x?: number; z?: number }): void {
+  public syncFromServer(message: { seq?: number; active?: boolean; x?: number; z?: number }): void {
     if (typeof message.x !== "number" || typeof message.z !== "number") return;
+    const seq = typeof message.seq === "number" ? message.seq : 0;
+    if (seq < this.lastSeenGuavaSeq) return;
 
     this.isServerAuthoritative = true;
+    this.lastSeenGuavaSeq = seq;
     this.location = new BABYLON.Vector3(message.x, 5, message.z);
     const active = message.active ?? true;
     this.isPicked = !active;
 
     if (!active) {
-      if (this.object) {
-        if (this.object instanceof BABYLON.Mesh) {
-          this.object.dispose();
-        } else {
-          this.object.setEnabled(false);
-        }
-      }
-      this.object = null;
+      this.detachObject();
       return;
     }
 
     if (!this.object) {
-      void this.load();
+      if (!this.isLoading) void this.load();
       return;
     }
 
@@ -79,19 +82,17 @@ export class GuavaHunt {
     });
   }
 
-  private addHoverAnimation(): void {
-    if (!this.object) return;
-
+  private addHoverAnimation(target: BABYLON.Mesh | BABYLON.TransformNode): void {
     const baseY = this.location.y + 1.2;
     const observer = this.scene.onBeforeRenderObservable.add(() => {
-      if (!this.object || this.isPicked) {
+      if (this.object !== target || target.isDisposed() || this.isPicked) {
         this.scene.onBeforeRenderObservable.remove(observer);
         return;
       }
 
       const time = performance.now() * 0.001;
-      this.object.position.y = baseY + Math.sin(time * 3.5) * 0.35;
-      this.object.rotation.y += this.scene.getEngine().getDeltaTime() * 0.0015;
+      target.position.y = baseY + Math.sin(time * 3.5) * 0.35;
+      target.rotation.y += this.scene.getEngine().getDeltaTime() * 0.0015;
     });
   }
 
@@ -103,20 +104,15 @@ export class GuavaHunt {
 
     this.isPicked = false;
     this.location = new BABYLON.Vector3(0, 5, 0);
+    this.detachObject();
+    void this.load();
   }
 
   private triggerPickupEffect(): void {
     if (!this.object || this.isPicked) return;
 
     this.isPicked = true;
-
-    if (this.object instanceof BABYLON.Mesh) {
-      this.object.dispose();
-    } else {
-      this.object.setEnabled(false);
-    }
-
-    this.object = null;
+    this.detachObject();
 
     if (this.respawnTimer) {
       clearTimeout(this.respawnTimer);
@@ -140,6 +136,11 @@ export class GuavaHunt {
   }
 
   public async load(): Promise<void> {
+    if (this.isPicked || this.object || this.isLoading) return;
+
+    this.isLoading = true;
+    let retry = false;
+    const token = this.loadToken;
     try {
       const model = new PlaceModel(this.scene, "guava.glb", this.location, {
         onGround: true,
@@ -149,15 +150,26 @@ export class GuavaHunt {
 
       await model.load();
 
-      if (model.modelRoot) {
-        this.object = model.modelRoot;
-        this.object.position = this.location.clone();
-        this.applyGoldMaterial(this.object);
-        this.addHoverAnimation();
+      if (!model.modelRoot) return;
+
+      // Picked up (or reset) while the model was still loading: discard it.
+      if (token !== this.loadToken || this.isPicked) {
+        model.modelRoot.dispose();
+        retry = true;
+        return;
       }
+
+      this.object = model.modelRoot;
+      this.object.position = this.location.clone();
+      this.applyGoldMaterial(this.object);
+      this.addHoverAnimation(this.object);
     } catch (error) {
       console.warn("Guava hunt model failed to load; skipping guava object.", error);
       this.object = null;
+    } finally {
+      this.isLoading = false;
+      // A respawn may have arrived while the discarded load was still running.
+      if (retry && !this.isPicked && !this.object) void this.load();
     }
   }
 }

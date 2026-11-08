@@ -68,6 +68,20 @@
   let remoteMarkers = $state<MapMarker[]>([]);
   let onlinePlayers = $state<Array<{ id: string; name: string }>>([]);
   let chatMessages = $state<ChatEntry[]>([]);
+  let minimapMarkers = $derived.by(() => {
+    const markers = [...remoteMarkers];
+    if (guavaHuntRef && !guavaHuntRef.isPicked && guavaHuntRef.location) {
+      markers.push({
+        id: "guava",
+        name: "Guava",
+        x: guavaHuntRef.location.x,
+        z: guavaHuntRef.location.z,
+        color: "#ffd400",
+        pulse: true,
+      });
+    }
+    return markers;
+  });
 
   let sceneRef = $state<BABYLON.Scene | null>(null);
   let gameCamera = $state<BABYLON.ArcRotateCamera | null>(null);
@@ -78,6 +92,8 @@
 
   let hero = $state<Hero | null>(null);
   let heroMesh = $state<BABYLON.AbstractMesh | null>(null);
+  let guavaHuntInstance = $state<{ location: BABYLON.Vector3; isPicked: boolean; syncFromServer: (message: { active?: boolean; x?: number; z?: number }) => void; setLocalFallbackMode: () => void; setServerMode: (enabled: boolean) => void } | null>(null);
+  let guavaHuntRef = $state<{ location: BABYLON.Vector3; isPicked: boolean } | null>(null);
   let currentTarget = $state<BABYLON.Vector3 | null>(null);
   let mobileMoveVector = $state({ x: 0, y: 0 });
 
@@ -225,6 +241,7 @@
         const spawnZ = message.spawnZ ?? lastSavedPosition.z ?? 0;
         resetLocalHeroToSpawn(spawnX, spawnZ);
         isServerConnected = true;
+        guavaHuntInstance?.setServerMode(true);
         syncLocalHeroVisibility(true);
       },
       onState: (message) => {
@@ -258,7 +275,11 @@
           },
         ].slice(-5);
       },
+      onGuava: (message) => {
+        guavaHuntInstance?.syncFromServer(message);
+      },
       onClose: () => {
+        guavaHuntInstance?.setLocalFallbackMode();
         isServerConnected = false;
         localPlayerId = null;
         remoteHeroes.clear();
@@ -320,9 +341,13 @@ const applyHeroInput = (localHero: Hero) => {
       onHeroLoaded: (localHero) => {
         heroMesh = localHero.mesh;
         heroPosition = localHero.position;
+        if (!isServerConnected) {
+          guavaHuntInstance?.setLocalFallbackMode();
+        }
         syncLocalHeroVisibility(isServerConnected);
         resetGameCameraToHero();
       },
+      isGameLive: () => isServerConnected && onlinePlayers.length > 0,
     });
 
     sceneRef = game.scene;
@@ -332,6 +357,8 @@ const applyHeroInput = (localHero: Hero) => {
     wallMeshes = game.arena.walls;
     gameGroundMaterial = game.arena.gameGroundMaterial;
     hero = game.hero;
+    guavaHuntInstance = game.guavaHunt;
+    guavaHuntRef = game.guavaHunt;
 
     return game.scene;
   };
@@ -424,7 +451,7 @@ const applyHeroInput = (localHero: Hero) => {
 {#if hasEnteredGame}
   <Ui_Moba
     heroPosition={heroPosition}
-    {remoteMarkers}
+    remoteMarkers={minimapMarkers}
     {onlinePlayers}
     {chatMessages}
     debugPoint={debugPoint}

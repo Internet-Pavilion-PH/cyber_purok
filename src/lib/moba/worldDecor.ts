@@ -261,7 +261,6 @@ const WORLD_MODELS: Record<string, WorldModel> = {
   //waypoint 2
   conch: { file: "Conch1.glb", position: [-450, 100, 338], scale: 400 },
 
-
   //waypoint 3
   joel: { file: "JoelTower.glb", position: [-171, 1, 398], scale: 90 },
     

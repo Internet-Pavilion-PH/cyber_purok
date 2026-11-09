@@ -1,13 +1,13 @@
 [
   {
     "id": "fountain-billboard",
-    "position": { "x": -311, "y": 30, "z": -402 },
+    "position": { "x": 266, "y": 30, "z": 292 },
     "title": "Fountain",
     "description": "work by Salawaki",
     "width": 48,
     "height": 24,
     "offsetY": 0,
-    "maxDistance": 80
+    "maxDistance": 50
   },
   {
     "id": "joel-billboard",
@@ -47,7 +47,47 @@
     "description": "work by [__]",
     "width": 48,
     "height": 24,
+    "offsetY": 10,
+    "maxDistance": 100
+  },
+  {
+    "id": "salawaki-isda-billboard",
+    "position": { "x": 172, "y": 30, "z": 371 },
+    "title": "Salawaki Isda",
+    "description": "work by Salawaki",
+    "width": 48,
+    "height": 24,
+    "offsetY": 20,
+    "maxDistance": 50
+  },
+  {
+    "id": "salawaki-billboard",
+    "position": { "x": 325, "y": 30, "z": 203 },
+    "title": "Salawaki",
+    "description": "work by Salawaki",
+    "width": 48,
+    "height": 24,
     "offsetY": 0,
+    "maxDistance": 50
+  },
+  {
+    "id": "YellowBasket-billboard",
+    "position": { "x": 398, "y": 30, "z": 292 },
+    "title": "Yellow Basket Store",
+    "description": "work by Franco Mamaril",
+    "width": 48,
+    "height": 24,
+    "offsetY": 10,
+    "maxDistance": 50
+  },
+  {
+    "id": "Roger-billboard",
+    "position": { "x": 108, "y": 30, "z": 50 },
+    "title": "Rogermond",
+    "description": "work by Rogermond",
+    "width": 48,
+    "height": 24,
+    "offsetY": 30,
     "maxDistance": 50
   }
 ]

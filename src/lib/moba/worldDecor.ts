@@ -8,7 +8,7 @@ import { PlaceModel } from "./world/placeModel";
 import type { ArenaBuilder } from "./world/arenaBuilder";
 
 const TREES = [
-  { x: -433, z: -291, scale: 12, height: 90},
+  { x: -433, z: -291, scale: 10, height: 2},
   { x: -162, z: -359, scale: 10, height: 2 },
   { x: -110, z: -220, scale: 8, height: 1.8 },
   { x: -11, z: -298, scale: 8, height: 1.8 },
@@ -20,8 +20,8 @@ const TREES = [
   { x: 18, z: 191, scale: 8, height: 1.8 },
   { x: 76, z: -300, scale: 10, height: 2 },
   { x: 59, z: 311, scale: 10, height: 2 },
-  { x: 468, z: 355, scale: 20, height: 3 },
-  { x: 226, z: 101, scale: 10, height: 2 },
+  { x: 468, z: 355, scale: 10, height: 2 },
+  { x: 226, z: 101, scale: 8, height: 1.8 },
 ];
 
 const TOWERS = [
@@ -259,17 +259,19 @@ const WORLD_MODELS: Record<string, WorldModel> = {
   crate2: { file: "crate.glb", position: [-286, 1, 34], scale: 50, rotationY: Math.PI / 2 },
 
   //waypoint 2
+  conch: { file: "Conch1.glb", position: [-450, 100, 338], scale: 400 },
+
 
   //waypoint 3
   joel: { file: "JoelTower.glb", position: [-171, 1, 398], scale: 90 },
     
   //Section D - CyberPurok V2.0
-  bukid: { file: "bukid.glb", position: [268, 1, 430], scale: 900, rotationY: Math.PI / 4 },
-  cottage2: { file: "cottage.glb", position: [230, 1, 358], scale: 1.5 },
+  bukid: { file: "bukid.glb", position: [260, 1, 374], scale: 800, rotationY: Math.PI / 4 },
+  cottage2: { file: "cottage.glb", position: [253, 1, 444], scale: 1 },
+  riverworld: { file: "salawaki_isda-optimized.glb", position: [172, 0, 371], scale: .4, rotationY: Math.PI / -2.5 },
 
   fountain2: { file: "Fountain.glb", position: [266, 1, 292], scale: 3 },
-  riverworld: { file: "salawaki_isda-optimized.glb", position: [175, 0, 348], scale: .4, rotationY: Math.PI / -2.5 },
-  basketStore: { file: "Yellowbasketstore.glb", position: [425, 1, 352], scale: 4 },
+  basketStore: { file: "Yellowbasketstore.glb", position: [410, 1, 304], scale: 4 },
   salawaki1: { file: "salawaki.glb", position: [359, 10, 232], scale: .75, rotationY: Math.PI / -2.5},
   salawaki2: { file: "salawaki.glb", position: [322, 10, 270], scale: .5, rotationY: Math.PI / -2.5},
 

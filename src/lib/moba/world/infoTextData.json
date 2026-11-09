@@ -8,5 +8,46 @@
     "height": 24,
     "offsetY": 0,
     "maxDistance": 80
+  },
+  {
+    "id": "joel-billboard",
+    "position": { "x": -171, "y": 30, "z": 398 },
+    "title": "Tower",
+    "description": "work by Joel",
+    "width": 48,
+    "height": 24,
+    "offsetY": 0,
+    "maxDistance": 80
+  },
+  {
+    "id": "placeholder-billboard",
+    "position": { "x": -450, "y": 30, "z": 338 },
+    "title": "[placeholder]",
+    "description": "work by roan",
+    "width": 48,
+    "height": 24,
+    "offsetY": 0,
+    "maxDistance": 50
+  },
+
+  {
+    "id": "bukid-billboard",
+    "position": { "x": 260, "y": 30, "z": 374 },
+    "title": "Bukid",
+    "description": "work by [__]",
+    "width": 48,
+    "height": 24,
+    "offsetY": 0,
+    "maxDistance": 80
+  },
+  {
+    "id": "cottage-billboard",
+    "position": { "x": 253, "y": 30, "z": 444 },
+    "title": "Cottage",
+    "description": "work by [__]",
+    "width": 48,
+    "height": 24,
+    "offsetY": 0,
+    "maxDistance": 50
   }
 ]

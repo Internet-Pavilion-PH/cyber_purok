@@ -51,7 +51,7 @@
   },
   {
     "station": "E",
-    "coordinates": { "x": 100, "y": 0, "z": 460 },
+    "coordinates": { "x": 68, "y": 0, "z": 464 },
     "highlights": [
       "Cyberpurok ver 2 (VOV) replica",
       "Expanded iteration",
@@ -60,7 +60,7 @@
   },
   {
     "station": "L2",
-    "coordinates": { "x": 467, "y": 0, "z": 122 },
+    "coordinates": { "x": 477, "y": 0, "z": 173 },
     "highlights": [
       "landmark section 2"
     ]
@@ -74,7 +74,7 @@
   },
   {
     "station": "H",
-    "coordinates": { "x": 46, "y": 0, "z": 293 },
+    "coordinates": { "x": 1, "y": 0, "z": 292 },
     "highlights": [
       "Manila Lights Part 2"
     ]

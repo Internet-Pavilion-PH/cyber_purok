@@ -252,7 +252,7 @@ const WORLD_MODELS: Record<string, WorldModel> = {
   kolownbuild: { file: "kolown-build.glb", position: [-6, 10, -377], scale: 300, rotationY: Math.PI / -1.25 },
   ghostwhisper: { file: "gw.glb", position: [-71, 10, -322], scale: 3, rotationY: Math.PI / 2 },
   ghostwhisper2: { file: "gw.glb", position: [91, 10, -354], scale: 3, rotationY: Math.PI / -1 },
-  aninipot: { file: "aninipot-crate-opt.glb", position: [-68, 1, -204], scale: 50, rotationY: Math.PI / -1 },
+  aninipot: { file: "aninipot-crate-glow.glb", position: [-68, 1, -204], scale: 50, rotationY: Math.PI / -1 },
   
   //Section C - ESC Biennale
   crate: { file: "crate.glb", position: [-241, 1, -164], scale: 50 },

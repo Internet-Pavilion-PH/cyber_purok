@@ -202,33 +202,6 @@ const FENCES = [
   ],
 ];
 
-const BARRIERS = [
-  [
-    { x: 244, z: -410 },
-    { x: 409, z: -254 },
-  ],
-  [
-    { x: 284, z: -456 },
-    { x: 443, z: -293 },
-  ],
-  [
-    { x: -46, z: -110 },
-    { x: 101, z: 42 },
-  ],
-  [
-    { x: -99, z: -61 },
-    { x: 56, z: 89 },
-  ],
-  [
-    { x: -444, z: 284 },
-    { x: -282, z: 448 },
-  ],
-  [
-    { x: -411, z: 242 },
-    { x: -249, z: 406 },
-  ],
-];
-
 type WorldModel = {
   file: string;
   position: [number, number, number];
@@ -341,15 +314,6 @@ export const buildWorldDecor = (scene: BABYLON.Scene, arena: ArenaBuilder | null
 
   for (const points of FENCES) {
     const fence = new Fence(scene, points, 30, 1, 1, 0);
-    makeSolidBarrier(fence.rootNode);
-    if (arena?.lights) {
-      for (const mesh of fence.meshes) arena.lights.addWorldShadowCaster(mesh);
-    }
-    fence.rootNode.position = new BABYLON.Vector3(0, 0, 0);
-  }
-
-  for (const points of BARRIERS) {
-    const fence = new Fence(scene, points, 10, .75, .75, 0);
     makeSolidBarrier(fence.rootNode);
     if (arena?.lights) {
       for (const mesh of fence.meshes) arena.lights.addWorldShadowCaster(mesh);

@@ -15,11 +15,11 @@ const TREES = [
   { x: -36, z: -407, scale: 8, height: 1.8 },
   { x: 185, z: -394, scale: 8, height: 1.8 },
   { x: -5, z: -208, scale: 10, height: 2 },
-  { x: -44, z: 350, scale: 20, height: 3 },
+  { x: -44, z: 350, scale: 10, height: 2 },
 
   { x: 18, z: 191, scale: 8, height: 1.8 },
   { x: 76, z: -300, scale: 10, height: 2 },
-  { x: 59, z: 311, scale: 20, height: 3 },
+  { x: 59, z: 311, scale: 10, height: 2 },
   { x: 468, z: 355, scale: 20, height: 3 },
   { x: 226, z: 101, scale: 10, height: 2 },
 ];
@@ -261,6 +261,7 @@ const WORLD_MODELS: Record<string, WorldModel> = {
   //waypoint 2
 
   //waypoint 3
+  joel: { file: "JoelTower.glb", position: [-185, 1, 408], scale: 3 },
     
   //Section D - CyberPurok V2.0
   bukid: { file: "bukid.glb", position: [268, 1, 430], scale: 900, rotationY: Math.PI / 4 },

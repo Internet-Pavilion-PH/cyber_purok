@@ -261,7 +261,7 @@ const WORLD_MODELS: Record<string, WorldModel> = {
   //waypoint 2
 
   //waypoint 3
-  joel: { file: "JoelTower.glb", position: [-185, 1, 408], scale: 3 },
+  joel: { file: "JoelTower.glb", position: [-171, 1, 398], scale: 90 },
     
   //Section D - CyberPurok V2.0
   bukid: { file: "bukid.glb", position: [268, 1, 430], scale: 900, rotationY: Math.PI / 4 },

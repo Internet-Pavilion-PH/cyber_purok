@@ -97,6 +97,7 @@ export class PlaceModel {
       "crate.glb": "/world/",
       "aninipot-crate-opt.glb": "/world/",
       "standee.glb": "/world/",
+      "JoelTower.glb": "/world/",
       "guava.glb": "/world/"
     };
 

@@ -469,17 +469,24 @@ const applyHeroInput = (localHero: Hero) => {
 {/if}
 
 <style>
+  :global(html) {
+    height: 100%;
+  }
+
   :global(body) {
     margin: 0;
+    min-height: 100dvh;
     background: #04070d;
     font-family: Inter, "Segoe UI", sans-serif;
     color: #edf7ff;
+    -webkit-text-size-adjust: 100%;
   }
 
   .babylon-canvas {
     display: block;
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
+    min-height: 100dvh;
     touch-action: none;
     user-select: none;
   }

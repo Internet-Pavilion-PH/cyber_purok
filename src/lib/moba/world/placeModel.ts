@@ -75,9 +75,8 @@ export class PlaceModel {
     }
 
     const assetPathMap: Record<string, string> = {
-      "Ate_Tanod.glb": "/creeps/",
+    "Ate_Tanod.glb": "/creeps/",
       "JFK_2.glb": "/heroes/",
-      "chef.glb": "/heroes/",
       "Kuya_Tanod.glb": "/creeps/",
       "Fountain.glb": "/world/",
       "Yellowbasketstore.glb": "/world/",
@@ -94,9 +93,9 @@ export class PlaceModel {
       "WireStructures.glb": "/world/",
       "SolidStructure.glb": "/world/",
       "bukid.glb": "/world/",
-      "JoelTower.glb": "/world/",
       "kolown-build.glb": "/world/",
       "crate.glb": "/world/",
+      "aninipot-crate-opt.glb": "/world/",
       "standee.glb": "/world/",
       "guava.glb": "/world/"
     };

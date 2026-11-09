@@ -9,9 +9,8 @@ import type { ArenaBuilder } from "./world/arenaBuilder";
 
 const TREES = [
   { x: -433, z: -291, scale: 12, height: 90},
-  { x: -132, z: -365, scale: 12, height: 2.5 },
-  { x: -110, z: -220, scale: 10, height: 2 },
-  { x: -61, z: -322, scale: 12, height: 2.5 },
+  { x: -162, z: -359, scale: 10, height: 2 },
+  { x: -110, z: -220, scale: 8, height: 1.8 },
   { x: -11, z: -298, scale: 8, height: 1.8 },
   { x: -36, z: -407, scale: 8, height: 1.8 },
   { x: 185, z: -394, scale: 8, height: 1.8 },
@@ -41,7 +40,7 @@ type StoneSpec = { x: number; z: number; height: number; x2?: number; z2?: numbe
 
 /** Give x2/z2 to lay a row of stones from (x, z) to (x2, z2); omit them for a single stone. */
 const STONES: StoneSpec[] = [
-  { x: -144, z: -366, height: 5 },
+  { x: -158, z: -371, height: 5 },
   { x: -416, z: -302, height: 10 },
 
   { x: -49, z: 298, height: 10 },
@@ -249,11 +248,11 @@ const WORLD_MODELS: Record<string, WorldModel> = {
   //waypoint 1
   standee: { file: "standee.glb", position: [-196, 1, -252], scale: 20, rotationY: Math.PI / -1.5 },
 
-
   //Section B - GhostWhisper Systems
-  kolownbuild: { file: "kolown-build.glb", position: [1, 10, -415], scale: 300, rotationY: Math.PI / -1.25 },
-  ghostwhisper: { file: "gw.glb", position: [83, 10, -337], scale: 3, rotationY: Math.PI / -1 },
-  aninipot: { file: "aninipot-crate-opt.glb", position: [-51, 1, -268], scale: 50, rotationY: Math.PI / -1 },
+  kolownbuild: { file: "kolown-build.glb", position: [-6, 10, -377], scale: 300, rotationY: Math.PI / -1.25 },
+  ghostwhisper: { file: "gw.glb", position: [-71, 10, -322], scale: 3, rotationY: Math.PI / 2 },
+  ghostwhisper2: { file: "gw.glb", position: [91, 10, -354], scale: 3, rotationY: Math.PI / -1 },
+  aninipot: { file: "aninipot-crate-opt.glb", position: [-68, 1, -204], scale: 50, rotationY: Math.PI / -1 },
   
   //Section C - ESC Biennale
   crate: { file: "crate.glb", position: [-241, 1, -164], scale: 50 },

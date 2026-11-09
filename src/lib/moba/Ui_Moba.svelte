@@ -644,8 +644,10 @@
     background: transparent;
     color: #ffffff;
     padding: 4px 0;
-    font-size: 0.72rem;
+    font-size: 16px;
+    line-height: 1.3;
     outline: none;
+    -webkit-text-size-adjust: 100%;
   }
 
   .chat-form input::placeholder {

@@ -238,41 +238,48 @@ type WorldModel = {
 
 /** Static .glb scenery. Add a line here to place a new model; the 5 below are placeholders. */
 const WORLD_MODELS: Record<string, WorldModel> = {
-  fountain: { file: "Fountain.glb", position: [-342, 1, -385], scale: 3 },
+
   statue1: { file: "roger.glb", position: [-106, 1, -73], scale: 4, rotationY: Math.PI / 2 },
-  statue2: { file: "JoelTower.glb", position: [108, 1, 50], scale: 80, rotationY: Math.PI / -2 },
-  statue3: { file: "JoelTower.glb", position: [211, 1, 157], scale: 80, rotationY: Math.PI / -2 },
+  statue2: { file: "roger.glb", position: [108, 1, 50], scale: 4, rotationY: Math.PI / -2 },
   cottage1: { file: "cottage.glb", position: [-469, 1, -438], scale: 1.5 },
-  conch: { file: "Conch1.glb", position: [-41, 25, -217], scale: 300 },
-  conch2: { file: "Conch1.glb", position: [-23, 25, -169], scale: 500},
-  conch3: { file: "Conch1.glb", position: [-10, 25, -208], scale: 400},
-  basketStore: { file: "Yellowbasketstore.glb", position: [-309, 1, -31], scale: 3 },
-  salawaki: { file: "salawaki.glb", position: [-121, -10, 109], scale: .75 },
-  
-  standee: { file: "standee.glb", position: [-66, 1, -130], scale: 25, rotationY: Math.PI / -1.5 },
 
-  crate1: { file: "crate.glb", position: [-412, 1, -86], scale: 50, rotationY: Math.PI / -2 },
-  crate2: { file: "crate.glb", position: [-200, 1, -118], scale: 50, rotationY: Math.PI / -1 },
-  crate3: { file: "crate.glb", position: [154, 1, -390], scale: 50, rotationY: Math.PI / -3 },
+  //Section A - Intro
+  fountain: { file: "Fountain.glb", position: [-342, 1, -385], scale: 3 },
 
-  cottage2: { file: "pcbhouse.glb", position: [277, 1, 386], scale: 70, rotationY: Math.PI / -3 },
-  
-  ghostwhisper1: { file: "kolown-build.glb", position: [393, 10, 0], scale: 300, rotationY: Math.PI / -1.25 },
-  ghostwhisper: { file: "gw.glb", position: [216, 10, 336], scale: 4, rotationY: Math.PI / -1 },
-  
-  circuit1: { file: "ffc1.glb", position: [279, 1, 4], scale: 300, rotationY: Math.PI / -1.5 },
-  circuit2: { file: "ffc2.glb", position: [12, 20, 258], scale: 300, rotationY: Math.PI / -1.5 },
-  
-  structure1: { file: "WireStructures.glb", position: [422, 1, -96], scale: 30},
-  structure2: { file: "SolidStructure.glb", position: [426, 1, -166], scale: 15},
-  
-  structure3: { file: "SolidStructure.glb", position: [144, 1, 229], scale: 15},
-  structure4: { file: "SolidStructure.glb", position: [124, 1, 181], scale: 5, rotationY: Math.PI / -1},
+  //waypoint 1
+  standee: { file: "standee.glb", position: [-196, 1, -252], scale: 20, rotationY: Math.PI / -1.5 },
 
-  structure5: { file: "SolidStructure.glb", position: [-174, 1, 402], scale: 20, rotationY: Math.PI / -1},
-  structure6: { file: "WireStructures.glb", position: [-153, 1, 384], scale: 15 },
 
-  riverworld: { file: "salawaki_isda-optimized.glb", position: [66, 0, -145], scale: .4 },
+  //Section B - GhostWhisper Systems
+  kolownbuild: { file: "kolown-build.glb", position: [1, 10, -415], scale: 300, rotationY: Math.PI / -1.25 },
+  ghostwhisper: { file: "gw.glb", position: [83, 10, -337], scale: 3, rotationY: Math.PI / -1 },
+  aninipot: { file: "aninipot-crate-opt.glb", position: [-51, 1, -268], scale: 50, rotationY: Math.PI / -1 },
+  
+  //Section C - ESC Biennale
+  crate: { file: "crate.glb", position: [-241, 1, -164], scale: 50 },
+  crate2: { file: "crate.glb", position: [-286, 1, 34], scale: 50, rotationY: Math.PI / 2 },
+
+  //waypoint 2
+
+  //waypoint 3
+    
+  //Section D - CyberPurok V2.0
+  bukid: { file: "bukid.glb", position: [268, 1, 430], scale: 900, rotationY: Math.PI / 4 },
+  cottage2: { file: "cottage.glb", position: [230, 1, 358], scale: 1.5 },
+
+  fountain2: { file: "Fountain.glb", position: [266, 1, 292], scale: 3 },
+  riverworld: { file: "salawaki_isda-optimized.glb", position: [175, 0, 348], scale: .4, rotationY: Math.PI / -2.5 },
+  basketStore: { file: "Yellowbasketstore.glb", position: [425, 1, 352], scale: 4 },
+  salawaki1: { file: "salawaki.glb", position: [359, 10, 232], scale: .75, rotationY: Math.PI / -2.5},
+  salawaki2: { file: "salawaki.glb", position: [322, 10, 270], scale: .5, rotationY: Math.PI / -2.5},
+
+  //waypoint 4
+
+  //Section E - Manila Lights Part 1
+  
+  //Section F - Manila Lights Part 2
+
+  //endpoint
 
 };
 

@@ -229,11 +229,11 @@ const WORLD_MODELS: Record<string, WorldModel> = {
   crate3: { file: "crate.glb", position: [154, 1, -390], scale: 50, rotationY: Math.PI / -3 },
 
   cottage2: { file: "pcbhouse.glb", position: [277, 1, 386], scale: 70, rotationY: Math.PI / -3 },
-  aninipot: { file: "aninipot-crate-glow.glb", position: [392, 1, 236], scale: 70, rotationY: Math.PI / -1.5 },
+  aninipot: { file: "aninipot-crate-glow.glb", position: [406, 1, 336], scale: 70, rotationY: Math.PI / -1.5 },
 
 
   ghostwhisper1: { file: "kolown-build.glb", position: [393, 10, 0], scale: 300, rotationY: Math.PI / -1.25 },
-  ghostwhisper: { file: "gw.glb", position: [216, 10, 336], scale: 4, rotationY: Math.PI / -1 },
+  ghostwhisper: { file: "gw.glb", position: [162, 10, 417], scale: 4, rotationY: Math.PI / -1 },
   
   circuit1: { file: "ffc1.glb", position: [279, 1, 4], scale: 300, rotationY: Math.PI / -1.5 },
   circuit2: { file: "ffc2.glb", position: [12, 20, 258], scale: 300, rotationY: Math.PI / -1.5 },

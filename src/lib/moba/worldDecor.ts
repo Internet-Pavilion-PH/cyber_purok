@@ -207,11 +207,13 @@ type WorldModel = {
   position: [number, number, number];
   scale: number;
   rotationY?: number;
+  collidable?: boolean;
+  soundUrl?: string;
 };
 
 /** Static .glb scenery. Add a line here to place a new model; the 5 below are placeholders. */
 const WORLD_MODELS: Record<string, WorldModel> = {
-  fountain: { file: "Fountain.glb", position: [-342, 1, -385], scale: 3 },
+  fountain: { file: "Fountain.glb", position: [-342, 1, -385], scale: 3, collidable: true },
   statue1: { file: "roger.glb", position: [-106, 1, -73], scale: 4, rotationY: Math.PI / 2 },
   statue2: { file: "JoelTower.glb", position: [108, 1, 50], scale: 80, rotationY: Math.PI / -2 },
   statue3: { file: "JoelTower.glb", position: [211, 1, 157], scale: 80, rotationY: Math.PI / -2 },
@@ -220,7 +222,12 @@ const WORLD_MODELS: Record<string, WorldModel> = {
   conch2: { file: "Conch1.glb", position: [-23, 25, -169], scale: 500},
   conch3: { file: "Conch1.glb", position: [-10, 25, -208], scale: 400},
   basketStore: { file: "Yellowbasketstore.glb", position: [-309, 1, -31], scale: 3 },
-  salawaki: { file: "salawaki.glb", position: [-121, -10, 109], scale: .75 },
+  salawaki: {
+    file: "salawaki.glb",
+    position: [-121, -10, 109],
+    scale: .75,
+    soundUrl: "https://kolown.net/storage/library/audio/field/bbc_fast-flowi_nhu0510424.mp3",
+  },
   
   standee: { file: "standee.glb", position: [-66, 1, -130], scale: 25, rotationY: Math.PI / -1.5 },
 
@@ -232,8 +239,20 @@ const WORLD_MODELS: Record<string, WorldModel> = {
   aninipot: { file: "aninipot-crate-glow.glb", position: [406, 1, 336], scale: 70, rotationY: Math.PI / -1.5 },
 
 
-  ghostwhisper1: { file: "kolown-build.glb", position: [393, 10, 0], scale: 300, rotationY: Math.PI / -1.25 },
-  ghostwhisper: { file: "gw.glb", position: [162, 10, 417], scale: 4, rotationY: Math.PI / -1 },
+  ghostwhisper1: {
+    file: "kolown-build.glb",
+    position: [393, 10, 0],
+    scale: 300,
+    rotationY: Math.PI / -1.25,
+    soundUrl: "https://kolown.net/storage/library/audio/diskoral/tinidor_kutsara.mp3",
+  },
+  ghostwhisper: {
+    file: "gw.glb",
+    position: [162, 10, 417],
+    scale: 4,
+    rotationY: Math.PI / -1,
+    soundUrl: "https://kolown.net/storage/library/audio/diskoral/PIKAHI BIRAHI CHACHAHI( SONGLYRICS).mp3",
+  },
   
   circuit1: { file: "ffc1.glb", position: [279, 1, 4], scale: 300, rotationY: Math.PI / -1.5 },
   circuit2: { file: "ffc2.glb", position: [12, 20, 258], scale: 300, rotationY: Math.PI / -1.5 },
@@ -300,12 +319,14 @@ export const buildWorldDecor = (scene: BABYLON.Scene, arena: ArenaBuilder | null
   }
 
   const models = Object.values(WORLD_MODELS).map(
-    ({ file, position, scale, rotationY = 0 }) =>
+    ({ file, position, scale, rotationY = 0, collidable = false, soundUrl }) =>
       new PlaceModel(scene, file, position, {
         scaleFactor: scale,
         rotation: [0, rotationY, 0],
         mergeMeshes: true,
         fadeIn: true,
+        collidable,
+        soundUrl,
       }),
   );
 
@@ -323,9 +344,9 @@ export const buildWorldDecor = (scene: BABYLON.Scene, arena: ArenaBuilder | null
     fence.rootNode.position = new BABYLON.Vector3(0, 0, 0);
   }
 
-  // Blue base pushes a creep lane toward the red base after a delay.
+  // Blue base pushes a creep lane toward the red base after a delay, with each creep staggering by 10s.
   window.setTimeout(() => {
-    const creeps = Creep.spawnGroup(scene, BLUE_BASE, RED_BASE, 3, 5);
+    const creeps = Creep.spawnGroup(scene, BLUE_BASE, RED_BASE, 3, 5, 10000);
     if (arena?.lights) {
       const lights = arena.lights;
       for (const creep of creeps) {

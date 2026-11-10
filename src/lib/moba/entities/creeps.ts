@@ -23,14 +23,20 @@ export class Creep {
     public isAlive: boolean = true;
 
     private renderObserver: BABYLON.Nullable<BABYLON.Observer<BABYLON.Scene>> = null;
+    private spawnDelaySeconds = 0;
+    private avoidSeconds = 0;
+    private avoidDirection = new BABYLON.Vector3(0, 0, 1);
+    private blockCount = 0;
 
     constructor(
         public scene: BABYLON.Scene,
         public spawnPosition: BABYLON.Vector3,
         targetPosition: BABYLON.Vector3,
-        public isLeader: boolean = false
+        public isLeader: boolean = false,
+        spawnDelayMs: number = 0,
     ) {
         this.targetPosition = targetPosition.clone();
+        this.spawnDelaySeconds = spawnDelayMs / 1000;
 
         // An empty Mesh (not a TransformNode) so it can use moveWithCollisions.
         this.rootNode = new BABYLON.Mesh("creepRoot", this.scene);
@@ -38,6 +44,8 @@ export class Creep {
         this.rootNode.ellipsoidOffset = new BABYLON.Vector3(0, 3, 0);
         this.rootNode.isPickable = false;
         this.rootNode.position = spawnPosition.clone();
+        this.rootNode.setEnabled(this.spawnDelaySeconds <= 0);
+        this.rootNode.isVisible = this.spawnDelaySeconds <= 0;
 
         this.id = Creep.nextId++;
         Creep.active.add(this);
@@ -53,7 +61,8 @@ export class Creep {
         spawnZoneCenter: BABYLON.Vector3,
         targetPosition: BABYLON.Vector3,
         groupSize: number = 3,
-        areaRadius: number = 6
+        areaRadius: number = 6,
+        staggerMs: number = 0,
     ): Creep[] {
         const laneDirection = targetPosition.subtract(spawnZoneCenter);
         const normalizedLane = laneDirection.lengthSquared() > 0
@@ -74,7 +83,7 @@ export class Creep {
                 spawnZoneCenter.z + normalizedLane.z * (-laneOffset) + lateralDirection.z * lateralOffset + jitter,
             );
 
-            const creep = new Creep(scene, spawnPoint, targetPosition, index === 0);
+            const creep = new Creep(scene, spawnPoint, targetPosition, index === 0, index * staggerMs);
             creep.speed = 7.5 + index * 0.2;
             creep.targetPosition = new BABYLON.Vector3(
                 targetPosition.x + normalizedLane.x * (index * 2.5) + lateralDirection.x * (formationIndex * 1.2),
@@ -136,6 +145,13 @@ export class Creep {
     }
 
     private move(deltaTime: number) {
+        if (this.spawnDelaySeconds > 0) {
+            this.spawnDelaySeconds = Math.max(0, this.spawnDelaySeconds - deltaTime);
+            if (this.spawnDelaySeconds > 0) return;
+            this.rootNode.setEnabled(true);
+            this.rootNode.isVisible = true;
+        }
+
         const pos = this.rootNode.position;
         const dx = this.targetPosition.x - pos.x;
         const dz = this.targetPosition.z - pos.z;
@@ -145,17 +161,33 @@ export class Creep {
         if (distance < 1.0) {
             this.onReachDestination();
         } else {
-            const stepLength = (this.speed * deltaTime) / distance;
-            step.x = dx * stepLength;
-            step.z = dz * stepLength;
-            this.rootNode.rotation.y = Math.atan2(dx, dz);
+            let heading = new BABYLON.Vector3(dx, 0, dz);
+            if (heading.lengthSquared() > 0.0001) heading = heading.normalize();
+
+            if (this.avoidSeconds > 0) {
+                this.avoidSeconds = Math.max(0, this.avoidSeconds - deltaTime);
+                heading = this.avoidDirection.clone().normalize();
+            } else {
+                this.blockCount = 0;
+            }
+
+            const forward = heading.scale(this.speed * deltaTime);
+            step.x = forward.x;
+            step.z = forward.z;
+            this.rootNode.rotation.y = Math.atan2(heading.x, heading.z);
         }
 
         this.separate(deltaTime, step);
 
+        const before = pos.clone();
         // Slide along solid meshes (checkCollisions) instead of passing through them.
         this.rootNode.moveWithCollisions(step);
-        this.rootNode.position.y = getTerrainHeight(pos.x, pos.z);
+        const moved = Math.hypot(this.rootNode.position.x - before.x, this.rootNode.position.z - before.z);
+        const intended = Math.hypot(step.x, step.z);
+        if (intended > 0 && moved < intended * 0.35) {
+            this.turnAround();
+        }
+        this.rootNode.position.y = getTerrainHeight(this.rootNode.position.x, this.rootNode.position.z);
     }
 
     /** Push away from nearby creeps so they don't overlap. */
@@ -177,6 +209,25 @@ export class Creep {
             step.x += nx * push;
             step.z += nz * push;
         }
+    }
+
+    private turnAround() {
+        if (this.avoidSeconds > 0) return;
+
+        const toTarget = this.targetPosition.subtract(this.rootNode.position);
+        toTarget.y = 0;
+        const currentHeading = toTarget.lengthSquared() > 0.0001
+            ? toTarget.normalize()
+            : new BABYLON.Vector3(0, 0, 1);
+
+        const reverse = currentHeading.scale(-1);
+        const lateral = new BABYLON.Vector3(-currentHeading.z, 0, currentHeading.x);
+        const laneSide = (Math.random() < 0.5 ? -1 : 1) * (this.blockCount > 0 ? 1 : 0.5);
+        this.avoidDirection = reverse.add(lateral.scale(laneSide)).normalize();
+
+        this.avoidSeconds = 0.8 + Math.random() * 0.6;
+        this.blockCount = Math.min(this.blockCount + 1, 3);
+        if (this.blockCount > 1) this.avoidSeconds += 0.4;
     }
 
     private onReachDestination() {

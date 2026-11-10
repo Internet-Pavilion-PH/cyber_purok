@@ -18,7 +18,7 @@ const TREES = [
   { x: -5, z: -208, scale: 9, height: 2 },
   { x: -44, z: 350, scale: 9, height: 3 },
 
-  { x: 18, z: 191, scale: 8, height: 1.8 },
+  { x: 48, z: 128, scale: 8, height: 1.8 },
   { x: 76, z: -300, scale: 10, height: 2 },
   { x: 59, z: 311, scale: 10, height: 3 },
   { x: 468, z: 355, scale: 10, height: 3 },
@@ -217,10 +217,12 @@ const WORLD_MODELS: Record<string, WorldModel> = {
   statue1: { file: "roger.glb", position: [-106, 1, -73], scale: 4, rotationY: Math.PI / 2 },
   statue2: { file: "JoelTower.glb", position: [108, 1, 50], scale: 80, rotationY: Math.PI / -2 },
   statue3: { file: "JoelTower.glb", position: [211, 1, 157], scale: 80, rotationY: Math.PI / -2 },
-  cottage1: { file: "cottage.glb", position: [-469, 1, -438], scale: 1.5 },
+  cottage1: { file: "cottage.glb", position: [-421, 1, -406], scale: 1 },
+
   conch: { file: "Conch1.glb", position: [-41, 25, -217], scale: 300 },
   conch2: { file: "Conch1.glb", position: [-23, 25, -169], scale: 500},
   conch3: { file: "Conch1.glb", position: [-10, 25, -208], scale: 400},
+
   basketStore: { file: "Yellowbasketstore.glb", position: [-309, 1, -31], scale: 3 },
   salawaki: {
     file: "salawaki.glb",
@@ -237,7 +239,6 @@ const WORLD_MODELS: Record<string, WorldModel> = {
 
   cottage2: { file: "pcbhouse.glb", position: [277, 1, 386], scale: 70, rotationY: Math.PI / -3 },
   aninipot: { file: "aninipot-crate-glow.glb", position: [406, 1, 336], scale: 70, rotationY: Math.PI / -1.5 },
-
 
   ghostwhisper1: {
     file: "kolown-build.glb",

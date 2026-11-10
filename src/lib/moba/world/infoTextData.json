@@ -1,12 +1,112 @@
 [
   {
     "id": "fountain-billboard",
-    "position": { "x": -311, "y": 30, "z": -402 },
+    "position": { "x": -342, "y": 30, "z": -385 },
     "title": "Fountain",
     "description": "work by Salawaki",
     "width": 48,
     "height": 24,
     "offsetY": 0,
+    "maxDistance": 50
+  },
+  {
+    "id": "cottage-billboard",
+    "position": { "x": -421, "y": 50, "z": -406 },
+    "title": "Cottage",
+    "description": "work by v!ne",
+    "width": 48,
+    "height": 24,
+    "offsetY": 0,
     "maxDistance": 80
+  },
+  {
+    "id": "Franco-billboard",
+    "position": { "x": -309, "y": 40, "z": -31 },
+    "title": "Yellow Basket Store",
+    "description": "work by Franco Mamaril",
+    "width": 48,
+    "height": 24,
+    "offsetY": 0,
+    "maxDistance": 50
+  },
+  {
+    "id": "roger1-billboard",
+    "position": { "x": -104, "y": 10, "z": -76 },
+    "title": "Rogermond",
+    "description": "work by Rogermond",
+    "width": 48,
+    "height": 24,
+    "offsetY": 50,
+    "maxDistance": 20
+  },
+  {
+    "id": "JoelTower-billboard",
+    "position": { "x": 108, "y": 30, "z": 50 },
+    "title": "Joel Tower",
+    "description": "work by Kirk Tabanera",
+    "width": 48,
+    "height": 24,
+    "offsetY": 20,
+    "maxDistance": 50
+  },
+  {
+    "id": "JoelTower2-billboard",
+    "position": { "x": 214, "y": 30, "z": 157 },
+    "title": "Joel Tower",
+    "description": "work by Kirk Tabanera",
+    "width": 48,
+    "height": 24,
+    "offsetY": 20,
+    "maxDistance": 50
+  },
+  {
+    "id": "aninipot-billboard",
+    "position": { "x": 422, "y": 10, "z": 301 },
+    "title": "Aninipot Rhaz Build",
+    "description": "model by Roan Alvarez and Rhaz Oriente",
+    "width": 48,
+    "height": 24,
+    "offsetY": 10,
+    "maxDistance": 50
+  },
+  {
+    "id": "roan1-billboard",
+    "position": { "x": 11, "y": 15, "z": 249 },
+    "title": "freeform circuit model",
+    "description": "by Roan Alvarez",
+    "width": 48,
+    "height": 24,
+    "offsetY": 10,
+    "maxDistance": 20
+  },
+  {
+    "id": "roan2-billboard",
+    "position": { "x": 288, "y": 10, "z": -15 },
+    "title": "freeform circuit model",
+    "description": "by Roan Alvarez",
+    "width": 48,
+    "height": 24,
+    "offsetY": 40,
+    "maxDistance": 20
+  },
+  {
+    "id": "salawaki1-billboard",
+    "position": { "x": -129, "y": 10, "z": 60 },
+    "title": "Salawaki",
+    "description": "work by Salawaki",
+    "width": 48,
+    "height": 24,
+    "offsetY": 10,
+    "maxDistance": 20
+  },
+  {
+    "id": "salawaki2-billboard",
+    "position": { "x": 78, "y": 10, "z": -127 },
+    "title": "Salawaki Isda",
+    "description": "work by Salawaki",
+    "width": 48,
+    "height": 24,
+    "offsetY": 30,
+    "maxDistance": 20
   }
 ]

@@ -25,7 +25,7 @@ export class TreeSprites {
     sprite.width = size * aspectRatio;
     sprite.height = size;
     sprite.position = position.clone();
-    sprite.position.y += size * 0.5;
+    sprite.position.y += size * 0.5 - 0.95;
     this.sprites.push(sprite);
     return sprite;
   }

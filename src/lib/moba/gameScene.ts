@@ -125,12 +125,16 @@ export const createGameScene = (options: GameSceneOptions) => {
 
   const guavaHunt = new GuavaHunt(scene);
 
-  const sound = new AmbientSound(
-    scene,
-    "https://kolown.net/storage/library/audio/field/bbc_fast-flowi_nhu0510424.mp3",
-    { volume: 0.5 },
-  );
-  sound.bindToFirstInteraction(window);
+  // The camera is far above the ground, so measure spatial sound distance from the hero instead.
+  scene.audioListenerPositionProvider = () => hero.mesh?.absolutePosition ?? camera.position;
+
+  // Keep the ambient loop disabled while testing model-attached sounds in the world.
+  // const sound = new AmbientSound(
+  //   scene,
+  //   "https://kolown.net/storage/library/audio/field/bbc_fast-flowi_nhu0510424.mp3",
+  //   { volume: 0.5 },
+  // );
+  // sound.bindToFirstInteraction(window);
 
   void preloadAssets([...models.map((model) => model.load()), hero.load()])
     .then(() => {
@@ -172,5 +176,5 @@ export const createGameScene = (options: GameSceneOptions) => {
     options.onAfterHeroUpdate(hero);
   });
 
-  return { scene, camera, arena, hero, sound, guavaHunt };
+  return { scene, camera, arena, hero, guavaHunt };
 };

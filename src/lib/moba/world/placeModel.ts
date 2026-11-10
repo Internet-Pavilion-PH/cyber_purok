@@ -8,6 +8,8 @@ export interface PlaceModelOptions {
   fadeIn?: boolean;
   collidable?: boolean;
   rotation?: BABYLON.Vector3 | number[];
+  soundUrl?: string;
+  soundOptions?: Partial<BABYLON.ISoundOptions>;
 }
 
 export class PlaceModel {
@@ -15,10 +17,12 @@ export class PlaceModel {
   public modelName: string;
   public position: BABYLON.Vector3;
   public rotation: BABYLON.Vector3;
-  public options: Required<Pick<PlaceModelOptions, "scaleFactor" | "targetSize" | "onGround" | "mergeMeshes" | "fadeIn" | "collidable" | "rotation">>;
+  public options: Required<Pick<PlaceModelOptions, "scaleFactor" | "targetSize" | "onGround" | "mergeMeshes" | "fadeIn" | "collidable" | "rotation" | "soundUrl" | "soundOptions">>;
 
   public modelRoot: BABYLON.TransformNode | null = null;
   public addedMeshes: BABYLON.Mesh[] = [];
+  private sound?: BABYLON.Sound;
+  private soundAnchor?: BABYLON.Mesh;
 
   constructor(
     scene: BABYLON.Scene,
@@ -38,6 +42,8 @@ export class PlaceModel {
       fadeIn: options.fadeIn ?? false,
       collidable: options.collidable ?? false,
       rotation: this.rotation,
+      soundUrl: options.soundUrl ?? "",
+      soundOptions: options.soundOptions ?? {},
     };
   }
 
@@ -169,6 +175,9 @@ export class PlaceModel {
       });
 
       this.modelRoot = new BABYLON.TransformNode(`${this.modelName}_root`, this.scene);
+      this.soundAnchor = new BABYLON.Mesh(`${this.modelName}_sound_anchor`, this.scene);
+      this.soundAnchor.isPickable = false;
+      this.soundAnchor.parent = this.modelRoot;
 
       const glbRoot = result.transformNodes.find(
         (node) => (node.name === "__root__" || node.name === fileName.replace(/\.glb$/i, "")) && !node.parent,
@@ -222,6 +231,10 @@ export class PlaceModel {
       this.modelRoot.position = new BABYLON.Vector3(worldPos.x - center.x, raise, worldPos.z - center.z);
       this.modelRoot.rotation = this.rotation.clone();
 
+      if (this.options.soundUrl) {
+        this.attachSound(this.options.soundUrl, this.options.soundOptions);
+      }
+
       if (this.options.fadeIn) {
         const fadeDuration = 600;
         let elapsed = 0;
@@ -241,5 +254,58 @@ export class PlaceModel {
       console.error(`✗ Failed to place model '${this.modelName}'`, error);
       throw error;
     }
+  }
+
+  public attachSound(url: string, options: Partial<BABYLON.ISoundOptions> = {}) {
+    if (!url || this.sound) return;
+
+    const soundAnchor = this.soundAnchor ?? new BABYLON.Mesh(`${this.modelName}_sound_anchor`, this.scene);
+    soundAnchor.parent = this.modelRoot ?? soundAnchor.parent ?? null;
+    soundAnchor.isPickable = false;
+
+    this.sound = new BABYLON.Sound(
+      `${this.modelName}_sound`,
+      url,
+      this.scene,
+      undefined,
+      {
+        loop: true,
+        autoplay: false,
+        spatialSound: true,
+        maxDistance: 200,
+        volume: 0.04,
+        ...options,
+      },
+    );
+
+    this.sound.attachToMesh(soundAnchor);
+
+    if (typeof navigator !== "undefined" && navigator.userActivation?.hasBeenActive) {
+      this.startSound();
+    } else {
+      this.bindToFirstInteraction();
+    }
+  }
+
+  /** play() is a no-op until the buffer is decoded, so fall back to autoplay-on-load. */
+  private startSound() {
+    if (!this.sound) return;
+    BABYLON.Engine.audioEngine?.unlock();
+    if (this.sound.isReady()) {
+      this.sound.play();
+    } else {
+      this.sound.autoplay = true;
+    }
+  }
+
+  public bindToFirstInteraction(target: Window | HTMLElement = window) {
+    const handler = () => {
+      this.startSound();
+      target.removeEventListener("pointerdown", handler, true);
+      target.removeEventListener("keydown", handler, true);
+    };
+
+    target.addEventListener("pointerdown", handler, true);
+    target.addEventListener("keydown", handler, true);
   }
 }

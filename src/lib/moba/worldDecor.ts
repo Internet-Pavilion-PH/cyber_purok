@@ -8,20 +8,20 @@ import { PlaceModel } from "./world/placeModel";
 import type { ArenaBuilder } from "./world/arenaBuilder";
 
 const TREES = [
-  { x: -433, z: -291, scale: 12, height: 90},
-  { x: -132, z: -365, scale: 12, height: 2.5 },
-  { x: -110, z: -220, scale: 10, height: 2 },
-  { x: -61, z: -322, scale: 12, height: 2.5 },
+  { x: -433, z: -291, scale: 10, height: 2},
+  { x: -132, z: -365, scale: 10, height: 2.5 },
+  { x: -110, z: -220, scale: 6, height: 2 },
+  { x: -61, z: -322, scale: 7, height: 2.5 },
   { x: -11, z: -298, scale: 8, height: 1.8 },
   { x: -36, z: -407, scale: 8, height: 1.8 },
   { x: 185, z: -394, scale: 8, height: 1.8 },
-  { x: -5, z: -208, scale: 10, height: 2 },
-  { x: -44, z: 350, scale: 20, height: 3 },
+  { x: -5, z: -208, scale: 9, height: 2 },
+  { x: -44, z: 350, scale: 9, height: 3 },
 
   { x: 18, z: 191, scale: 8, height: 1.8 },
   { x: 76, z: -300, scale: 10, height: 2 },
-  { x: 59, z: 311, scale: 20, height: 3 },
-  { x: 468, z: 355, scale: 20, height: 3 },
+  { x: 59, z: 311, scale: 10, height: 3 },
+  { x: 468, z: 355, scale: 10, height: 3 },
   { x: 226, z: 101, scale: 10, height: 2 },
 ];
 
@@ -247,7 +247,7 @@ const WORLD_MODELS: Record<string, WorldModel> = {
   structure5: { file: "SolidStructure.glb", position: [-174, 1, 402], scale: 20, rotationY: Math.PI / -1},
   structure6: { file: "WireStructures.glb", position: [-153, 1, 384], scale: 15 },
 
-  riverworld: { file: "salawaki_isda-optimized.glb", position: [66, 0, -145], scale: .4 },
+  // riverworld: { file: "salawaki_isda-optimized.glb", position: [66, 0, -145], scale: .4 },
 
 };
 

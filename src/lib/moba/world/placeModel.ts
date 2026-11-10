@@ -1,4 +1,5 @@
 import * as BABYLON from "@babylonjs/core";
+import { resolveAssetPath, resolveAssetUrl } from "../assets/assetLoader";
 
 export interface PlaceModelOptions {
   scaleFactor?: number;
@@ -8,7 +9,7 @@ export interface PlaceModelOptions {
   fadeIn?: boolean;
   collidable?: boolean;
   rotation?: BABYLON.Vector3 | number[];
-  soundUrl?: string;
+  soundTitle?: string;
   soundOptions?: Partial<BABYLON.ISoundOptions>;
 }
 
@@ -17,7 +18,7 @@ export class PlaceModel {
   public modelName: string;
   public position: BABYLON.Vector3;
   public rotation: BABYLON.Vector3;
-  public options: Required<Pick<PlaceModelOptions, "scaleFactor" | "targetSize" | "onGround" | "mergeMeshes" | "fadeIn" | "collidable" | "rotation" | "soundUrl" | "soundOptions">>;
+  public options: Required<Pick<PlaceModelOptions, "scaleFactor" | "targetSize" | "onGround" | "mergeMeshes" | "fadeIn" | "collidable" | "rotation" | "soundTitle" | "soundOptions">>;
 
   public modelRoot: BABYLON.TransformNode | null = null;
   public addedMeshes: BABYLON.Mesh[] = [];
@@ -42,7 +43,7 @@ export class PlaceModel {
       fadeIn: options.fadeIn ?? false,
       collidable: options.collidable ?? false,
       rotation: this.rotation,
-      soundUrl: options.soundUrl ?? "",
+      soundTitle: options.soundTitle ?? "",
       soundOptions: options.soundOptions ?? {},
     };
   }
@@ -69,53 +70,8 @@ export class PlaceModel {
     return new BABYLON.Vector3(x, y, z);
   }
 
-  private resolveAssetPath(modelName: string): { rootUrl: string; fileName: string } {
-    const normalized = modelName.replace(/^\/+/, "");
-
-    if (modelName.startsWith("http://") || modelName.startsWith("https://")) {
-      const lastSlash = modelName.lastIndexOf("/");
-      return {
-        rootUrl: modelName.substring(0, lastSlash + 1),
-        fileName: modelName.substring(lastSlash + 1),
-      };
-    }
-
-    const assetPathMap: Record<string, string> = {
-      "Ate_Tanod.glb": "/creeps/",
-      "JFK_2.glb": "/heroes/",
-      "chef.glb": "/heroes/",
-      "Kuya_Tanod.glb": "/creeps/",
-      "Fountain.glb": "/world/",
-      "Yellowbasketstore.glb": "/world/",
-      "led.glb": "/world/",
-      "Conch1.glb": "/world/",
-      "gw.glb": "/world/",
-      "roger.glb": "/world/",
-      "cottage.glb": "/world/",
-      "pcbhouse.glb": "/world/",
-      "ffc1.glb": "/world/",
-      "ffc2.glb": "/world/",
-      "salawaki_isda-optimized.glb": "/world/",
-      "salawaki.glb": "/world/",
-      "WireStructures.glb": "/world/",
-      "SolidStructure.glb": "/world/",
-      "bukid.glb": "/world/",
-      "JoelTower.glb": "/world/",
-      "kolown-build.glb": "/world/",
-      "crate.glb": "/world/",
-      "standee.glb": "/world/",
-      "aninipot-crate-glow.glb": "/world/",
-      "guava.glb": "/world/"
-    };
-
-    return {
-      rootUrl: assetPathMap[normalized] ?? "/",
-      fileName: normalized,
-    };
-  }
-
   public async load() {
-    const { rootUrl, fileName } = this.resolveAssetPath(this.modelName);
+    const { rootUrl, fileName } = resolveAssetPath(this.modelName);
     const worldPos = this.position.clone();
 
     if (this.options.onGround) {
@@ -231,8 +187,9 @@ export class PlaceModel {
       this.modelRoot.position = new BABYLON.Vector3(worldPos.x - center.x, raise, worldPos.z - center.z);
       this.modelRoot.rotation = this.rotation.clone();
 
-      if (this.options.soundUrl) {
-        this.attachSound(this.options.soundUrl, this.options.soundOptions);
+      if (this.options.soundTitle) {
+        const soundUrl = resolveAssetUrl(this.options.soundTitle) ?? this.options.soundTitle;
+        this.attachSound(soundUrl, this.options.soundOptions);
       }
 
       if (this.options.fadeIn) {

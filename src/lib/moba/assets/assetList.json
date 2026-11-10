@@ -1,0 +1,167 @@
+[
+  {
+    "kind": "mesh",
+    "name": "Ate_Tanod",
+    "rootUrl": "/creeps/",
+    "fileName": "Ate_Tanod.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "Kuya_Tanod",
+    "rootUrl": "/creeps/",
+    "fileName": "Kuya_Tanod.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "JFK_2",
+    "rootUrl": "/heroes/",
+    "fileName": "JFK_2.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "chef",
+    "rootUrl": "/heroes/",
+    "fileName": "chef.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "Fountain",
+    "rootUrl": "/world/",
+    "fileName": "Fountain.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "Yellowbasketstore",
+    "rootUrl": "/world/",
+    "fileName": "Yellowbasketstore.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "led",
+    "rootUrl": "/world/",
+    "fileName": "led.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "Conch1",
+    "rootUrl": "/world/",
+    "fileName": "Conch1.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "gw",
+    "rootUrl": "/world/",
+    "fileName": "gw.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "roger",
+    "rootUrl": "/world/",
+    "fileName": "roger.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "cottage",
+    "rootUrl": "/world/",
+    "fileName": "cottage.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "pcbhouse",
+    "rootUrl": "/world/",
+    "fileName": "pcbhouse.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "ffc1",
+    "rootUrl": "/world/",
+    "fileName": "ffc1.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "ffc2",
+    "rootUrl": "/world/",
+    "fileName": "ffc2.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "salawaki_isda-optimized",
+    "rootUrl": "/world/",
+    "fileName": "salawaki_isda-optimized.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "salawaki",
+    "rootUrl": "/world/",
+    "fileName": "salawaki.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "WireStructures",
+    "rootUrl": "/world/",
+    "fileName": "WireStructures.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "SolidStructure",
+    "rootUrl": "/world/",
+    "fileName": "SolidStructure.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "bukid",
+    "rootUrl": "/world/",
+    "fileName": "bukid.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "JoelTower",
+    "rootUrl": "/world/",
+    "fileName": "JoelTower.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "kolown-build",
+    "rootUrl": "/world/",
+    "fileName": "kolown-build.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "crate",
+    "rootUrl": "/world/",
+    "fileName": "crate.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "standee",
+    "rootUrl": "/world/",
+    "fileName": "standee.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "aninipot-crate-glow",
+    "rootUrl": "/world/",
+    "fileName": "aninipot-crate-glow.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "guava",
+    "rootUrl": "/world/",
+    "fileName": "guava.glb"
+  },
+  {
+    "kind": "binary",
+    "name": "fieldAmbient",
+    "url": "https://kolown.net/storage/library/audio/field/bbc_fast-flowi_nhu0510424.mp3"
+  },
+  {
+    "kind": "binary",
+    "name": "tinidorKutsara",
+    "url": "https://kolown.net/storage/library/audio/diskoral/tinidor_kutsara.mp3"
+  },
+  {
+    "kind": "binary",
+    "name": "pikahiBirahiChachahi",
+    "url": "https://kolown.net/storage/library/audio/diskoral/PIKAHI BIRAHI CHACHAHI( SONGLYRICS).mp3"
+  }
+]

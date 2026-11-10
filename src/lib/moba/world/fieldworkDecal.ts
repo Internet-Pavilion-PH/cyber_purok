@@ -1,5 +1,5 @@
 import * as BABYLON from "@babylonjs/core";
-import fieldwork from "./fieldwork.json";
+import fieldwork from "../fieldwork.json";
 
 type Station = {
   station: string;

@@ -202,33 +202,6 @@ const FENCES = [
   ],
 ];
 
-const BARRIERS = [
-  [
-    { x: 244, z: -410 },
-    { x: 409, z: -254 },
-  ],
-  [
-    { x: 284, z: -456 },
-    { x: 443, z: -293 },
-  ],
-  [
-    { x: -46, z: -110 },
-    { x: 101, z: 42 },
-  ],
-  [
-    { x: -99, z: -61 },
-    { x: 56, z: 89 },
-  ],
-  [
-    { x: -444, z: 284 },
-    { x: -282, z: 448 },
-  ],
-  [
-    { x: -411, z: 242 },
-    { x: -249, z: 406 },
-  ],
-];
-
 type WorldModel = {
   file: string;
   position: [number, number, number];
@@ -256,9 +229,11 @@ const WORLD_MODELS: Record<string, WorldModel> = {
   crate3: { file: "crate.glb", position: [154, 1, -390], scale: 50, rotationY: Math.PI / -3 },
 
   cottage2: { file: "pcbhouse.glb", position: [277, 1, 386], scale: 70, rotationY: Math.PI / -3 },
-  
+  aninipot: { file: "aninipot-crate-glow.glb", position: [406, 1, 336], scale: 70, rotationY: Math.PI / -1.5 },
+
+
   ghostwhisper1: { file: "kolown-build.glb", position: [393, 10, 0], scale: 300, rotationY: Math.PI / -1.25 },
-  ghostwhisper: { file: "gw.glb", position: [216, 10, 336], scale: 4, rotationY: Math.PI / -1 },
+  ghostwhisper: { file: "gw.glb", position: [162, 10, 417], scale: 4, rotationY: Math.PI / -1 },
   
   circuit1: { file: "ffc1.glb", position: [279, 1, 4], scale: 300, rotationY: Math.PI / -1.5 },
   circuit2: { file: "ffc2.glb", position: [12, 20, 258], scale: 300, rotationY: Math.PI / -1.5 },
@@ -341,15 +316,6 @@ export const buildWorldDecor = (scene: BABYLON.Scene, arena: ArenaBuilder | null
 
   for (const points of FENCES) {
     const fence = new Fence(scene, points, 30, 1, 1, 0);
-    makeSolidBarrier(fence.rootNode);
-    if (arena?.lights) {
-      for (const mesh of fence.meshes) arena.lights.addWorldShadowCaster(mesh);
-    }
-    fence.rootNode.position = new BABYLON.Vector3(0, 0, 0);
-  }
-
-  for (const points of BARRIERS) {
-    const fence = new Fence(scene, points, 10, .75, .75, 0);
     makeSolidBarrier(fence.rootNode);
     if (arena?.lights) {
       for (const mesh of fence.meshes) arena.lights.addWorldShadowCaster(mesh);

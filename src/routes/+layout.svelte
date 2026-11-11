@@ -1,9 +1,12 @@
 <script lang="ts">
+	import PwaInstallPrompt from '$lib/ui/PwaInstallPrompt.svelte';
+
 	// Favicon is provided in src/app.html for the site; do not override it here.
 	let { children } = $props();
 </script>
 
 {@render children?.()}
+<PwaInstallPrompt />
 
 <style>
 	/* Global resets and hide scrollbars app-wide */

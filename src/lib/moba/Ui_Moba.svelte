@@ -18,6 +18,7 @@
     fps = 0,
     serverConnected = false,
     playerName = "Player Hero",
+    announcement = "",
     onMoveInput,
     onMinimapSelect,
     onReconnect,
@@ -25,12 +26,13 @@
   }: {
     heroPosition?: { x: number; z: number } | null;
     remoteMarkers?: { id: string; name: string; x: number; z: number; color: string; pulse?: boolean }[];
-    onlinePlayers?: Array<{ id: string; name: string }>;
+    onlinePlayers?: Array<{ id: string; name: string; guavaCount?: number }>;
     chatMessages?: Array<{ id: string; author: string; text: string }>;
     debugPoint?: DebugPoint;
     fps?: number;
     serverConnected?: boolean;
     playerName?: string;
+    announcement?: string;
     onMoveInput?: (input: { x: number; y: number }) => void;
     onMinimapSelect?: (point: { x: number; z: number }) => void;
     onReconnect?: () => void;
@@ -56,7 +58,7 @@
 
 <div class="moba-ui" aria-label="MOBA heads-up display">
   <GameClock seconds={gameSeconds} />
-  <MessagePanel seconds={gameSeconds} />
+  <MessagePanel seconds={gameSeconds} announcement={announcement} />
 
   <div class="minimap-group">
     <MinimapPanel

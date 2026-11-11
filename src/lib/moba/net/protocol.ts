@@ -6,6 +6,7 @@ export type ArenaPlayer = {
   z: number;
   yaw: number;
   hp: number;
+  guavaCount?: number;
 };
 
 export type WelcomeMessage = {
@@ -83,6 +84,7 @@ export type JoinMessage = {
   type: "join";
   userId?: string;
   name?: string;
+  guavaCount?: number;
   x?: number;
   z?: number;
 };
@@ -98,13 +100,22 @@ export function isFiniteNumber(value: unknown): value is number {
 export function parseArenaPlayer(value: unknown): ArenaPlayer | null {
   if (!isObject(value)) return null;
 
-  const { id, name, x, y, z, yaw, hp } = value;
+  const { id, name, x, y, z, yaw, hp, guavaCount } = value;
   if (typeof id !== "string" || typeof name !== "string") return null;
   if (!isFiniteNumber(x) || !isFiniteNumber(y) || !isFiniteNumber(z) || !isFiniteNumber(yaw) || !isFiniteNumber(hp)) {
     return null;
   }
 
-  return { id, name, x, y, z, yaw, hp };
+  return {
+    id,
+    name,
+    x,
+    y,
+    z,
+    yaw,
+    hp,
+    guavaCount: typeof guavaCount === "number" && Number.isFinite(guavaCount) ? Math.max(0, guavaCount) : undefined,
+  };
 }
 
 export function parseSocketMessage(raw: string): SocketMessage | null {

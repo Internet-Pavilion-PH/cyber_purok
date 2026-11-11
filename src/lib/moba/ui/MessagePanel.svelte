@@ -3,11 +3,14 @@
 
   type Props = {
     seconds?: number;
+    announcement?: string;
   };
 
-  let { seconds = 0 }: Props = $props();
+  let { seconds = 0, announcement = "" }: Props = $props();
 
   const activeMessage = $derived.by(() => {
+    if (announcement) return { text: announcement };
+
     const current = messageTemplates.find((template) => {
       return seconds >= template.at && seconds < template.at + template.duration;
     });

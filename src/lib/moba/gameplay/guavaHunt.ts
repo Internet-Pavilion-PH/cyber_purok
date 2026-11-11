@@ -6,16 +6,18 @@ export class GuavaHunt {
   private scene: BABYLON.Scene;
   private respawnDelayMs = 3500;
   private respawnTimer: ReturnType<typeof setTimeout> | null = null;
+  private onCollected: (() => void) | null = null;
   public location: BABYLON.Vector3;
   public isPicked = false;
   public object: BABYLON.Mesh | BABYLON.TransformNode | null;
   private isServerAuthoritative = false;
   private lastSeenGuavaSeq = -1;
 
-  constructor(scene: BABYLON.Scene) {
+  constructor(scene: BABYLON.Scene, options?: { onCollected?: () => void }) {
     this.scene = scene;
     this.location = new BABYLON.Vector3(0, 5, 0);
     this.object = null;
+    this.onCollected = options?.onCollected ?? null;
   }
 
   public setServerMode(enabled: boolean): void {
@@ -113,6 +115,7 @@ export class GuavaHunt {
 
     this.isPicked = true;
     this.detachObject();
+    this.onCollected?.();
 
     if (this.respawnTimer) {
       clearTimeout(this.respawnTimer);

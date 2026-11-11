@@ -41,6 +41,7 @@ export type GameSceneOptions = {
   onBeforeHeroUpdate: (hero: Hero) => void;
   onAfterHeroUpdate: (hero: Hero) => void;
   onHeroLoaded: (hero: Hero) => void;
+  onGuavaCollected?: () => void;
   isGameLive?: () => boolean;
 };
 
@@ -123,7 +124,7 @@ export const createGameScene = (options: GameSceneOptions) => {
   hero.updateDisplayName(playerName);
   remoteHeroes.setLocalHero(hero);
 
-  const guavaHunt = new GuavaHunt(scene);
+  const guavaHunt = new GuavaHunt(scene, { onCollected: options.onGuavaCollected ?? undefined });
 
   // The camera is far above the ground, so measure spatial sound distance from the hero instead.
   scene.audioListenerPositionProvider = () => hero.mesh?.absolutePosition ?? camera.position;

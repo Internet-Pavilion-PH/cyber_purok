@@ -4,7 +4,7 @@
     serverConnected = false,
     onReconnect,
   }: {
-    onlinePlayers?: Array<{ id: string; name: string }>;
+    onlinePlayers?: Array<{ id: string; name: string; guavaCount?: number }>;
     serverConnected?: boolean;
     onReconnect?: () => void;
   } = $props();
@@ -34,7 +34,7 @@
         {#each onlinePlayers as player (player.id)}
           <li class="player-item">
             <span class="player-dot"></span>
-            <span>{player.name}</span>
+            <span>{player.guavaCount != null && player.guavaCount > 0 ? `${player.name} — ${player.guavaCount}` : player.name}</span>
           </li>
         {/each}
       </ul>

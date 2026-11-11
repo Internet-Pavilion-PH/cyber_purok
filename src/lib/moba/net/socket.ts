@@ -36,6 +36,7 @@ export class MultiplayerSocket {
     url?: string;
     userId?: string;
     name?: string;
+    guavaCount?: number;
     getPosition?: () => { x: number; z: number } | null;
     onState?: (message: StateMessage) => void;
     onWelcome?: (message: WelcomeMessage) => void;
@@ -106,6 +107,7 @@ export class MultiplayerSocket {
     url?: string;
     userId?: string;
     name?: string;
+    guavaCount?: number;
     getPosition?: () => { x: number; z: number } | null;
     onState?: (message: StateMessage) => void;
     onWelcome?: (message: WelcomeMessage) => void;
@@ -144,7 +146,7 @@ export class MultiplayerSocket {
       console.log("server connected");
       this.reconnectAttempt = 0;
       this.startHeartbeat();
-      this.sendJoin(options?.userId, options?.name ?? "Hero", options?.getPosition?.());
+      this.sendJoin(options?.userId, options?.name ?? "Hero", options?.getPosition?.(), options?.guavaCount);
     };
 
     this.socket.onmessage = (event) => {
@@ -232,13 +234,14 @@ export class MultiplayerSocket {
     return this.socket;
   }
 
-  sendJoin(userId?: string, name = "Hero", position?: { x: number; z: number } | null) {
+  sendJoin(userId?: string, name = "Hero", position?: { x: number; z: number } | null, guavaCount?: number) {
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) return;
 
     const payload: JoinMessage = {
       type: "join",
       userId,
       name,
+      guavaCount: typeof guavaCount === "number" && Number.isFinite(guavaCount) ? Math.max(0, guavaCount) : undefined,
       x: position?.x,
       z: position?.z,
     };

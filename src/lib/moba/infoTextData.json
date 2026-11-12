@@ -98,15 +98,5 @@
     "height": 24,
     "offsetY": 10,
     "maxDistance": 20
-  },
-  {
-    "id": "salawaki2-billboard",
-    "position": { "x": 78, "y": 10, "z": -127 },
-    "title": "Salawaki Isda",
-    "description": "work by Salawaki",
-    "width": 48,
-    "height": 24,
-    "offsetY": 30,
-    "maxDistance": 20
   }
 ]

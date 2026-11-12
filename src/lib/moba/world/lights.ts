@@ -7,11 +7,7 @@ export class ArenaLights {
   public timeMinutes = 14 * 60;
 
   private ground: BABYLON.Mesh | null = null;
-  private readonly worldShadowCasters = new Set<BABYLON.AbstractMesh>();
   private readonly actorShadowCasters = new Set<BABYLON.AbstractMesh>();
-  private lastShadowBudgetLowPower = false;
-  private static readonly SHADOW_LOW_FPS = 65;
-  private static readonly SHADOW_RECOVER_FPS = 75;
 
   constructor(private readonly scene: BABYLON.Scene) {
     this.hemiLight = this.createAmbientLighting();
@@ -30,11 +26,6 @@ export class ArenaLights {
     this.shadowGen.addShadowCaster(mesh, true);
   }
 
-  public addWorldShadowCaster(mesh: BABYLON.AbstractMesh) {
-    this.worldShadowCasters.add(mesh);
-    this.shadowGen.addShadowCaster(mesh, true);
-  }
-
   public addShadowCasters(meshes: Iterable<BABYLON.AbstractMesh>) {
     for (const mesh of meshes) {
       this.addShadowCaster(mesh);
@@ -47,23 +38,6 @@ export class ArenaLights {
   }
 
   public tickTime(deltaMs: number) {
-    const fps = this.scene.getEngine().getFps();
-    const desiredLowPowerMode = this.lastShadowBudgetLowPower
-      ? fps < ArenaLights.SHADOW_RECOVER_FPS
-      : fps < ArenaLights.SHADOW_LOW_FPS;
-
-    if (this.lastShadowBudgetLowPower !== desiredLowPowerMode) {
-      this.lastShadowBudgetLowPower = desiredLowPowerMode;
-
-      for (const mesh of this.worldShadowCasters) {
-        if (desiredLowPowerMode) {
-          this.shadowGen.removeShadowCaster(mesh);
-        } else if (!this.shadowGen.getShadowMap()?.renderList?.includes(mesh)) {
-          this.shadowGen.addShadowCaster(mesh, true);
-        }
-      }
-    }
-
     for (const mesh of this.actorShadowCasters) {
       if (!this.shadowGen.getShadowMap()?.renderList?.includes(mesh)) {
         this.shadowGen.addShadowCaster(mesh, true);
@@ -86,7 +60,7 @@ export class ArenaLights {
     this.sunLight.direction = BABYLON.Vector3.Zero().subtract(this.sunLight.position).normalize();
     this.sunLight.intensity = 0.18 + dayFactor * 0.9;
 
-    this.hemiLight.intensity = 0.15 +dayFactor * 0.35;
+    this.hemiLight.intensity = 0.15 + dayFactor * 0.35;
     this.hemiLight.groundColor = new BABYLON.Color3(
       0.1 + dayFactor * 0.35,
       0.15 + dayFactor * 0.25,
@@ -127,7 +101,7 @@ export class ArenaLights {
   }
 
   private createShadowGenerator() {
-    const shadowGen = new BABYLON.ShadowGenerator(768, this.sunLight);
+    const shadowGen = new BABYLON.ShadowGenerator(384, this.sunLight);
     shadowGen.useBlurExponentialShadowMap = false;
     shadowGen.blurKernel = 0;
     shadowGen.darkness = 0.5;

@@ -68,12 +68,6 @@ const BLUE_BASE = new BABYLON.Vector3(290, 0, 290);
 const RED_BASE = new BABYLON.Vector3(-342, 0, -385);
 const CREEP_SPAWN_DELAY_MS = 20000;
 
-/** Adds every mesh of a node to the arena's shadow casters (no-op without lights). */
-const castShadows = (arena: ArenaBuilder | null, node: BABYLON.TransformNode) => {
-  if (!arena?.lights) return;
-  for (const mesh of node.getChildMeshes()) arena.lights.addWorldShadowCaster(mesh);
-};
-
 /** Makes an explicit barrier solid so heroes can't walk through it. */
 const makeSolidBarrier = (node: BABYLON.TransformNode) => {
   for (const mesh of node.getChildMeshes()) {
@@ -126,28 +120,18 @@ export const buildWorldDecor = (scene: BABYLON.Scene, arena: ArenaBuilder | null
   );
 
   for (const { position, angle } of TOWERS) {
-    const tower = new Tower(scene, position, 50, 2, 40, angle);
-    castShadows(arena, tower.rootNode);
+    new Tower(scene, position, 50, 2, 40, angle);
   }
 
   for (const points of FENCES) {
     const fence = new Fence(scene, points, 30, 1, 1, 0);
     makeSolidBarrier(fence.rootNode);
-    if (arena?.lights) {
-      for (const mesh of fence.meshes) arena.lights.addWorldShadowCaster(mesh);
-    }
     fence.rootNode.position = new BABYLON.Vector3(0, 0, 0);
   }
 
   // Blue base pushes a creep lane toward the red base after a delay, with each creep staggering by 10s.
   window.setTimeout(() => {
-    const creeps = Creep.spawnGroup(scene, BLUE_BASE, RED_BASE, 3, 5, 10000);
-    if (arena?.lights) {
-      const lights = arena.lights;
-      for (const creep of creeps) {
-        void creep.ready.then(() => creep.meshes.forEach((m) => lights.addShadowCaster(m)));
-      }
-    }
+    Creep.spawnGroup(scene, BLUE_BASE, RED_BASE, 3, 5, 10000);
   }, CREEP_SPAWN_DELAY_MS);
 
   return { models };

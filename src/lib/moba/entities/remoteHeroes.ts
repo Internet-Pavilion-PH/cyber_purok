@@ -149,7 +149,6 @@ export class RemoteHeroes {
       try {
         const lights = this.ctx.getArena()?.lights;
         await hero.load(lights?.shadowGen);
-        if (lights && hero.mesh) lights.addShadowCaster(hero.mesh);
         this.heroes.set(player.id, hero);
         hero.playAnimation("Idle");
       } catch (error) {

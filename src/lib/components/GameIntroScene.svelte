@@ -8,7 +8,7 @@
 
 <div class="intro-scene" aria-label="Game intro scene">
   <div class="logo-wrap">
-    <img class="logo" src="/images/cyber_purok.png" alt="Cyber Purok logo" />
+    <img class="logo" src="/images/cyber_purok2.png" alt="Cyber Purok logo" />
     <p class="tagline">a project by Low Bandwidth Dreams</p>
       <p class="tagline">exploring the idea of Dagyaw</p>
       <p class="tagline">art assets from Salawaki, Jellyfish Kisses x Jetvlz, <br/>

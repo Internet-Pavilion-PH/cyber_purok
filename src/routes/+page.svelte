@@ -563,7 +563,7 @@ const applyHeroInput = (localHero: Hero) => {
 
     const engine = new BABYLON.Engine(gameCanvas, true, { audioEngine: true });
     BABYLON.SceneLoader.ShowLoadingScreen = true;
-    const loadingScreen = new CustomLoadingScreen("/images/cyber_purok.png");
+    const loadingScreen = new CustomLoadingScreen("/images/cyber_purok2.png");
     engine.loadingScreen = loadingScreen;
     loadingScreen.displayLoadingUI();
 

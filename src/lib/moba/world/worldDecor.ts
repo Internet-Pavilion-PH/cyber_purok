@@ -6,6 +6,7 @@ import { Fence } from "./fence";
 import { TreeSprites } from "./treeSprites";
 import { Stone } from "./stone";
 import { PlaceModel } from "./placeModel";
+import { BoardUp } from "./boardUp";
 import type { ArenaBuilder } from "./arenaBuilder";
 
 type TreeSpec = { x: number; z: number; scale: number; height: number };
@@ -17,6 +18,7 @@ const worldDecor = worldDecorData as unknown as {
   trees: TreeSpec[];
   towers: TowerSpec[];
   stones: StoneSpec[];
+  fences?: Array<Array<{ x: number; z: number }>>;
 };
 
 const TREES = worldDecor.trees;
@@ -28,29 +30,7 @@ const TOWERS = worldDecor.towers.map(({ position, angle }) => {
   };
 });
 const STONES: StoneSpec[] = worldDecor.stones;
-
-const FENCES = [
-  [
-    { x: -67, z: -406 },
-    { x: -100, z: -353 },
-    { x: -194, z: -236 },
-  ],
-  [
-    { x: -238, z: -195 },
-    { x: -290, z: -174 },
-    { x: -429, z: -114 },
-  ],
-  [
-    { x: 56, z: 434 },
-    { x: 100, z: 353 },
-    { x: 194, z: 236 },
-  ],
-  [
-    { x: 239, z: 196 },
-    { x: 290, z: 174 },
-    { x: 433, z: 127 },
-  ],
-];
+const FENCES = worldDecor.fences ?? [];
 
 type WorldModel = {
   file: string;
@@ -61,7 +41,19 @@ type WorldModel = {
   soundTitle?: string;
 };
 
+type BoardUpSpec = {
+  texture: string;
+  start: [number, number, number];
+  end: [number, number, number];
+  height?: number;
+  thickness?: number;
+  name?: string;
+  emissiveColor?: string;
+  alpha?: number;
+};
+
 const WORLD_MODELS = worldDecor.worldModels as Record<string, WorldModel>;
+const BOARDUPS = (worldDecor as { boardUp?: BoardUpSpec[]; billboards?: BoardUpSpec[] }).boardUp ?? (worldDecor as { billboards?: BoardUpSpec[] }).billboards ?? [];
 
 /**  Make creeps emerge from cottages **/
 const BLUE_BASE = new BABYLON.Vector3(290, 0, 290);
@@ -118,6 +110,30 @@ export const buildWorldDecor = (scene: BABYLON.Scene, arena: ArenaBuilder | null
       });
     },
   );
+
+  for (const boardUpSpec of BOARDUPS) {
+    const {
+      texture,
+      start,
+      end,
+      height = 2,
+      thickness = 0.2,
+      name,
+      emissiveColor,
+      alpha,
+    } = boardUpSpec;
+
+    BoardUp.create(scene, {
+      texture,
+      start: new BABYLON.Vector3(start[0], start[1], start[2]),
+      end: new BABYLON.Vector3(end[0], end[1], end[2]),
+      height,
+      thickness,
+      name,
+      emissiveColor,
+      alpha,
+    });
+  }
 
   for (const { position, angle } of TOWERS) {
     new Tower(scene, position, 50, 2, 40, angle);

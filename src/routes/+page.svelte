@@ -159,6 +159,7 @@
   // --- State ---
   let canvas: HTMLCanvasElement | undefined = $state();
   let hasEnteredGame = $state(false);
+  let isGameStarting = $state(false);
   type ChatEntry = { id: string; author: string; text: string };
 
   let heroPosition = $state<HeroPosition>({ x: 0, z: 0 });
@@ -462,8 +463,8 @@ const applyHeroInput = (localHero: Hero) => {
 };
 
   // --- Scene setup ---
-  const createScene = (engine: BABYLON.Engine, loadingScreen: CustomLoadingScreen, gameCanvas: HTMLCanvasElement) => {
-    const game = createGameScene({
+  const createScene = async (engine: BABYLON.Engine, loadingScreen: CustomLoadingScreen, gameCanvas: HTMLCanvasElement) => {
+    const game = await createGameScene({
       engine,
       canvas: gameCanvas,
       loadingScreen,
@@ -537,22 +538,24 @@ const applyHeroInput = (localHero: Hero) => {
   };
 
   const startGame = () => {
-    if (hasEnteredGame) return;
+    if (hasEnteredGame || isGameStarting) return;
 
     unlockAudioEngine();
-    hasEnteredGame = true;
+    isGameStarting = true;
   };
 
-  // Only hasEnteredGame and canvas may trigger this effect; the boot body is untracked
-  // so state written during setup cannot re-run it and fire the cleanup (closing the socket).
+  // Only start once the canvas is mounted for the booting state; keep the game UI hidden
+  // until the scene is fully ready to avoid a brief blue-screen flash.
   $effect(() => {
-    if (!hasEnteredGame || !canvas) return;
+    if (!isGameStarting || !canvas) return;
 
     const gameCanvas = canvas;
-    return untrack(() => bootGame(gameCanvas));
+    return untrack(() => {
+      void bootGame(gameCanvas);
+    });
   });
 
-  const bootGame = (gameCanvas: HTMLCanvasElement) => {
+  const bootGame = async (gameCanvas: HTMLCanvasElement) => {
     unlockAudioEngine();
     clientUserId = clientUserId || generateClientUserId();
     const save = getPlayerSaveData();
@@ -567,7 +570,9 @@ const applyHeroInput = (localHero: Hero) => {
     engine.loadingScreen = loadingScreen;
     loadingScreen.displayLoadingUI();
 
-    const scene = createScene(engine, loadingScreen, gameCanvas);
+    const scene = await createScene(engine, loadingScreen, gameCanvas);
+    hasEnteredGame = true;
+    isGameStarting = false;
     scene.activeCamera = gameCamera;
     gameCamera?.attachControl(gameCanvas, true);
 
@@ -592,7 +597,7 @@ const applyHeroInput = (localHero: Hero) => {
   };
 </script>
 
-{#if !hasEnteredGame}
+{#if !hasEnteredGame && !isGameStarting}
   <GameIntroScene onEnter={startGame} />
 {/if}
 
@@ -612,8 +617,10 @@ const applyHeroInput = (localHero: Hero) => {
     onReconnect={connectMultiplayer}
     onChatSend={handleChatSend}
   />
+{/if}
 
-  <canvas bind:this={canvas} class="babylon-canvas"></canvas>
+{#if isGameStarting || hasEnteredGame}
+  <canvas bind:this={canvas} class="babylon-canvas" class:loading={isGameStarting}></canvas>
 {/if}
 
 <style>

@@ -50,16 +50,6 @@
     "maxDistance": 50
   },
   {
-    "id": "JoelTower2-billboard",
-    "position": { "x": 214, "y": 30, "z": 157 },
-    "title": "Joel Tower",
-    "description": "work by Kirk Tabanera",
-    "width": 48,
-    "height": 24,
-    "offsetY": 20,
-    "maxDistance": 50
-  },
-  {
     "id": "aninipot-billboard",
     "position": { "x": 422, "y": 10, "z": 301 },
     "title": "Aninipot Rhaz Build",

@@ -28,6 +28,48 @@
     "structure5": { "file": "SolidStructure.glb", "position": [-174, 1, 402], "scale": 20, "rotationY": "Math.PI / -1" },
     "structure6": { "file": "WireStructures.glb", "position": [-153, 1, 384], "scale": 15 }
   },
+  "boardUp": [
+    {
+     "texture": "/images/texture/amorsolo.jpg",
+      "start": [233, 30, 183],
+      "end": [286, 30, 168],
+      "height": 30,
+      "thickness": 1,
+      "name": "map_panel",
+      "alpha": 0.95
+    },
+    {
+      "texture": "/images/texture/ocampo.jpg",
+      "start": [292, 30, 167],
+      "end": [429, 30, 124],
+      "height": 30,
+      "thickness": 1,
+      "name": "map_panel",
+      "alpha": 0.95
+    }
+  ],
+  "fences": [
+    [
+      { "x": -67, "z": -406 },
+      { "x": -100, "z": -353 },
+      { "x": -194, "z": -236 }
+    ],
+    [
+      { "x": -238, "z": -195 },
+      { "x": -290, "z": -174 },
+      { "x": -429, "z": -114 }
+    ],
+    [
+      { "x": 56, "z": 434 },
+      { "x": 100, "z": 353 },
+      { "x": 194, "z": 236 }
+    ],
+    [
+      { "x": 239, "z": 196 },
+      { "x": 290, "z": 174 },
+      { "x": 433, "z": 127 }
+    ]
+  ],
   "trees": [
     { "x": -433, "z": -291, "scale": 7 },
     { "x": -132, "z": -365, "scale": 7 },

@@ -1,7 +1,7 @@
 import * as BABYLON from "@babylonjs/core";
 import * as ADDONS from "@babylonjs/addons";
-import { preloadAssets } from "$lib/v1/assetPreloader";
 import type { CustomLoadingScreen } from "$lib/v1/CustomLoadingScreen";
+import { createAssetLoader, WORLD_MODEL_MANIFEST } from "./assets/assetLoader";
 import { Hero } from "./entities/hero";
 import { createHeroConfig } from "./entities/heroConfig";
 import { ArenaBuilder } from "./world/arenaBuilder";
@@ -101,9 +101,19 @@ const setupRightClickMove = (
   });
 };
 
+const preloadManifestAssets = async (engine: BABYLON.Engine) => {
+  const preloadingScene = new BABYLON.Scene(engine);
+  const assetLoader = createAssetLoader(preloadingScene);
+  assetLoader.addManifest(WORLD_MODEL_MANIFEST);
+  await assetLoader.load();
+  preloadingScene.dispose();
+};
+
 /** Builds the arena, camera, world decor and local hero, and wires the per-frame hero update. */
-export const createGameScene = (options: GameSceneOptions) => {
+export const createGameScene = async (options: GameSceneOptions) => {
   const { engine, loadingScreen, playerName, remoteHeroes } = options;
+  await preloadManifestAssets(engine);
+
   const scene = new BABYLON.Scene(engine);
   new ADDONS.HtmlMeshRenderer(scene, { enableOverlayRender: true });
 
@@ -129,32 +139,31 @@ export const createGameScene = (options: GameSceneOptions) => {
   // The camera is far above the ground, so measure spatial sound distance from the hero instead.
   scene.audioListenerPositionProvider = () => hero.mesh?.absolutePosition ?? camera.position;
 
-  
-  void preloadAssets([...models.map((model) => model.load()), hero.load()])
-    .then(() => {
-      InfoText.createMany(
-        scene,
-        infoTextSpecs as Parameters<typeof InfoText.createMany>[1],
-        () => hero.mesh?.absolutePosition ?? null,
-      );
+  try {
+    await Promise.all([...models.map((model) => model.load()), hero.load()]);
+    InfoText.createMany(
+      scene,
+      infoTextSpecs as Parameters<typeof InfoText.createMany>[1],
+      () => hero.mesh?.absolutePosition ?? null,
+    );
 
-      if (hero.mesh) {
-        const heroMeshes = [hero.mesh, ...hero.mesh.getChildMeshes()];
-        heroMeshes.forEach((mesh) => {
-          if (mesh instanceof BABYLON.Mesh) {
-            mesh.showBoundingBox = false;
-          }
-        });
-      }
-      if (arena.lights && hero.mesh) arena.lights.addShadowCaster(hero.mesh);
-      hero.playAnimation("Idle");
-      options.onHeroLoaded(hero);
-    })
-    .catch((error) => console.error("Game assets failed to preload:", error))
-    .finally(() => {
-      BABYLON.SceneLoader.ShowLoadingScreen = false;
-      loadingScreen.hideLoadingUI();
-    });
+    if (hero.mesh) {
+      const heroMeshes = [hero.mesh, ...hero.mesh.getChildMeshes()];
+      heroMeshes.forEach((mesh) => {
+        if (mesh instanceof BABYLON.Mesh) {
+          mesh.showBoundingBox = false;
+        }
+      });
+    }
+    if (arena.lights && hero.mesh) arena.lights.addShadowCaster(hero.mesh);
+    hero.playAnimation("Idle");
+    options.onHeroLoaded(hero);
+  } catch (error) {
+    console.error("Game assets failed to preload:", error);
+  } finally {
+    BABYLON.SceneLoader.ShowLoadingScreen = false;
+    loadingScreen.hideLoadingUI();
+  }
 
   scene.onBeforeRenderObservable.add(() => {
     if (!hero.mesh) return;

@@ -163,5 +163,45 @@
     "kind": "binary",
     "name": "pikahiBirahiChachahi",
     "url": "https://kolown.net/storage/library/audio/diskoral/PIKAHI BIRAHI CHACHAHI( SONGLYRICS).mp3"
+  },
+  {
+    "kind": "texture",
+    "name": "cyberPurokLogo",
+    "url": "/images/cyber_purok2.png"
+  },
+  {
+    "kind": "texture",
+    "name": "heightMap",
+    "url": "/images/heightmap.png"
+  },
+  {
+    "kind": "texture",
+    "name": "paintMap",
+    "url": "/images/paint_map.png"
+  },
+  {
+    "kind": "texture",
+    "name": "miniMap",
+    "url": "/images/map1.png"
+  },
+  {
+    "kind": "texture",
+    "name": "amorsoloTexture",
+    "url": "/images/texture/amorsolo.jpg"
+  },
+  {
+    "kind": "texture",
+    "name": "rockTexture",
+    "url": "/images/texture/rock.png"
+  },
+  {
+    "kind": "texture",
+    "name": "treeTexture",
+    "url": "/images/texture/trees.png"
+  },
+  {
+    "kind": "texture",
+    "name": "artworkTreeTexture",
+    "url": "/images/texture/artwork_tree.png"
   }
 ]

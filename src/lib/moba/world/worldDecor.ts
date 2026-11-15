@@ -2,21 +2,43 @@ import * as BABYLON from "@babylonjs/core";
 import worldDecorData from "../worldDecorData.json";
 import { Tower } from "../entities/tower";
 import { Creep } from "../entities/creeps";
-import { Fence } from "./fence";
+import { Fence, type FencePoint } from "./fence";
 import { TreeSprites } from "./treeSprites";
 import { Stone } from "./stone";
 import { PlaceModel } from "./placeModel";
+import { BoardUp} from "./boardUp";
 import type { ArenaBuilder } from "./arenaBuilder";
 
 type TreeSpec = { x: number; z: number; scale: number; height: number };
 type TowerSpec = { position: [number, number, number]; angle: number | string };
 type StoneSpec = { x: number; z: number; height: number; x2?: number; z2?: number };
+type FenceSpec = FencePoint[];
+type BoardUpSpec = {
+  texture: string;
+  start: [number, number, number];
+  end: [number, number, number];
+  height: number;
+  thickness: number;
+  name: string;
+  alpha: number;
+};
+
+type WorldModel = {
+  file: string;
+  position: number[];
+  scale: number;
+  rotationY?: number | string;
+  collidable?: boolean;
+  soundTitle?: string;
+};
 
 const worldDecor = worldDecorData as unknown as {
   worldModels: Record<string, WorldModel>;
   trees: TreeSpec[];
   towers: TowerSpec[];
   stones: StoneSpec[];
+  boardUps: BoardUpSpec[];
+  fences: FenceSpec[]; 
 };
 
 const TREES = worldDecor.trees;
@@ -28,40 +50,10 @@ const TOWERS = worldDecor.towers.map(({ position, angle }) => {
   };
 });
 const STONES: StoneSpec[] = worldDecor.stones;
-
-const FENCES = [
-  [
-    { x: -67, z: -406 },
-    { x: -100, z: -353 },
-    { x: -194, z: -236 },
-  ],
-  [
-    { x: -238, z: -195 },
-    { x: -290, z: -174 },
-    { x: -429, z: -114 },
-  ],
-  [
-    { x: 56, z: 434 },
-    { x: 100, z: 353 },
-    { x: 194, z: 236 },
-  ],
-  [
-    { x: 239, z: 196 },
-    { x: 290, z: 174 },
-    { x: 433, z: 127 },
-  ],
-];
-
-type WorldModel = {
-  file: string;
-  position: number[];
-  scale: number;
-  rotationY?: number | string;
-  collidable?: boolean;
-  soundTitle?: string;
-};
-
+const FENCES = Array.isArray(worldDecor.fences) ? worldDecor.fences : [];
 const WORLD_MODELS = worldDecor.worldModels as Record<string, WorldModel>;
+
+const BOARD_UPS : BoardUpSpec[] = worldDecor.boardUps;
 
 /**  Make creeps emerge from cottages **/
 const BLUE_BASE = new BABYLON.Vector3(290, 0, 290);
@@ -129,6 +121,17 @@ export const buildWorldDecor = (scene: BABYLON.Scene, arena: ArenaBuilder | null
     fence.rootNode.position = new BABYLON.Vector3(0, 0, 0);
   }
 
+  for (const { texture, start, end, height, thickness, name, alpha } of BOARD_UPS) {
+  new BoardUp(scene, {
+    texture,
+    start: new BABYLON.Vector3(...start),
+    end: new BABYLON.Vector3(...end),
+    height,
+    thickness,
+    name,
+    alpha,
+  });
+}
   // Blue base pushes a creep lane toward the red base after a delay, with each creep staggering by 10s.
   window.setTimeout(() => {
     Creep.spawnGroup(scene, BLUE_BASE, RED_BASE, 3, 5, 10000);

@@ -48,6 +48,36 @@
     { "x": 76, "z": -300, "scale": 7 },
       { "x": -432, "z": -412, "scale": 10 }
   ],
+  "boardUps": [
+    {
+     "texture": "/images/texture/ocampo.jpg",
+      "start": [233, 30, 183],
+      "end": [286, 30, 168],
+      "height": 30,
+      "thickness": 1,
+      "name": "ocampo",
+      "alpha": 0.95
+    },
+    {
+     "texture": "/images/texture/ocampo.jpg",
+      "start": [289, 30, 170],
+      "end": [432, 30, 124],
+      "height": 30,
+      "thickness": 1,
+      "name": "ocampo2",
+      "alpha": 0.95
+    },
+      {
+     "texture": "/images/texture/ocampo.jpg",
+      "start": [98, 30, 320],
+      "end": [185, 30, 232],
+      "height": 30,
+      "thickness": 1,
+      "name": "ocampo2",
+      "alpha": 0.95
+    }
+  ],
+
   "towers": [
     { "position": [-216, 0, -216], "angle": "Math.PI / 4" },
     { "position": [-462, 0, -102], "angle": "Math.PI / 9.5" },
@@ -179,5 +209,27 @@
     { "x": 483, "z": -318, "x2": 464, "z2": -297, "height": 6 },
     { "x": 488, "z": -298, "height": 10 },
     { "x": 462, "z": -284, "height": 5 }
+  ],
+  "fences": [
+  [
+    { "x": -67, "z": -406 },
+    { "x": -100, "z": -353 },
+    { "x": -194, "z": -236 }
+  ],
+  [
+    { "x": -238, "z": -195 },
+    { "x": -290, "z": -174 },
+    { "x": -429, "z": -114 }
+  ],
+  [
+    { "x": 56, "z": 434 },
+    { "x": 100, "z": 353 },
+    { "x": 194, "z": 236 }
+  ],
+  [
+    { "x": 239, "z": 196 },
+    { "x": 290, "z": 174 },
+    { "x": 433, "z": 127 }
   ]
+]
 }

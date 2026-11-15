@@ -173,7 +173,7 @@
     border-radius: 10px;
     background:
       linear-gradient(rgba(10, 22, 15, 0.45), rgba(10, 22, 15, 0.45)),
-      url('/images/map.png') center center / cover no-repeat;
+      url('/images/map1.png') center center / cover no-repeat;
     background-blend-mode: multiply;
     opacity: 0.9;
   }

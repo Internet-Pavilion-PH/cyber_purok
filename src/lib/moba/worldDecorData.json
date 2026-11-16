@@ -85,7 +85,7 @@
     },
     {
      "texture": "/images/texture/Luyo16a.png",
-      "start": [-302, 1, -147],
+      "start": [-294, 1, -124],
       "end": [-277, 30, -150],
       "height": 30,
       "name": "Luyo16a",

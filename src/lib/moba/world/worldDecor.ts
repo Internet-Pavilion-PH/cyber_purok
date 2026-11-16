@@ -19,6 +19,7 @@ type BoardUpSpec = {
   end: [number, number, number];
   height: number;
   thickness: number;
+  kind?: "box" | "plane";
   name: string;
   alpha: number;
 };
@@ -121,17 +122,18 @@ export const buildWorldDecor = (scene: BABYLON.Scene, arena: ArenaBuilder | null
     fence.rootNode.position = new BABYLON.Vector3(0, 0, 0);
   }
 
-  for (const { texture, start, end, height, thickness, name, alpha } of BOARD_UPS) {
-  new BoardUp(scene, {
-    texture,
-    start: new BABYLON.Vector3(...start),
-    end: new BABYLON.Vector3(...end),
-    height,
-    thickness,
-    name,
-    alpha,
-  });
-}
+  for (const { texture, start, end, height, thickness, kind, name, alpha } of BOARD_UPS) {
+    new BoardUp(scene, {
+      texture,
+      start: new BABYLON.Vector3(...start),
+      end: new BABYLON.Vector3(...end),
+      height,
+      thickness,
+      kind,
+      name,
+      alpha,
+    });
+  }
   // Blue base pushes a creep lane toward the red base after a delay, with each creep staggering by 10s.
   window.setTimeout(() => {
     Creep.spawnGroup(scene, BLUE_BASE, RED_BASE, 3, 5, 10000);

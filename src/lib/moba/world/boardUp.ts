@@ -8,6 +8,7 @@ export type BoardUpOptions = {
   end?: BoardUpLocation;
   height?: number;
   thickness?: number;
+  kind?: "box" | "plane";
   name?: string;
   parent?: BABYLON.Node | null;
   alpha?: number;
@@ -31,7 +32,8 @@ export class BoardUp {
       start,
       end,
       height = 2,
-      thickness = 0.2,
+      thickness = 0,
+      kind,
       name = "boardUp",
       parent = null,
       alpha = 1,
@@ -43,6 +45,7 @@ export class BoardUp {
 
     const boxWidth = BABYLON.Vector3.Distance(startVec, endVec) || 1;
     const mid = startVec.add(endVec).scale(0.5);
+    const meshKind = kind ?? (thickness > 0 ? "box" : "plane");
 
     this.scene = scene;
     this.rootNode = new BABYLON.TransformNode(`${name}_root`, scene);
@@ -65,23 +68,37 @@ export class BoardUp {
       ? BABYLON.Color3.FromHexString(emissiveColor)
       : (emissiveColor ?? new BABYLON.Color3(1, 1, 1));
 
-    this.mesh = BABYLON.MeshBuilder.CreateBox(
-      `${name}_board`,
-      { width: boxWidth, height, depth: thickness },
-      scene,
-    );
+    if (meshKind === "plane") {
+      this.mesh = BABYLON.MeshBuilder.CreatePlane(
+        `${name}_board`,
+        { width: boxWidth, height },
+        scene,
+      );
+      this.mesh.setVerticesData(
+        BABYLON.VertexBuffer.UVKind,
+        new Float32Array([0, 1, 1, 1, 1, 0, 0, 0]),
+        false,
+        2,
+      );
+    } else {
+      this.mesh = BABYLON.MeshBuilder.CreateBox(
+        `${name}_board`,
+        { width: boxWidth, height, depth: thickness },
+        scene,
+      );
+      this.applyFaceUVs();
+    }
 
     this.mesh.parent = this.rootNode;
     this.mesh.isPickable = false;
     this.mesh.billboardMode = 0;
+    this.mesh.sideOrientation = BABYLON.Mesh.DOUBLESIDE;
     this.mesh.material = this.material;
 
     const dx = endVec.x - startVec.x;
     const dz = endVec.z - startVec.z;
     const angle = Math.atan2(dz, dx);
     this.rootNode.rotation.y = -angle;
-
-    this.applyFaceUVs();
   }
 
   private static toVector3(location: BoardUpLocation): BABYLON.Vector3 {

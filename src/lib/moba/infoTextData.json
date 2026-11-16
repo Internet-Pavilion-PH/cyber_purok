@@ -1,7 +1,7 @@
 [
   {
     "id": "fountain-billboard",
-    "position": { "x": -342, "y": 30, "z": -385 },
+    "position": { "x": 266, "y": 30, "z": 292 },
     "title": "Fountain",
     "description": "work by Salawaki",
     "width": 48,
@@ -10,93 +10,84 @@
     "maxDistance": 50
   },
   {
-    "id": "cottage-billboard",
-    "position": { "x": -421, "y": 50, "z": -406 },
-    "title": "Cottage",
-    "description": "work by v!ne",
+    "id": "joel-billboard",
+    "position": { "x": -171, "y": 30, "z": 398 },
+    "title": "Tower",
+    "description": "work by Joel",
     "width": 48,
     "height": 24,
     "offsetY": 0,
     "maxDistance": 80
   },
   {
-    "id": "Franco-billboard",
-    "position": { "x": -309, "y": 40, "z": -31 },
-    "title": "Yellow Basket Store",
-    "description": "work by Franco Mamaril",
+    "id": "placeholder-billboard",
+    "position": { "x": -450, "y": 30, "z": 338 },
+    "title": "[placeholder]",
+    "description": "work by roan",
+    "width": 48,
+    "height": 24,
+    "offsetY": 0,
+    "maxDistance": 50
+  },
+
+  {
+    "id": "bukid-billboard",
+    "position": { "x": 260, "y": 30, "z": 374 },
+    "title": "Bukid",
+    "description": "work by [__]",
+    "width": 48,
+    "height": 24,
+    "offsetY": 0,
+    "maxDistance": 80
+  },
+  {
+    "id": "cottage-billboard",
+    "position": { "x": 253, "y": 30, "z": 444 },
+    "title": "Cottage",
+    "description": "work by [__]",
+    "width": 48,
+    "height": 24,
+    "offsetY": 10,
+    "maxDistance": 100
+  },
+  {
+    "id": "salawaki-isda-billboard",
+    "position": { "x": 172, "y": 30, "z": 371 },
+    "title": "Salawaki Isda",
+    "description": "work by Salawaki",
+    "width": 48,
+    "height": 24,
+    "offsetY": 20,
+    "maxDistance": 50
+  },
+  {
+    "id": "salawaki-billboard",
+    "position": { "x": 325, "y": 30, "z": 203 },
+    "title": "Salawaki",
+    "description": "work by Salawaki",
     "width": 48,
     "height": 24,
     "offsetY": 0,
     "maxDistance": 50
   },
   {
-    "id": "roger1-billboard",
-    "position": { "x": -104, "y": 10, "z": -76 },
+    "id": "YellowBasket-billboard",
+    "position": { "x": 398, "y": 30, "z": 292 },
+    "title": "Yellow Basket Store",
+    "description": "work by Franco Mamaril",
+    "width": 48,
+    "height": 24,
+    "offsetY": 10,
+    "maxDistance": 50
+  },
+  {
+    "id": "Roger-billboard",
+    "position": { "x": 108, "y": 30, "z": 50 },
     "title": "Rogermond",
     "description": "work by Rogermond",
     "width": 48,
     "height": 24,
-    "offsetY": 50,
-    "maxDistance": 20
-  },
-  {
-    "id": "JoelTower-billboard",
-    "position": { "x": 108, "y": 30, "z": 50 },
-    "title": "Joel Tower",
-    "description": "work by Kirk Tabanera",
-    "width": 48,
-    "height": 24,
-    "offsetY": 20,
+    "offsetY": 30,
     "maxDistance": 50
-  },
-  {
-    "id": "JoelTower2-billboard",
-    "position": { "x": 214, "y": 30, "z": 157 },
-    "title": "Joel Tower",
-    "description": "work by Kirk Tabanera",
-    "width": 48,
-    "height": 24,
-    "offsetY": 20,
-    "maxDistance": 50
-  },
-  {
-    "id": "aninipot-billboard",
-    "position": { "x": 422, "y": 10, "z": 301 },
-    "title": "Aninipot Rhaz Build",
-    "description": "model by Roan Alvarez and Rhaz Oriente",
-    "width": 48,
-    "height": 24,
-    "offsetY": 10,
-    "maxDistance": 50
-  },
-  {
-    "id": "roan1-billboard",
-    "position": { "x": 11, "y": 15, "z": 249 },
-    "title": "freeform circuit model",
-    "description": "by Roan Alvarez",
-    "width": 48,
-    "height": 24,
-    "offsetY": 10,
-    "maxDistance": 20
-  },
-  {
-    "id": "roan2-billboard",
-    "position": { "x": 288, "y": 10, "z": -15 },
-    "title": "freeform circuit model",
-    "description": "by Roan Alvarez",
-    "width": 48,
-    "height": 24,
-    "offsetY": 40,
-    "maxDistance": 20
-  },
-  {
-    "id": "salawaki1-billboard",
-    "position": { "x": -129, "y": 10, "z": 60 },
-    "title": "Salawaki",
-    "description": "work by Salawaki",
-    "width": 48,
-    "height": 24,
-    "offsetY": 10,
-    "maxDistance": 20
   }
 ]

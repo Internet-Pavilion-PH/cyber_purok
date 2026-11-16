@@ -150,6 +150,12 @@
     "fileName": "guava.glb"
   },
   {
+    "kind": "mesh",
+    "name": "signofthetimes3-opt",
+    "rootUrl": "/world/",
+    "fileName": "signofthetimes3-opt.glb"
+  },
+  {
     "kind": "binary",
     "name": "fieldAmbient",
     "url": "https://kolown.net/storage/library/audio/field/bbc_fast-flowi_nhu0510424.mp3"

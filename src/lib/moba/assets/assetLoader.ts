@@ -27,6 +27,7 @@ const legacyAssetPathMap: Record<string, string> = {
   "standee.glb": "/world/",
   "aninipot-crate-glow.glb": "/world/",
   "guava.glb": "/world/",
+  "signofthetimes3-opt.glb": "/world/",
 };
 
 export type AssetLoaderTask =

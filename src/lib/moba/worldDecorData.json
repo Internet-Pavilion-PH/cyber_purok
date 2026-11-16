@@ -69,13 +69,40 @@
       "name": "shara2",
       "alpha": 0.95
     },
-      {
+    {
      "texture": "/images/texture/ocampo.jpg",
-      "start": [98, 30, 320],
-      "end": [185, 30, 232],
+      "start": [10, 30, 334],
+      "end": [43, 30, 325],
       "height": 30,
       "thickness": 1,
-      "name": "ocampo2",
+      "name": "rhaz-placeholder",
+      "alpha": 0.95
+    },
+    {
+     "texture": "/images/texture/crumpledpaper.jpg",
+      "start": [-31, 5, 311],
+      "end": [28, 30, 343],
+      "height": 70,
+      "thickness": 1,
+      "name": "wall2",
+      "alpha": 0.95
+    },
+    {
+     "texture": "/images/texture/exhibition-guide.png",
+      "start": [-28, 1, 311],
+      "end": [-10, 10, 322],
+      "height": 20,
+      "thickness": 1,
+      "name": "tona-placeholder",
+      "alpha": 1
+    },
+    {
+     "texture": "/images/texture/logo-manilalights.png",
+      "start": [199, 30, 76],
+      "end": [240, 30, 137],
+      "height": 30,
+      "thickness": 10,
+      "name": "logo",
       "alpha": 0.95
     }
   ],

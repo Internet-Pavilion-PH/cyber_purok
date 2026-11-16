@@ -132,8 +132,8 @@
     },
     {
      "texture": "/images/texture/Luyo9.png",
-      "start": [-308, 1, -137],
-      "end": [-281, 40, -145],
+      "start": [-90, 1, 339],
+      "end": [-52, 40, 343],
       "height": 40,
       "thickness": 1,
       "name": "Luyo9",

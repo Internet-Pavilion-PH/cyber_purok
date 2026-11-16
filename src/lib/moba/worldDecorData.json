@@ -75,6 +75,69 @@
       "thickness": 1,
       "name": "ocampo2",
       "alpha": 0.95
+    },
+     {
+     "texture": "/images/texture/Luyo6.png",
+      "start": [-260, 1, 31],
+      "end": [-235, 30, 20],
+      "height": 30,
+      "thickness": 1,      
+      "name": "Luyo6",
+      "alpha": 0.95
+    },
+    {
+     "texture": "/images/texture/Luyo3.png",
+      "start": [102, 1, -341],
+      "end": [130, 30, -348],
+      "height": 30,
+      "thickness": 1,
+      "name": "Luyo3",
+      "alpha": 0.96
+    },
+    {
+     "texture": "/images/texture/Luyo15.png",
+      "start": [-388, 1, -96],
+      "end": [-367, 40, -100],
+      "height": 40,
+      "thickness": 1,
+      "name": "Luyo15",
+      "alpha": 0.96
+    },
+    {
+     "texture": "/images/texture/Luyo11.png",
+      "start": [-267, 1, -112],
+      "end": [-244, 40, -123],
+      "height": 40,
+      "thickness": 1,
+      "name": "Luyo11",
+      "alpha": 0.96
+    },
+    {
+     "texture": "/images/texture/Luyo16a.png",
+      "start": [5, 1, -356],
+      "end": [26, 30, -367],
+      "height": 30,
+      "thickness": 1,
+      "name": "Luyo16a",
+      "alpha": 0.96
+    },
+    {
+     "texture": "/images/texture/Luyo16b.png",
+      "start": [-342, 1, -125],
+      "end": [-327, 30, -132],
+      "height": 30,
+      "thickness": 1,
+      "name": "Luyo16b",
+      "alpha": 0.96
+    },
+    {
+     "texture": "/images/texture/Luyo9.png",
+      "start": [-418, 1, -64],
+      "end": [-388, 30, -47],
+      "height": 30,
+      "thickness": 1,
+      "name": "Luyo9",
+      "alpha": 0.96
     }
   ],
 

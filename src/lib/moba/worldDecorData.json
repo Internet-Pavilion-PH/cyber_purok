@@ -78,8 +78,8 @@
     },
      {
      "texture": "/images/texture/Luyo6.png",
-      "start": [-351, 1, -42],
-      "end": [-341, 30, -52],
+      "start": [-260, 1, 31],
+      "end": [-235, 30, 20],
       "height": 30,
       "thickness": 1,      
       "name": "Luyo6",
@@ -87,8 +87,8 @@
     },
     {
      "texture": "/images/texture/Luyo3.png",
-      "start": [-315, 1, -50],
-      "end": [-286, 30, -65],
+      "start": [102, 1, -341],
+      "end": [130, 30, -348],
       "height": 30,
       "thickness": 1,
       "name": "Luyo3",
@@ -114,8 +114,8 @@
     },
     {
      "texture": "/images/texture/Luyo16a.png",
-      "start": [-294, 1, -124],
-      "end": [-277, 30, -150],
+      "start": [5, 1, -356],
+      "end": [26, 30, -367],
       "height": 30,
       "thickness": 1,
       "name": "Luyo16a",

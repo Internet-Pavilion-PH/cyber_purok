@@ -30,8 +30,7 @@ export class BoardUp {
       texture,
       start,
       end,
-      height = 2,
-      thickness = 0.2,
+      height = 0,
       name = "boardUp",
       parent = null,
       alpha = 1,
@@ -52,7 +51,7 @@ export class BoardUp {
     }
 
     this.texture = typeof texture === "string"
-      ? new BABYLON.Texture(texture, scene, true, false, BABYLON.Texture.TRILINEAR_SAMPLINGMODE)
+      ? new BABYLON.Texture(texture, scene, true, true, BABYLON.Texture.TRILINEAR_SAMPLINGMODE)
       : texture;
     this.texture.hasAlpha = true;
 
@@ -65,11 +64,11 @@ export class BoardUp {
       ? BABYLON.Color3.FromHexString(emissiveColor)
       : (emissiveColor ?? new BABYLON.Color3(1, 1, 1));
 
-    this.mesh = BABYLON.MeshBuilder.CreateBox(
+    this.mesh = BABYLON.MeshBuilder.CreatePlane(
       `${name}_board`,
-      { width: boxWidth, height, depth: thickness },
+      { width: boxWidth, height },
       scene,
-    );
+);
 
     this.mesh.parent = this.rootNode;
     this.mesh.isPickable = false;

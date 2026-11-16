@@ -124,23 +124,15 @@
       "alpha": 0.95
     },
     {
-     "texture": "/images/texture/ocampo.jpg",
+     "texture": "/images/texture/rhaz.png",
       "start": [10, 30, 334],
-      "end": [43, 30, 325],
+      "end": [52, 30, 324],
       "height": 30,
       "name": "rhaz-placeholder",
       "alpha": 0.95
     },
     {
-     "texture": "/images/texture/crumpledpaper.jpg",
-      "start": [-31, 5, 311],
-      "end": [28, 30, 343],
-      "height": 70,
-      "name": "wall2",
-      "alpha": 0.95
-    },
-    {
-     "texture": "/images/texture/exhibition-guide.png",
+     "texture": "/images/texture/tona.png",
       "start": [-28, 1, 311],
       "end": [-10, 10, 322],
       "height": 20,

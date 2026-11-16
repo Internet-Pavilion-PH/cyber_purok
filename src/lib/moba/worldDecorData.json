@@ -9,9 +9,11 @@
     "aninipot": { "file": "aninipot-crate-glow.glb", "position": [-63, 1, -208], "scale": 60, "rotationY": "Math.PI / -1" },
     "ghostwhisper2b": { "file": "gw.glb", "position": [91, 10, -354], "scale": 3, "rotationY": "Math.PI / -1" },
 
-    "crate1": { "file": "crate.glb", "position": [-241, 1, -164], "scale": 50, "rotationY": "Math.PI / 1" },
-    "crate2": { "file": "crate.glb", "position": [-286, 1, 34], "scale": 50, "rotationY": "Math.PI / 2" },
-    "crate3": { "file": "crate.glb", "position": [154, 1, -390], "scale": 50, "rotationY": "Math.PI / -3" },
+    "crate1": { "file": "crate.glb", "position": [-322, 1, -97], "scale": 50, "rotationY": "Math.PI / 4" },
+    "crate2": { "file": "crate.glb", "position": [-312, 1, 87], "scale": 50, "rotationY": "Math.PI / 2" },
+    "crate3": { "file": "crate.glb", "position": [-401, 1, 158], "scale": 50, "rotationY": "Math.PI / -1" },
+    "crate4": { "file": "crate.glb", "position": [-86, 1, -309], "scale": 50, "rotationY": "Math.PI / 2" },
+    "crate5": { "file": "crate.glb", "position": [154, 1, -390], "scale": 50, "rotationY": "Math.PI / -3" },
 
     "WP2-conch": { "file": "Conch1.glb", "position": [-450, 100, 338], "scale": 400},
 
@@ -52,6 +54,22 @@
   ],
   "boardUps": [
     {
+     "texture": "/images/texture/gab.png",
+      "start": [-383, 1, 141],
+      "end": [-342, 30, 101],
+      "height": 40,
+      "name": "gab-placeholder",
+      "alpha": 0.95
+    },
+    {
+     "texture": "/images/texture/franco.png",
+      "start": [-213, 20, -31],
+      "end": [-188, 40, -71],
+      "height": 30,
+      "name": "franco-placeholder",
+      "alpha": 0.95
+    },
+    {
      "texture": "/images/texture/Luyo6.png",
       "start": [-351, 1, -42],
       "end": [-341, 30, -52],
@@ -77,8 +95,8 @@
     },
     {
      "texture": "/images/texture/Luyo11.png",
-      "start": [-267, 1, -112],
-      "end": [-244, 40, -123],
+      "start": [-248, 1, -155],
+      "end": [-230, 40, -144],
       "height": 40,
       "name": "Luyo11",
       "alpha": 0.96
@@ -93,9 +111,9 @@
     },
     {
      "texture": "/images/texture/Luyo16b.png",
-      "start": [-342, 1, -125],
-      "end": [-327, 30, -132],
-      "height": 30,
+      "start": [-331, 1, -135],
+      "end": [-311, 20, -135],
+      "height": 20,
       "name": "Luyo16b",
       "alpha": 0.96
     },

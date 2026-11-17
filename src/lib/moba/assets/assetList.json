@@ -157,9 +157,9 @@
   },
   {
     "kind": "mesh",
-    "name": "tv",
+    "name": "tv-vertical",
     "rootUrl": "/world/",
-    "fileName": "tv.glb"
+    "fileName": "tv-vertical.glb"
   },
   {
     "kind": "mesh",

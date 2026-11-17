@@ -24,6 +24,7 @@
   } from "$lib/moba/input/keyboard";
   import Ui_Moba from "$lib/moba/Ui_Moba.svelte";
   import GameIntroScene from "$lib/components/GameIntroScene.svelte";
+  import { kolownbot } from "$lib/moba/utility/kolownbot";
 
   type HeroPosition = { x: number; z: number };
   type SaveData = { playerId: string; playerName: string; guavaCount: number };
@@ -270,6 +271,7 @@
     const entered = window.prompt("Choose your hero name:", defaultName);
     const name = applyLocalPlayerName(entered?.trim() || defaultName);
     writeStoredName(name);
+    void kolownbot(name).catch(() => undefined);
     return name;
   };
 

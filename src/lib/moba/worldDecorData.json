@@ -1,6 +1,7 @@
 {
   "worldModels": {
     "fountain": { "file": "Fountain.glb", "position": [-342, 1, -385], "scale": 3, "collidable": true },
+    "cart": { "file": "YB-Franco-LBD.glb", "position": [-191, 1, -355], "scale": 10, "rotationY": "Math.PI / 2" },
     "statue1": { "file": "roger.glb", "position": [-106, 1, -73], "scale": 4, "rotationY": "Math.PI / 2" },
     "statue1b": { "file": "roger.glb", "position": [-50, 1, -120], "scale": 4, "rotationY": "Math.PI / 5" },
     "statue2": { "file": "JoelTower.glb", "position": [138, 1, 65], "scale": 80, "rotationY": "Math.PI / -2" },

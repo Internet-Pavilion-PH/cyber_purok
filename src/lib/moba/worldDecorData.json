@@ -37,8 +37,7 @@
     "salawaki2": { "file": "salawaki.glb", "position": [322, 10, 270], "scale": 0.5, "rotationY": "Math.PI / -2.5" },
 
     "signofthetimes": { "file": "signofthetimes3-opt.glb", "position": [350, 1, 26], "scale": 170, "rotationY": "Math.PI / -3" },
-    "shara": { "file": "tv.glb", "position": [292, 40, 119], "scale": 40 }
-
+    "sharaTV": { "file": "tv-vertical.glb", "position": [275, 1, 67], "scale": 40, "rotationY": "Math.PI / -1.15"}
   },
   "trees": [
     { "x": -433, "z": -291, "scale": 7 },
@@ -135,17 +134,17 @@
     },
     {
      "texture": "/images/texture/shara_vid-top.png",
-      "start": [259, 75, 137],
-      "end": [276, 100, 129],
-      "height": 70,
+      "start": [275, 50, 65],
+      "end": [295, 45, 57],
+      "height": 30,
       "name": "shara1",
       "alpha": 0.95
     },
     {
      "texture": "/images/texture/shara_vid-bottom.png",
-      "start": [259, 1, 137],
-      "end": [276, 1, 129],
-      "height": 70,
+      "start": [276, 15, 66],
+      "end": [295, 5, 57],
+      "height": 50,
       "name": "shara2",
       "alpha": 0.95
     },

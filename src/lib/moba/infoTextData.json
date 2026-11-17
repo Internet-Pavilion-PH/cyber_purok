@@ -20,17 +20,6 @@
     "maxDistance": 80
   },
   {
-    "id": "placeholder-billboard",
-    "position": { "x": -450, "y": 30, "z": 338 },
-    "title": "[placeholder]",
-    "description": "work by roan",
-    "width": 48,
-    "height": 24,
-    "offsetY": 0,
-    "maxDistance": 50
-  },
-
-  {
     "id": "bukid-billboard",
     "position": { "x": 260, "y": 30, "z": 374 },
     "title": "Bukid",

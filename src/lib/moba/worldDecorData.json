@@ -36,7 +36,9 @@
     "salawaki1": { "file": "salawaki.glb", "position": [359, 10, 232], "scale": 0.75, "rotationY": "Math.PI / -2.5" },
     "salawaki2": { "file": "salawaki.glb", "position": [322, 10, 270], "scale": 0.5, "rotationY": "Math.PI / -2.5" },
 
-    "signofthetimes": { "file": "signofthetimes3-opt.glb", "position": [350, 1, 26], "scale": 170, "rotationY": "Math.PI / -3" }
+    "signofthetimes": { "file": "signofthetimes3-opt.glb", "position": [350, 1, 26], "scale": 170, "rotationY": "Math.PI / -3" },
+    "shara": { "file": "tv.glb", "position": [292, 40, 119], "scale": 40 }
+
   },
   "trees": [
     { "x": -433, "z": -291, "scale": 7 },

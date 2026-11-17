@@ -2,28 +2,26 @@
   {
     "text": "welcome to cyberpurok",
     "at": 2,
-    "duration": 10
+    "duration": 2
   },
   {
     "text": "your goal is to collect golden guavas",
     "at": 13,
-    "duration": 5
+    "duration": 1
   },
   {
     "text": "its location is indicated as a yellow ring pulsating on the minimap",
     "at": 20,
-    "duration": 5
+    "duration": 1
   },
   {
     "text": "collect them all while exploring the purok",
     "at": 27,
-    "duration": 5
+    "duration": 1
   },
   {
     "text": "have fun!",
     "at": 32,
-    "duration": 6
+    "duration": 1
   }
-
-
 ]

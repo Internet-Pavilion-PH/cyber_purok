@@ -156,6 +156,24 @@
     "fileName": "signofthetimes3-opt.glb"
   },
   {
+    "kind": "mesh",
+    "name": "tv",
+    "rootUrl": "/world/",
+    "fileName": "tv.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "tv-gab",
+    "rootUrl": "/world/",
+    "fileName": "tv-gab-opt.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "tv-franco",
+    "rootUrl": "/world/",
+    "fileName": "tv-franco-opt.glb"
+  },
+  {
     "kind": "binary",
     "name": "fieldAmbient",
     "url": "https://kolown.net/storage/library/audio/field/bbc_fast-flowi_nhu0510424.mp3"

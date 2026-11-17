@@ -36,11 +36,10 @@
     "salawaki1": { "file": "salawaki.glb", "position": [359, 10, 232], "scale": 0.75, "rotationY": "Math.PI / -2.5" },
     "salawaki2": { "file": "salawaki.glb", "position": [322, 10, 270], "scale": 0.5, "rotationY": "Math.PI / -2.5" },
 
-    "signofthetimes": { "file": "signofthetimes-glow-opt.glb", "position": [350, 1, 26], "scale": 170, "rotationY": "Math.PI / -3" },
+    "signofthetimes-glow": { "file": "signofthetimes-glow-opt.glb", "position": [350, 1, 26], "scale": 170, "rotationY": "Math.PI / -3" },
     "sharaTV": { "file": "tv-vertical.glb", "position": [275, 1, 67], "scale": 40, "rotationY": "Math.PI / -1.15"},
 
     "floorplan": { "file": "manilalights2.glb", "position": [-37, 1, 226], "scale": 22, "rotationY": "Math.PI / 1"}
-
   },
   "trees": [
     { "x": -433, "z": -291, "scale": 7 },
@@ -153,7 +152,7 @@
     },
     {
      "texture": "/images/texture/rhaz.png",
-      "start": [-34, 30, 291],
+      "start": [-34, 20, 285],
       "end": [-8, 30, 314],
       "height": 30,
       "name": "rhaz-placeholder",
@@ -169,16 +168,16 @@
     },
     {
      "texture": "/images/texture/shara_vid-top.png",
-      "start": [42, 30, 309],
-      "end": [50, 45, 309],
-      "height": 30,
+      "start": [39, 22, 312],
+      "end": [51, 22, 312],
+      "height": 22,
       "name": "sharaTV-top",
       "alpha": 0.95
     },
     {
      "texture": "/images/texture/shara_vid-bottom.png",
-      "start": [42, 10, 309],
-      "end": [50, 15, 309],
+      "start": [19, 22, 312],
+      "end": [31, 22, 312],
       "height": 20,
       "name": "sharaTV-bottom",
       "alpha": 0.95

@@ -157,6 +157,12 @@
   },
   {
     "kind": "mesh",
+    "name": "signofthetimes-opt",
+    "rootUrl": "/world/",
+    "fileName": "signofthetimes-opt.glb"
+  },
+  {
+    "kind": "mesh",
     "name": "tv-vertical",
     "rootUrl": "/world/",
     "fileName": "tv-vertical.glb"

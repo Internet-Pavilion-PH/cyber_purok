@@ -151,9 +151,9 @@
   },
   {
     "kind": "mesh",
-    "name": "signofthetimes3-light-opt",
+    "name": "signofthetimes-glow-opt",
     "rootUrl": "/world/",
-    "fileName": "signofthetimes3-light-opt.glb"
+    "fileName": "signofthetimes-glow-opt.glb"
   },
   {
     "kind": "mesh",
@@ -172,6 +172,12 @@
     "name": "tv-franco",
     "rootUrl": "/world/",
     "fileName": "tv-franco-opt.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "manilalights",
+    "rootUrl": "/world/",
+    "fileName": "manilalights.glb"
   },
   {
     "kind": "binary",

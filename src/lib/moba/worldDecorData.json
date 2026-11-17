@@ -36,8 +36,11 @@
     "salawaki1": { "file": "salawaki.glb", "position": [359, 10, 232], "scale": 0.75, "rotationY": "Math.PI / -2.5" },
     "salawaki2": { "file": "salawaki.glb", "position": [322, 10, 270], "scale": 0.5, "rotationY": "Math.PI / -2.5" },
 
-    "signofthetimes": { "file": "signofthetimes3-light-opt.glb", "position": [350, 1, 26], "scale": 170, "rotationY": "Math.PI / -3" },
-    "sharaTV": { "file": "tv-vertical.glb", "position": [275, 1, 67], "scale": 40, "rotationY": "Math.PI / -1.15"}
+    "signofthetimes": { "file": "signofthetimes-glow-opt.glb", "position": [350, 1, 26], "scale": 170, "rotationY": "Math.PI / -3" },
+    "sharaTV": { "file": "tv-vertical.glb", "position": [275, 1, 67], "scale": 40, "rotationY": "Math.PI / -1.15"},
+
+    "floorplan": { "file": "manilalights2.glb", "position": [-37, 1, 226], "scale": 22, "rotationY": "Math.PI / 1"}
+
   },
   "trees": [
     { "x": -433, "z": -291, "scale": 7 },
@@ -150,24 +153,40 @@
     },
     {
      "texture": "/images/texture/rhaz.png",
-      "start": [10, 30, 334],
-      "end": [52, 30, 324],
+      "start": [-34, 30, 291],
+      "end": [-8, 30, 314],
       "height": 30,
       "name": "rhaz-placeholder",
       "alpha": 0.95
     },
     {
      "texture": "/images/texture/tona.png",
-      "start": [-28, 1, 311],
-      "end": [-10, 10, 322],
-      "height": 20,
+      "start": [-34, 5, 234],
+      "end": [-34, 15, 256],
+      "height": 15,
       "name": "tona-placeholder",
       "alpha": 0.95
     },
     {
+     "texture": "/images/texture/shara_vid-top.png",
+      "start": [42, 30, 309],
+      "end": [50, 45, 309],
+      "height": 30,
+      "name": "sharaTV-top",
+      "alpha": 0.95
+    },
+    {
+     "texture": "/images/texture/shara_vid-bottom.png",
+      "start": [42, 10, 309],
+      "end": [50, 15, 309],
+      "height": 20,
+      "name": "sharaTV-bottom",
+      "alpha": 0.95
+    },
+    {
      "texture": "/images/texture/logo-manilalights.png",
-      "start": [199, 30, 76],
-      "end": [240, 30, 137],
+      "start": [128, 30, 178],
+      "end": [172, 30, 227],
       "height": 30,
       "name": "logo",
       "alpha": 0.95

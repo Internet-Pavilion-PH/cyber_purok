@@ -27,7 +27,7 @@ const legacyAssetPathMap: Record<string, string> = {
   "standee.glb": "/world/",
   "aninipot-crate-glow.glb": "/world/",
   "guava.glb": "/world/",
-  "signofthetimes3-opt.glb": "/world/",
+  "signofthetimes3-light-opt.glb": "/world/",
   "tv-vertical.glb": "/world/",
   "tv-gab-opt.glb": "/world/",
   "tv-franco-opt.glb": "/world/",

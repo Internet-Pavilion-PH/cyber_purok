@@ -151,9 +151,9 @@
   },
   {
     "kind": "mesh",
-    "name": "signofthetimes3-opt",
+    "name": "signofthetimes3-light-opt",
     "rootUrl": "/world/",
-    "fileName": "signofthetimes3-opt.glb"
+    "fileName": "signofthetimes3-light-opt.glb"
   },
   {
     "kind": "mesh",

@@ -41,7 +41,7 @@
 
     "floorplan": { "file": "manilalights-opt.glb", "position": [-37, 1, 226], "scale": 22, "rotationY": "Math.PI / 1"}
   },
-
+  
   "trees": [
     { "x": -433, "z": -291, "scale": 7 },
     { "x": -132, "z": -365, "scale": 7 },
@@ -136,7 +136,15 @@
       "alpha": 0.96
     },
     {
-     "texture": "/images/texture/shara_merged.png",
+     "texture": "/images/texture/shara_vid-top.png",
+      "start": [275, 50, 65],
+      "end": [295, 45, 57],
+      "height": 30,
+      "name": "shara1",
+      "alpha": 0.95
+    },
+    {
+     "texture": "/images/texture/shara_vid-bottom.png",
       "start": [276, 15, 66],
       "end": [295, 5, 57],
       "height": 50,
@@ -160,19 +168,11 @@
       "alpha": 0.95
     },
     {
-     "texture": "/images/texture/shara_vid-top.png",
-      "start": [39, 22, 312],
-      "end": [51, 22, 312],
-      "height": 22,
-      "name": "sharaTV-top",
-      "alpha": 0.95
-    },
-    {
-     "texture": "/images/texture/shara_vid-bottom.png",
-      "start": [19, 22, 312],
-      "end": [31, 22, 312],
-      "height": 20,
-      "name": "sharaTV-bottom",
+     "texture": "/images/texture/shara_merged.png",
+      "start": [19, 25, 312],
+      "end": [31, 35, 312],
+      "height": 42,
+      "name": "sharaTV",
       "alpha": 0.95
     },
     {

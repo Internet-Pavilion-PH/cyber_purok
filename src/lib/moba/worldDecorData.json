@@ -2,22 +2,22 @@
   "worldModels": {
     "fountain": { "file": "Fountain.glb", "position": [-342, 1, -385], "scale": 3, "collidable": true },
     
-    "WP1-standee": { "file": "standee.glb", "position": [-196, 1, -252], "scale": 20, "rotationY": "Math.PI / -1.5" },
+    "WP1-standee": { "file": "standee.glb", "position": [-391, 1, -305], "scale": 25, "rotationY": "Math.PI / 1" },
     
+    "crate1": { "file": "crate.glb", "position": [-90, 1, -289], "scale": 50, "rotationY": "Math.PI / 4" },
     "ghostwhisper1": { "file": "kolown-build.glb", "position": [-6, 10, -377], "scale": 300, "rotationY": "Math.PI / -1.25", "soundTitle": "tinidorKutsara" },
     "ghostwhisper2a": { "file": "gw.glb", "position": [-119, 10, -249], "scale": 3, "rotationY": "Math.PI / 2", "soundTitle": "pikahiBirahiChachahi" },
     "aninipot": { "file": "aninipot-crate-glow.glb", "position": [-63, 1, -208], "scale": 60, "rotationY": "Math.PI / -1" },
     "ghostwhisper2b": { "file": "gw.glb", "position": [91, 10, -354], "scale": 3, "rotationY": "Math.PI / -1" },
 
     "TVfranco": { "file": "tv-franco-opt.glb", "position": [-201, 1, -68], "scale": 71, "rotationY": "Math.PI / -1" },
-    "crate1": { "file": "crate.glb", "position": [-411, 1, -3], "scale": 50, "rotationY": "Math.PI / 4" },
     
     "TVgab": { "file": "tv-gab-opt.glb", "position": [-413, 1, 155], "scale": 81, "rotationY": "Math.PI / -1.25" },
     "crate2": { "file": "crate.glb", "position": [-310, 1, 75], "scale": 50, "rotationY": "Math.PI / -1" },
     
     "crateLuyo1": { "file": "crate.glb", "position": [-263, 1, -91], "scale": 50, "rotationY": "Math.PI / -1.5" },
     "crateLuyo2": { "file": "crate.glb", "position": [-328, 1, -94], "scale": 50, "rotationY": "Math.PI / 2" },
-    "crateLuyo3": { "file": "crate.glb", "position": [-396, 1, -309], "scale": 50, "rotationY": "Math.PI / 2" },
+    "crateLuyo3": { "file": "crate.glb", "position": [-410, 1, -11], "scale": 50, "rotationY": "Math.PI / -.5" },
     
     "crate4": { "file": "crate.glb", "position": [154, 1, -390], "scale": 50, "rotationY": "Math.PI / -3" },
 
@@ -28,17 +28,17 @@
     
     "WP3-kirk": { "file": "JoelTower.glb", "position": [-171, 1, 398], "scale": 90, "rotationY": "Math.PI / -2" },
 
-    "bukid": { "file": "bukid.glb", "position": [260, 1, 374], "scale": 800, "rotationY":"Math.PI / 4", "soundTitle": "fieldAmbient", "collidable": true },
+    "bukid": { "file": "bukid.glb", "position": [260, 1, 374], "scale": 800, "rotationY":"Math.PI / 4"},
     "cottage": { "file": "cottage.glb", "position": [260, 1, 374], "scale": 1 },
     "salawakiIsda": { "file": "salawaki_isda-optimized.glb", "position": [172, 0, 371], "scale": 0.4, "rotationY": "Math.PI / -2.5" },
-    "fountain2": { "file": "Fountain.glb", "position": [266, 1, 292], "scale": 3, "collidable": true},
+    "fountain2": { "file": "Fountain.glb", "position": [266, 1, 292], "scale": 3, "soundTitle": "fieldAmbient", "collidable": true },
     "basketStore": { "file": "Yellowbasketstore.glb", "position": [410, 1, 304], "scale": 3 },
     "salawaki1": { "file": "salawaki.glb", "position": [359, 10, 232], "scale": 0.75, "rotationY": "Math.PI / -2.5" },
     "salawaki2": { "file": "salawaki.glb", "position": [322, 10, 270], "scale": 0.5, "rotationY": "Math.PI / -2.5" },
 
-    "signofthetimes-glow": { "file": "signofthetimes-glow-opt.glb", "position": [350, 1, 26], "scale": 170, "rotationY": "Math.PI / -3" },
-    "sharaTV": { "file": "tv-vertical.glb", "position": [275, 1, 67], "scale": 40, "rotationY": "Math.PI / -1.15"},
+    "signofthetimes-glow": { "file": "signofthetimes-glow-opt.glb", "position": [230, 1, 62], "scale": 170, "rotationY": "Math.PI / -2.5" },
 
+    "signofthetimes-glow2": { "file": "signofthetimes-glow-opt.glb", "position": [84, 1, 205], "scale": 30, "rotationY": "Math.PI / -.5" },
     "floorplan": { "file": "manilalights-opt.glb", "position": [-37, 1, 226], "scale": 22, "rotationY": "Math.PI / 1"}
   },
   
@@ -136,25 +136,9 @@
       "alpha": 0.96
     },
     {
-     "texture": "/images/texture/shara_vid-top.png",
-      "start": [275, 50, 65],
-      "end": [295, 45, 57],
-      "height": 30,
-      "name": "shara1",
-      "alpha": 0.95
-    },
-    {
-     "texture": "/images/texture/shara_vid-bottom.png",
-      "start": [276, 15, 66],
-      "end": [295, 5, 57],
-      "height": 50,
-      "name": "shara2",
-      "alpha": 0.95
-    },
-    {
      "texture": "/images/texture/rhaz.png",
-      "start": [-34, 20, 285],
-      "end": [-8, 30, 314],
+      "start": [-34, 25, 285],
+      "end": [-8, 35, 314],
       "height": 30,
       "name": "rhaz-placeholder",
       "alpha": 0.95

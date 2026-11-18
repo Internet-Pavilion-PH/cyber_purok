@@ -10,10 +10,10 @@
     "maxDistance": 50
   },
   {
-    "id": "joel-billboard",
+    "id": "joeltower-billboard",
     "position": { "x": -171, "y": 30, "z": 398 },
-    "title": "Tower",
-    "description": "work by Joel",
+    "title": "Joel Tower",
+    "description": "work by Kirk Tabanera",
     "width": 48,
     "height": 24,
     "offsetY": 0,

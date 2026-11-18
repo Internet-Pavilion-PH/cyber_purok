@@ -6,7 +6,7 @@ export class Stone {
         // One point = a single stone; two points = a row of stones from the first to the second.
         public position: BABYLON.Vector3 | [BABYLON.Vector3, BABYLON.Vector3],
         public height: number,
-        public collidable: boolean = false,
+        public collidable: boolean = true,
     ) {}
 
     public createStone(): BABYLON.TransformNode {

@@ -24,8 +24,8 @@
     onReconnect,
     onChatSend,
   }: {
-    heroPosition?: { x: number; z: number } | null;
-    remoteMarkers?: { id: string; name: string; x: number; z: number; color: string; pulse?: boolean }[];
+    heroPosition?: { x: number; z: number; yaw?: number } | null;
+    remoteMarkers?: { id: string; name: string; x: number; z: number; color: string; yaw?: number; pulse?: boolean }[];
     onlinePlayers?: Array<{ id: string; name: string; guavaCount?: number }>;
     chatMessages?: Array<{ id: string; author: string; text: string }>;
     debugPoint?: DebugPoint;

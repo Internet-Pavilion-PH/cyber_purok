@@ -25,6 +25,7 @@ export interface MapMarker {
   x: number;
   z: number;
   color: string;
+  yaw?: number;
   pulse?: boolean;
 }
 
@@ -53,6 +54,7 @@ export const toMapMarkers = (players: RemotePlayer[], localId: string | null): M
       x: player.x,
       z: player.z,
       color: playerColor(player.id),
+      yaw: player.yaw,
     }));
 
 const lerpAngle = (from: number, to: number, amount: number) => {

@@ -25,7 +25,7 @@
   import Ui_Moba from "$lib/moba/Ui_Moba.svelte";
   import GameIntroScene from "$lib/components/GameIntroScene.svelte";
 
-  type HeroPosition = { x: number; z: number };
+  type HeroPosition = { x: number; z: number; yaw?: number };
   type SaveData = { playerId: string; playerName: string; guavaCount: number };
 
   const LAST_HERO_POSITION_KEY = "cyberpurok:last-hero-position";
@@ -39,7 +39,7 @@
       if (!raw) return null;
       const parsed = JSON.parse(raw) as Partial<HeroPosition>;
       if (typeof parsed.x !== "number" || typeof parsed.z !== "number") return null;
-      return { x: parsed.x, z: parsed.z };
+      return { x: parsed.x, z: parsed.z, yaw: typeof parsed.yaw === "number" ? parsed.yaw : undefined };
     } catch {
       return null;
     }
@@ -321,7 +321,7 @@
   const resetLocalHeroToSpawn = (spawnX = 0, spawnZ = 0) => {
     if (!hero) return;
 
-    const nextPosition = { x: spawnX, z: spawnZ };
+    const nextPosition = { x: spawnX, z: spawnZ, yaw: 0 };
     hero.config.spawnPosition = new BABYLON.Vector3(spawnX, 0, spawnZ);
 
     if (heroMesh) {
@@ -476,8 +476,8 @@ const applyHeroInput = (localHero: Hero) => {
       onGroundClick: ({ x, z }) => (debugPoint = { x, y: z }),
       onBeforeHeroUpdate: applyHeroInput,
       onAfterHeroUpdate: (localHero) => {
-        heroPosition = localHero.position;
-        writeLastHeroPosition(localHero.position);
+        heroPosition = { x: localHero.position.x, z: localHero.position.z, yaw: localHero.mesh?.rotation?.y ?? 0 };
+        writeLastHeroPosition(heroPosition);
         sendHeroMovement(localHero as Hero & { mesh: BABYLON.AbstractMesh });
       },
       onGuavaCollected: () => {
@@ -486,7 +486,7 @@ const applyHeroInput = (localHero: Hero) => {
       },
       onHeroLoaded: (localHero) => {
         heroMesh = localHero.mesh;
-        heroPosition = localHero.position;
+        heroPosition = { x: localHero.position.x, z: localHero.position.z, yaw: localHero.mesh?.rotation?.y ?? 0 };
         if (!isServerConnected) {
           guavaHuntInstance?.setLocalFallbackMode();
         }

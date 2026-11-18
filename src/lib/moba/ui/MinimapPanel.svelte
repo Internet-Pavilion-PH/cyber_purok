@@ -1,5 +1,5 @@
 <script lang="ts">
-  type Marker = { id: string; name: string; x: number; z: number; color: string; pulse?: boolean };
+  type Marker = { id: string; name: string; x: number; z: number; color: string; yaw?: number; pulse?: boolean };
 
   let {
     heroPosition,
@@ -10,7 +10,7 @@
     isMobile = false,
     onMinimapSelect,
   }: {
-    heroPosition?: { x: number; z: number } | null;
+    heroPosition?: { x: number; z: number; yaw?: number } | null;
     remoteMarkers?: Marker[];
     debugPoint?: { x: number; y: number };
     fps?: number;
@@ -80,6 +80,7 @@
         style:--marker-x={`${((marker.x + halfMap) / mapSize) * 100}%`}
         style:--marker-y={`${((-marker.z + halfMap) / mapSize) * 100}%`}
         style:--marker-color={marker.color}
+        style:--marker-angle={`${(((marker.yaw ?? 0) * 180) / Math.PI) + 180}deg`}
         title={marker.name}
       ></div>
     {/each}
@@ -87,6 +88,7 @@
       class="hero-marker"
       style:--marker-x={`${normalized.x}%`}
       style:--marker-y={`${normalized.z}%`}
+      style:--marker-angle={`${(((heroPosition?.yaw ?? 0) * 180) / Math.PI) + 180}deg`}
       aria-label="Hero location"
     ></div>
   </div>
@@ -182,58 +184,81 @@
     position: absolute;
     left: var(--marker-x);
     top: var(--marker-y);
-    width: 10px;
+    width: 7px;
     height: 10px;
-    margin-left: -5px;
+    margin-left: -3.5px;
     margin-top: -5px;
-    border-radius: 50%;
     background: #b9ff6d;
-    border: 2px solid rgba(236, 255, 210, 0.95);
-    box-shadow: 0 0 0 3px rgba(185, 255, 109, 0.18), 0 0 12px rgba(169, 255, 109, 0.7);
-    transform: translateZ(0);
+    border: 1.5px solid rgba(236, 255, 210, 0.95);
+    box-shadow: 0 0 0 2px rgba(185, 255, 109, 0.18), 0 0 10px rgba(169, 255, 109, 0.7);
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    transform: rotate(var(--marker-angle, 0deg));
+    transform-origin: center;
   }
 
-  .remote-marker,
+  .remote-marker {
+    position: absolute;
+    left: var(--marker-x);
+    top: var(--marker-y);
+    width: 7px;
+    height: 10px;
+    margin-left: -3.5px;
+    margin-top: -5px;
+    background: var(--marker-color);
+    border: 1.5px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 8px var(--marker-color);
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    transform: rotate(var(--marker-angle, 0deg));
+    transform-origin: center;
+  }
+
   .guava-marker {
     position: absolute;
     left: var(--marker-x);
     top: var(--marker-y);
-    width: 10px;
-    height: 10px;
-    margin-left: -5px;
-    margin-top: -5px;
+    width: 6px;
+    height: 6px;
+    margin-left: -3px;
+    margin-top: -3px;
+    background: rgba(255, 212, 0, 0.9);
+    border: 1.5px solid #ffd400;
+    box-shadow: 0 0 8px rgba(255, 212, 0, 0.8);
     border-radius: 50%;
-    background: var(--marker-color);
-    border: 2px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 0 0 10px var(--marker-color);
-  }
-
-  .guava-marker {
-    width: 12px;
-    height: 12px;
-    margin-left: -6px;
-    margin-top: -6px;
-    background: transparent;
-    border: 2px solid #ffd400;
-    box-shadow: none;
+    z-index: 2;
   }
 
   .pulse-marker {
-    animation: minimap-pulse 0.9s ease-in-out infinite alternate;
+    position: absolute;
+    left: var(--marker-x);
+    top: var(--marker-y);
+    width: 18px;
+    height: 18px;
+    margin-left: -9px;
+    margin-top: -9px;
+    border: 2px solid rgba(255, 212, 0, 0.85);
+    border-radius: 50%;
+    box-shadow: 0 0 0 rgba(255, 212, 0, 0), 0 0 6px rgba(255, 212, 0, 0.25);
+    background: transparent;
+    animation: minimap-pulse 0.9s ease-out infinite;
+    z-index: 1;
+    pointer-events: none;
   }
 
   @keyframes minimap-pulse {
     0% {
-      opacity: 0.5;
-      transform: scale(0.82);
+      opacity: 0;
+      transform: scale(0.4);
+      border-width: 2px;
     }
-    50% {
-      opacity: 1;
-      transform: scale(1.12);
+    20% {
+      opacity: 0.9;
+      transform: scale(0.7);
+      border-width: 2px;
     }
     100% {
-      opacity: 0.7;
-      transform: scale(0.96);
+      opacity: 0;
+      transform: scale(1.8);
+      border-width: 1px;
     }
   }
 

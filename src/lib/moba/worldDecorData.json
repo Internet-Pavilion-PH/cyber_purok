@@ -39,7 +39,7 @@
     "signofthetimes-glow": { "file": "signofthetimes-glow-opt.glb", "position": [350, 1, 26], "scale": 170, "rotationY": "Math.PI / -3" },
     "sharaTV": { "file": "tv-vertical.glb", "position": [275, 1, 67], "scale": 40, "rotationY": "Math.PI / -1.15"},
 
-    "floorplan": { "file": "manilalights2.glb", "position": [-37, 1, 226], "scale": 22, "rotationY": "Math.PI / 1"}
+    "floorplan": { "file": "manilalights-opt.glb", "position": [-37, 1, 226], "scale": 22, "rotationY": "Math.PI / 1"}
   },
   "trees": [
     { "x": -433, "z": -291, "scale": 7 },

@@ -32,7 +32,7 @@ const legacyAssetPathMap: Record<string, string> = {
   "tv-vertical.glb": "/world/",
   "tv-gab-opt.glb": "/world/",
   "tv-franco-opt.glb": "/world/",
-  "manilalights2.glb": "/world/",
+  "manilalights-opt.glb": "/world/",
 };
 
 export type AssetLoaderTask =

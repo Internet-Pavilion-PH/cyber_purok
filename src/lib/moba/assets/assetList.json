@@ -181,9 +181,9 @@
   },
   {
     "kind": "mesh",
-    "name": "manilalights",
+    "name": "manilalights-opt",
     "rootUrl": "/world/",
-    "fileName": "manilalights.glb"
+    "fileName": "manilalights-opt.glb"
   },
   {
     "kind": "binary",

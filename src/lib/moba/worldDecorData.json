@@ -2,7 +2,7 @@
   "worldModels": {
     "fountain": { "file": "Fountain.glb", "position": [-342, 1, -385], "scale": 3, "collidable": true },
     
-    "WP1-standee": { "file": "standee.glb", "position": [-391, 1, -305], "scale": 25, "rotationY": "Math.PI / 1" },
+    "WP1-standee": { "file": "standee-opt.glb", "position": [-391, 1, -305], "scale": 25, "rotationY": "Math.PI / 1" },
     
     "crate1": { "file": "crate.glb", "position": [-90, 1, -289], "scale": 50, "rotationY": "Math.PI / 4" },
     "ghostwhisper1": { "file": "kolown-build.glb", "position": [-6, 10, -377], "scale": 300, "rotationY": "Math.PI / -1.25", "soundTitle": "tinidorKutsara" },

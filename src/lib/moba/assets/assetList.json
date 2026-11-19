@@ -109,9 +109,9 @@
   },
   {
     "kind": "mesh",
-    "name": "bukid",
+    "name": "bukid-opt",
     "rootUrl": "/world/",
-    "fileName": "bukid.glb"
+    "fileName": "bukid-opt.glb"
   },
   {
     "kind": "mesh",
@@ -133,9 +133,9 @@
   },
   {
     "kind": "mesh",
-    "name": "standee",
+    "name": "standee-opt",
     "rootUrl": "/world/",
-    "fileName": "standee.glb"
+    "fileName": "standee-opt.glb"
   },
   {
     "kind": "mesh",

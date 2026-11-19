@@ -1,6 +1,6 @@
 {
   "worldModels": {
-    "bukid": { "file": "bukid-opt.glb", "position": [-347, 1, 66], "scale": 1200, "rotationY": "Math.PI / -4" },
+    "bukid": { "file": "bukid-opt.glb", "position": [-467, -1, -467], "scale": 1500, "rotationY": "Math.PI / -4" },
     "fountain": { "file": "Fountain.glb", "position": [-342, 1, -385], "scale": 3, "collidable": true },
     "cart": { "file": "YB-Franco-LBD.glb", "position": [-191, 1, -355], "scale": 10,"rotationY": "Math.PI / 2" },
     "statue1": { "file": "roger.glb", "position": [-106, 1, -73], "scale": 4, "rotationY": "Math.PI / 2" },

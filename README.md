@@ -2,7 +2,7 @@ cyber_purok
 
 This is repository for cyberpurok
 
-![cyberpurok](static/images/cyber_purok.png)
+![cyberpurok](static/images/cyber_purok2.png)
 
 Cyber_Purok is a project by Low_Bandwidth_Dreams
 

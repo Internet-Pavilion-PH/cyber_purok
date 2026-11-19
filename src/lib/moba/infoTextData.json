@@ -10,6 +10,16 @@
     "maxDistance": 50
   },
   {
+    "id": "bukid-billboard",
+    "position": { "x": -467, "y": 30, "z": -467 },
+    "title": "Bukid",
+    "description": "bukid by Jep Alaba",
+    "width": 48,
+    "height": 24,
+    "offsetY": 0,
+    "maxDistance": 50
+  },
+  {
     "id": "cottage-billboard",
     "position": { "x": -421, "y": 50, "z": -406 },
     "title": "Cottage",

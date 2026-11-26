@@ -21,6 +21,7 @@ const legacyAssetPathMap: Record<string, string> = {
   "WireStructures.glb": "/world/",
   "SolidStructure.glb": "/world/",
   "bukid.glb": "/world/",
+  "zebra.glb": "/world/",
   "JoelTower.glb": "/world/",
   "kolown-build.glb": "/world/",
   "crate.glb": "/world/",

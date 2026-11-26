@@ -21,23 +21,23 @@
   },
   {
     "id": "bukid-billboard",
-    "position": { "x": 260, "y": 30, "z": 374 },
+    "position": { "x": 342, "y": 30, "z": 395 },
     "title": "Bukid",
     "description": "work by Jep Alaba",
     "width": 48,
     "height": 24,
     "offsetY": 0,
-    "maxDistance": 80
+    "maxDistance": 90
   },
   {
     "id": "cottage-billboard",
-    "position": { "x": 253, "y": 30, "z": 444 },
+    "position": { "x": 257, "y": 30, "z": 382 },
     "title": "Cottage",
     "description": "work by V!NE",
     "width": 48,
     "height": 24,
     "offsetY": 10,
-    "maxDistance": 100
+    "maxDistance": 80
   },
   {
     "id": "salawaki-isda-billboard",
@@ -78,5 +78,15 @@
     "height": 24,
     "offsetY": 30,
     "maxDistance": 50
+  },
+  {
+    "id": "zebra-billboard",
+    "position": { "x": 430, "y": 30, "z": 214 },
+    "title": "Zebra",
+    "description": "work by Franco Mamaril",
+    "width": 48,
+    "height": 24,
+    "offsetY": 0,
+    "maxDistance": 60
   }
 ]

@@ -133,6 +133,12 @@
   },
   {
     "kind": "mesh",
+    "name": "zebra",
+    "rootUrl": "/world/",
+    "fileName": "zebra.glb"
+  },
+  {
+    "kind": "mesh",
     "name": "standee-opt",
     "rootUrl": "/world/",
     "fileName": "standee-opt.glb"

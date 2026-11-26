@@ -33,12 +33,12 @@
     "salawakiIsda": { "file": "salawaki_isda-optimized.glb", "position": [172, 0, 371], "scale": 0.4, "rotationY": "Math.PI / -2.5" },
     "fountain2": { "file": "Fountain.glb", "position": [266, 1, 292], "scale": 3, "soundTitle": "fieldAmbient", "collidable": true },
     "basketStore": { "file": "Yellowbasketstore.glb", "position": [410, 1, 304], "scale": 3 },
+    "zebra": { "file": "zebra.glb", "position": [429, 1, 203], "scale": 20 },
     "salawaki1": { "file": "salawaki.glb", "position": [359, 10, 232], "scale": 0.75, "rotationY": "Math.PI / -2.5" },
     "salawaki2": { "file": "salawaki.glb", "position": [322, 10, 270], "scale": 0.5, "rotationY": "Math.PI / -2.5" },
 
     "signofthetimes-glow": { "file": "signofthetimes-glow-opt.glb", "position": [230, 1, 62], "scale": 170, "rotationY": "Math.PI / -2.5" },
 
-    "signofthetimes-glow2": { "file": "signofthetimes-glow-opt.glb", "position": [84, 1, 205], "scale": 30, "rotationY": "Math.PI / -.5" },
     "floorplan": { "file": "manilalights-opt.glb", "position": [-37, 1, 226], "scale": 22, "rotationY": "Math.PI / 1"}
   },
   

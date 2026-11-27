@@ -20,14 +20,20 @@ const legacyAssetPathMap: Record<string, string> = {
   "salawaki.glb": "/world/",
   "WireStructures.glb": "/world/",
   "SolidStructure.glb": "/world/",
-  "bukid-opt.glb": "/world/",
+  "bukid.glb": "/world/",
+  "zebra.glb": "/world/",
   "JoelTower.glb": "/world/",
   "kolown-build.glb": "/world/",
   "crate.glb": "/world/",
   "standee-opt.glb": "/world/",
   "aninipot-crate-glow.glb": "/world/",
-  "YB-Franco-LBD.glb": "/world/",
   "guava.glb": "/world/",
+  "signofthetimes-glow-opt.glb": "/world/",
+  "signofthetimes-opt.glb": "/world/",
+  "tv-vertical.glb": "/world/",
+  "tv-gab-opt.glb": "/world/",
+  "tv-franco-opt.glb": "/world/",
+  "manilalights-opt.glb": "/world/",
 };
 
 export type AssetLoaderTask =

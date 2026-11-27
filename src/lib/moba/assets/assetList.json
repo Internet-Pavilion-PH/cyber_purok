@@ -109,9 +109,21 @@
   },
   {
     "kind": "mesh",
+    "name": "bukid",
+    "rootUrl": "/world/",
+    "fileName": "bukid.glb"
+  },
+  {
+    "kind": "mesh",
     "name": "bukid-opt",
     "rootUrl": "/world/",
     "fileName": "bukid-opt.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "YB-Franco-LBD",
+    "rootUrl": "/world/",
+    "fileName": "YB-Franco-LBD.glb"
   },
   {
     "kind": "mesh",
@@ -133,6 +145,12 @@
   },
   {
     "kind": "mesh",
+    "name": "zebra",
+    "rootUrl": "/world/",
+    "fileName": "zebra.glb"
+  },
+  {
+    "kind": "mesh",
     "name": "standee-opt",
     "rootUrl": "/world/",
     "fileName": "standee-opt.glb"
@@ -145,15 +163,45 @@
   },
   {
     "kind": "mesh",
-    "name": "cart",
-    "rootUrl": "/world/",
-    "fileName": "YB-Franco-LBD.glb"
-  },
-  {
-    "kind": "mesh",
     "name": "guava",
     "rootUrl": "/world/",
     "fileName": "guava.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "signofthetimes-glow-opt",
+    "rootUrl": "/world/",
+    "fileName": "signofthetimes-glow-opt.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "signofthetimes-opt",
+    "rootUrl": "/world/",
+    "fileName": "signofthetimes-opt.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "tv-vertical",
+    "rootUrl": "/world/",
+    "fileName": "tv-vertical.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "tv-gab",
+    "rootUrl": "/world/",
+    "fileName": "tv-gab-opt.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "tv-franco",
+    "rootUrl": "/world/",
+    "fileName": "tv-franco-opt.glb"
+  },
+  {
+    "kind": "mesh",
+    "name": "manilalights-opt",
+    "rootUrl": "/world/",
+    "fileName": "manilalights-opt.glb"
   },
   {
     "kind": "binary",

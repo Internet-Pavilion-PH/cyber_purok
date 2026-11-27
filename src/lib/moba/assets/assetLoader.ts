@@ -1,40 +1,7 @@
 import * as BABYLON from "@babylonjs/core";
 import worldAssetManifest from "./assetList.json";
 
-const legacyAssetPathMap: Record<string, string> = {
-  "Ate_Tanod.glb": "/creeps/",
-  "JFK_2.glb": "/heroes/",
-  "chef.glb": "/heroes/",
-  "Kuya_Tanod.glb": "/creeps/",
-  "Fountain.glb": "/world/",
-  "Yellowbasketstore.glb": "/world/",
-  "led.glb": "/world/",
-  "Conch1.glb": "/world/",
-  "gw.glb": "/world/",
-  "roger.glb": "/world/",
-  "cottage.glb": "/world/",
-  "pcbhouse.glb": "/world/",
-  "ffc1.glb": "/world/",
-  "ffc2.glb": "/world/",
-  "salawaki_isda-optimized.glb": "/world/",
-  "salawaki.glb": "/world/",
-  "WireStructures.glb": "/world/",
-  "SolidStructure.glb": "/world/",
-  "bukid.glb": "/world/",
-  "zebra.glb": "/world/",
-  "JoelTower.glb": "/world/",
-  "kolown-build.glb": "/world/",
-  "crate.glb": "/world/",
-  "standee-opt.glb": "/world/",
-  "aninipot-crate-glow.glb": "/world/",
-  "guava.glb": "/world/",
-  "signofthetimes-glow-opt.glb": "/world/",
-  "signofthetimes-opt.glb": "/world/",
-  "tv-vertical.glb": "/world/",
-  "tv-gab-opt.glb": "/world/",
-  "tv-franco-opt.glb": "/world/",
-  "manilalights-opt.glb": "/world/",
-};
+
 
 export type AssetLoaderTask =
   | {
@@ -213,7 +180,10 @@ export function resolveAssetUrl(assetName: string): string | undefined {
 }
 
 export function resolveAssetPath(modelName: string): { rootUrl: string; fileName: string } {
-  const normalized = modelName.replace(/^\/+/, "");
+  const normalized = modelName.trim().replace(/^\/+/, "");
+  if (!normalized) {
+    return { rootUrl: "/", fileName: "" };
+  }
 
   if (modelName.startsWith("http://") || modelName.startsWith("https://")) {
     const lastSlash = modelName.lastIndexOf("/");
@@ -233,9 +203,8 @@ export function resolveAssetPath(modelName: string): { rootUrl: string; fileName
     };
   }
 
-  const fallbackRootUrl = legacyAssetPathMap[normalized] ?? "/";
   return {
-    rootUrl: fallbackRootUrl,
+    rootUrl: "/",
     fileName: normalized,
   };
 }

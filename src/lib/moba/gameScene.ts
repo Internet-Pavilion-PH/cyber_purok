@@ -104,6 +104,34 @@ const setupRightClickMove = (
 const yieldToBrowser = () =>
   new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 
+const WORLD_MODEL_LOAD_RADIUS = 120;
+const WORLD_MODEL_UNLOAD_RADIUS = 150;
+
+const updateWorldModelStreaming = (
+  models: Array<{
+    position: BABYLON.Vector3;
+    isLoaded: boolean;
+    ensureLoaded: () => Promise<unknown>;
+    setEnabled: (enabled: boolean) => void;
+  }>,
+  heroPosition: BABYLON.Vector3,
+) => {
+  for (const model of models) {
+    const distance = BABYLON.Vector3.Distance(model.position, heroPosition);
+    const shouldLoad = distance <= WORLD_MODEL_LOAD_RADIUS;
+    const shouldUnload = distance >= WORLD_MODEL_UNLOAD_RADIUS;
+
+    if (!model.isLoaded && shouldLoad) {
+      void model.ensureLoaded();
+      continue;
+    }
+
+    if (model.isLoaded) {
+      model.setEnabled(!shouldUnload);
+    }
+  }
+};
+
 /** Builds the arena, camera, world decor and local hero, and wires the per-frame hero update. */
 export const createGameScene = (options: GameSceneOptions) => {
   const { engine, loadingScreen, playerName, remoteHeroes } = options;
@@ -147,13 +175,15 @@ export const createGameScene = (options: GameSceneOptions) => {
     if (arena.lights && hero.mesh) arena.lights.addShadowCaster(hero.mesh);
     hero.playAnimation("Idle");
     await yieldToBrowser();
+    const heroPosition = hero.mesh?.absolutePosition ?? HERO_START.clone();
+    for (const model of models) {
+      const distance = BABYLON.Vector3.Distance(model.position, heroPosition);
+      if (distance <= WORLD_MODEL_LOAD_RADIUS) {
+        void model.ensureLoaded();
+      }
+    }
     options.onHeroLoaded(hero);
     await yieldToBrowser();
-
-    for (const model of models) {
-      await model.load();
-      await yieldToBrowser();
-    }
   })()
     .then(() => {
       InfoText.createMany(
@@ -170,6 +200,9 @@ export const createGameScene = (options: GameSceneOptions) => {
 
   scene.onBeforeRenderObservable.add(() => {
     if (!hero.mesh) return;
+    const heroPosition = hero.mesh.absolutePosition.clone();
+    updateWorldModelStreaming(models, heroPosition);
+
     options.onBeforeHeroUpdate(hero);
     hero.update(engine.getDeltaTime() / 1000);
 

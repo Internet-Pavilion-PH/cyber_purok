@@ -13,11 +13,13 @@ export const WORLD_MODEL_UNLOAD_RADIUS = 300;
 export const updateWorldModelStreaming = (
   models: DistanceActivatableModel[],
   heroPosition: BABYLON.Vector3,
+  loadRadius = WORLD_MODEL_LOAD_RADIUS,
+  unloadRadius = WORLD_MODEL_UNLOAD_RADIUS,
 ) => {
   for (const model of models) {
     const distance = BABYLON.Vector3.Distance(model.position, heroPosition);
-    const shouldLoad = distance <= WORLD_MODEL_LOAD_RADIUS;
-    const shouldUnload = distance >= WORLD_MODEL_UNLOAD_RADIUS;
+    const shouldLoad = distance <= loadRadius;
+    const shouldUnload = distance >= unloadRadius;
 
     if (!model.isLoaded && shouldLoad) {
       void model.ensureLoaded();
@@ -33,10 +35,11 @@ export const updateWorldModelStreaming = (
 export const activateNearbyWorldModels = (
   models: DistanceActivatableModel[],
   heroPosition: BABYLON.Vector3,
+  loadRadius = WORLD_MODEL_LOAD_RADIUS,
 ) => {
   for (const model of models) {
     const distance = BABYLON.Vector3.Distance(model.position, heroPosition);
-    if (distance <= WORLD_MODEL_LOAD_RADIUS) {
+    if (distance <= loadRadius) {
       void model.ensureLoaded();
     }
   }

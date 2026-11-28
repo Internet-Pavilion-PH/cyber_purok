@@ -37,7 +37,7 @@
       </button>
     {:else}
       <form class="enter-form" onsubmit={enterArena}>
-        <h1>hero name</h1>
+        <h1>Profile</h1>
         <label for="hero-name">
           {guavaCount} {guavaCount === 1 ? "guava" : "guavas"} collected
         </label>
@@ -150,7 +150,7 @@
       border: 1px solid rgba(95, 227, 139, 0.55);
       border-radius: 999px;
       outline: none;
-      background: rgba(3, 18, 10, 0.88);
+      background: transparent;
       color: #ebfff1;
       padding: 0.8rem 1rem;
       font: inherit;

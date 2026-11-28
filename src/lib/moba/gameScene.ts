@@ -108,9 +108,14 @@ const setupRightClickMove = (
 const yieldToBrowser = () =>
   new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 
+const MOBILE_WORLD_MODEL_LOAD_RADIUS = 120;
+const MOBILE_WORLD_MODEL_UNLOAD_RADIUS = 260;
+
 /** Builds the arena, camera, world decor and local hero, and wires the per-frame hero update. */
 export const createGameScene = (options: GameSceneOptions) => {
   const { engine, loadingScreen, playerName, remoteHeroes } = options;
+  const worldModelLoadRadius = options.isMobile ? MOBILE_WORLD_MODEL_LOAD_RADIUS : undefined;
+  const worldModelUnloadRadius = options.isMobile ? MOBILE_WORLD_MODEL_UNLOAD_RADIUS : undefined;
   const scene = new BABYLON.Scene(engine);
   new ADDONS.HtmlMeshRenderer(scene, { enableOverlayRender: true });
 
@@ -119,10 +124,6 @@ export const createGameScene = (options: GameSceneOptions) => {
   const camera = setupGameCamera(scene, options);
   setupRightClickMove(scene, arena.ground, options);
   createSky(scene);
-  scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR;
-  scene.fogStart = 220;
-  scene.fogEnd = 280;
-  scene.fogColor = new BABYLON.Color3(0.68, 0.9, 0.87);
   void arena.groundReady.then(() => {
     setTerrain(arena.ground);
     FieldworkDecal.createGroundDecals(scene, arena.ground);
@@ -156,7 +157,7 @@ export const createGameScene = (options: GameSceneOptions) => {
     hero.playAnimation("Idle");
     await yieldToBrowser();
     const heroPosition = hero.mesh?.absolutePosition ?? HERO_START.clone();
-    activateNearbyWorldModels(models, heroPosition);
+    activateNearbyWorldModels(models, heroPosition, worldModelLoadRadius);
     options.onHeroLoaded(hero);
     await yieldToBrowser();
   })()
@@ -176,7 +177,12 @@ export const createGameScene = (options: GameSceneOptions) => {
   scene.onBeforeRenderObservable.add(() => {
     if (!hero.mesh) return;
     const heroPosition = hero.mesh.absolutePosition.clone();
-    updateWorldModelStreaming(models, heroPosition);
+    updateWorldModelStreaming(
+      models,
+      heroPosition,
+      worldModelLoadRadius,
+      worldModelUnloadRadius,
+    );
 
     options.onBeforeHeroUpdate(hero);
     hero.update(engine.getDeltaTime() / 1000);

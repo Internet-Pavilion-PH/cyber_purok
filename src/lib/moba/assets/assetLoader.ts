@@ -43,7 +43,7 @@ export class AssetLoader {
   private activeContainerLoads = 0;
   private nextInstanceId = 0;
 
-  constructor(scene: BABYLON.Scene, private readonly maxConcurrentContainerLoads = 2) {
+  constructor(scene: BABYLON.Scene, private readonly maxConcurrentContainerLoads = 1) {
     this.scene = scene;
     this.manager = new BABYLON.AssetsManager(scene);
   }

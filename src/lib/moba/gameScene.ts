@@ -1,6 +1,5 @@
 import * as BABYLON from "@babylonjs/core";
 import * as ADDONS from "@babylonjs/addons";
-import { preloadAssets } from "$lib/v1/assetPreloader";
 import type { CustomLoadingScreen } from "$lib/v1/CustomLoadingScreen";
 import { Hero } from "./entities/hero";
 import { createHeroConfig } from "./entities/heroConfig";
@@ -102,6 +101,9 @@ const setupRightClickMove = (
   });
 };
 
+const yieldToBrowser = () =>
+  new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+
 /** Builds the arena, camera, world decor and local hero, and wires the per-frame hero update. */
 export const createGameScene = (options: GameSceneOptions) => {
   const { engine, loadingScreen, playerName, remoteHeroes } = options;
@@ -132,7 +134,15 @@ export const createGameScene = (options: GameSceneOptions) => {
   scene.audioListenerPositionProvider = () => hero.mesh?.absolutePosition ?? camera.position;
 
   
-  void preloadAssets([...models.map((model) => model.load()), hero.load()])
+  void (async () => {
+    await hero.load();
+    await yieldToBrowser();
+
+    for (const model of models) {
+      await model.load();
+      await yieldToBrowser();
+    }
+  })()
     .then(() => {
       InfoText.createMany(
         scene,

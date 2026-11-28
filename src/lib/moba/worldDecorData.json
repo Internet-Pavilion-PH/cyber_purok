@@ -13,7 +13,6 @@
     "TVfranco": { "file": "tv-franco-opt.glb", "position": [-201, 1, -68], "scale": 71, "rotationY": "Math.PI / -1" },
     
     "TVgab": { "file": "tv-gab-opt.glb", "position": [-413, 1, 155], "scale": 81, "rotationY": "Math.PI / -1.25" },
-    "crate2": { "file": "crate.glb", "position": [-310, 1, 75], "scale": 50, "rotationY": "Math.PI / -1" },
     
     "crateLuyo1": { "file": "crate.glb", "position": [-263, 1, -91], "scale": 50, "rotationY": "Math.PI / -1.5" },
     "crateLuyo2": { "file": "crate.glb", "position": [-328, 1, -94], "scale": 50, "rotationY": "Math.PI / 2" },
@@ -28,12 +27,12 @@
     
     "WP3-kirk": { "file": "JoelTower.glb", "position": [-171, 1, 398], "scale": 90, "rotationY": "Math.PI / -2" },
 
-    "bukid": { "file": "bukid.glb", "position": [260, 1, 374], "scale": 800, "rotationY":"Math.PI / 4"},
-    "cottage": { "file": "cottage.glb", "position": [260, 1, 374], "scale": 1 },
-    "salawakiIsda": { "file": "salawaki_isda-optimized.glb", "position": [172, 0, 371], "scale": 0.4, "rotationY": "Math.PI / -2.5" },
+    "bukid": { "file": "bukid.glb", "position": [285, 1, 388], "scale": 500, "rotationY":"Math.PI / 4"},
+    "cottage": { "file": "cottage.glb", "position": [288, 1, 437], "scale": 0.65 },
+    "salawakiIsda": { "file": "salawaki_isda-optimized.glb", "position": [134, 1, 371], "scale": 0.4, "rotationY": "Math.PI / -3" },
     "fountain2": { "file": "Fountain.glb", "position": [266, 1, 292], "scale": 3, "soundTitle": "fieldAmbient", "collidable": true },
-    "basketStore": { "file": "Yellowbasketstore.glb", "position": [410, 1, 304], "scale": 3 },
-    "zebra": { "file": "zebra.glb", "position": [429, 1, 203], "scale": 20 },
+    "basketStore": { "file": "Yellowbasketstore.glb", "position": [439, 1, 301], "scale": 2 },
+    "zebra": { "file": "zebra.glb", "position": [468, 1, 166], "scale": 12 },
     "salawaki1": { "file": "salawaki.glb", "position": [359, 10, 232], "scale": 0.75, "rotationY": "Math.PI / -2.5" },
     "salawaki2": { "file": "salawaki.glb", "position": [322, 10, 270], "scale": 0.5, "rotationY": "Math.PI / -2.5" },
 

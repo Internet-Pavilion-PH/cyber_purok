@@ -17,6 +17,7 @@
     debugPoint = { x: 0, y: 0 },
     fps = 0,
     serverConnected = false,
+    serverConnectionState = "preparing",
     playerName = "Player Hero",
     announcement = "",
     onMoveInput,
@@ -31,6 +32,7 @@
     debugPoint?: DebugPoint;
     fps?: number;
     serverConnected?: boolean;
+    serverConnectionState?: "preparing" | "connecting" | "connected" | "disconnected";
     playerName?: string;
     announcement?: string;
     onMoveInput?: (input: { x: number; y: number }) => void;
@@ -76,8 +78,13 @@
     </div>
   </div>
 
-  <DisconnectOverlay serverConnected={serverConnected} onReconnect={onReconnect} />
-  <PlayerListPanel onlinePlayers={onlinePlayers} serverConnected={serverConnected} onReconnect={onReconnect} />
+  <DisconnectOverlay connectionState={serverConnectionState} onReconnect={onReconnect} />
+  <PlayerListPanel
+    onlinePlayers={onlinePlayers}
+    serverConnected={serverConnected}
+    connectionState={serverConnectionState}
+    onReconnect={onReconnect}
+  />
 </div>
 
 <style>

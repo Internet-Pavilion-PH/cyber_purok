@@ -136,6 +136,18 @@ export const createGameScene = (options: GameSceneOptions) => {
   
   void (async () => {
     await hero.load();
+    if (hero.mesh) {
+      const heroMeshes = [hero.mesh, ...hero.mesh.getChildMeshes()];
+      heroMeshes.forEach((mesh) => {
+        if (mesh instanceof BABYLON.Mesh) {
+          mesh.showBoundingBox = false;
+        }
+      });
+    }
+    if (arena.lights && hero.mesh) arena.lights.addShadowCaster(hero.mesh);
+    hero.playAnimation("Idle");
+    await yieldToBrowser();
+    options.onHeroLoaded(hero);
     await yieldToBrowser();
 
     for (const model of models) {
@@ -149,18 +161,6 @@ export const createGameScene = (options: GameSceneOptions) => {
         infoTextSpecs as Parameters<typeof InfoText.createMany>[1],
         () => hero.mesh?.absolutePosition ?? null,
       );
-
-      if (hero.mesh) {
-        const heroMeshes = [hero.mesh, ...hero.mesh.getChildMeshes()];
-        heroMeshes.forEach((mesh) => {
-          if (mesh instanceof BABYLON.Mesh) {
-            mesh.showBoundingBox = false;
-          }
-        });
-      }
-      if (arena.lights && hero.mesh) arena.lights.addShadowCaster(hero.mesh);
-      hero.playAnimation("Idle");
-      options.onHeroLoaded(hero);
     })
     .catch((error) => console.error("Game assets failed to preload:", error))
     .finally(() => {

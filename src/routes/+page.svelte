@@ -217,6 +217,7 @@
   let localPlayerId = $state<string | null>(null);
   let clientUserId = $state("");
   let isServerConnected = $state(false);
+  let serverConnectionState = $state<"preparing" | "connecting" | "connected" | "disconnected">("preparing");
   let keyboardController = $state<ReturnType<typeof createKeyboardController> | null>(null);
 
   const remoteHeroes = new RemoteHeroes({
@@ -264,12 +265,9 @@
   };
 
   const resolvePlayerName = () => {
-    if (typeof window === "undefined") return playerName;
-
     const storedName = readStoredName();
     const defaultName = storedName || clientUserId || generateClientUserId();
-    const entered = window.prompt("Choose your hero name:", defaultName);
-    const name = applyLocalPlayerName(entered?.trim() || defaultName);
+    const name = applyLocalPlayerName(defaultName);
     writeStoredName(name);
     void kolownbot(name).catch(() => undefined);
     return name;
@@ -339,6 +337,7 @@
   };
 
   const connectMultiplayer = () => {
+    serverConnectionState = "connecting";
     clientUserId = clientUserId || generateClientUserId();
     multiplayerSocket?.close();
 
@@ -346,7 +345,8 @@
     playerGuavaCount = getPlayerSaveData().guavaCount;
     onlinePlayers = [{ id: clientUserId, name: playerName, guavaCount: playerGuavaCount }];
     isServerConnected = false;
-    syncLocalHeroVisibility(false);
+    serverConnectionState = "connecting";
+    syncLocalHeroVisibility(true);
     resetLocalHeroToSpawn(lastSavedPosition.x, lastSavedPosition.z);
 
     multiplayerSocket = new MultiplayerSocket();
@@ -363,6 +363,7 @@
         const spawnZ = message.spawnZ ?? lastSavedPosition.z ?? 0;
         resetLocalHeroToSpawn(spawnX, spawnZ);
         isServerConnected = true;
+        serverConnectionState = "connected";
         guavaHuntInstance?.setServerMode(true);
         syncLocalHeroVisibility(true);
       },
@@ -425,6 +426,7 @@
       onClose: () => {
         guavaHuntInstance?.setLocalFallbackMode();
         isServerConnected = false;
+        serverConnectionState = "disconnected";
         localPlayerId = null;
         remoteHeroes.clear();
         remoteMarkers = [];
@@ -443,6 +445,7 @@
       },
       onError: (event) => {
         isServerConnected = false;
+        serverConnectionState = "disconnected";
         console.error("multiplayer socket error", event);
       },
     });
@@ -489,6 +492,7 @@ const applyHeroInput = (localHero: Hero) => {
       onHeroLoaded: (localHero) => {
         heroMesh = localHero.mesh;
         heroPosition = { x: localHero.position.x, z: localHero.position.z, yaw: localHero.mesh?.rotation?.y ?? 0 };
+        connectMultiplayer();
         if (!isServerConnected) {
           guavaHuntInstance?.setLocalFallbackMode();
         }
@@ -538,9 +542,11 @@ const applyHeroInput = (localHero: Hero) => {
     }
   };
 
-  const startGame = () => {
+  const startGame = (enteredName: string) => {
     if (hasEnteredGame) return;
 
+    applyLocalPlayerName(enteredName || readStoredName() || "Player Hero");
+    serverConnectionState = "preparing";
     unlockAudioEngine();
     hasEnteredGame = true;
   };
@@ -575,7 +581,6 @@ const applyHeroInput = (localHero: Hero) => {
     const save = getPlayerSaveData();
     playerName = resolvePlayerName();
     playerGuavaCount = save.guavaCount;
-    connectMultiplayer();
     keyboardController = createKeyboardController(handleHeroKey);
 
     const engine = new BABYLON.Engine(gameCanvas, true, { audioEngine: true });
@@ -610,7 +615,7 @@ const applyHeroInput = (localHero: Hero) => {
 </script>
 
 {#if !hasEnteredGame}
-  <GameIntroScene onEnter={startGame} />
+  <GameIntroScene defaultName={readStoredName() || "Player Hero"} onEnter={startGame} />
 {/if}
 
 {#if hasEnteredGame}
@@ -622,6 +627,7 @@ const applyHeroInput = (localHero: Hero) => {
     debugPoint={debugPoint}
     fps={fps}
     serverConnected={isServerConnected}
+    serverConnectionState={serverConnectionState}
     playerName={playerName}
     announcement={announcement}
     onMoveInput={applyMobileMovement}

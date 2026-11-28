@@ -2,10 +2,12 @@
   let {
     onlinePlayers = [],
     serverConnected = false,
+    connectionState = "preparing",
     onReconnect,
   }: {
     onlinePlayers?: Array<{ id: string; name: string; guavaCount?: number }>;
     serverConnected?: boolean;
+    connectionState?: "preparing" | "connecting" | "connected" | "disconnected";
     onReconnect?: () => void;
   } = $props();
 </script>
@@ -14,9 +16,17 @@
   <div class="players-panel">
     <div class="connection-status" aria-live="polite">
       {#if !serverConnected}
-        <span class="status-dot offline"></span>
-        <span class="status-label">Server offline</span>
-        <button class="reconnect-button" type="button" onclick={onReconnect}>Reconnect</button>
+        <span class:offline={connectionState === "disconnected"} class="status-dot"></span>
+        <span class="status-label">
+          {connectionState === "preparing"
+            ? "Preparing"
+            : connectionState === "connecting"
+              ? "Connecting"
+              : "Server offline"}
+        </span>
+        {#if connectionState === "disconnected"}
+          <button class="reconnect-button" type="button" onclick={onReconnect}>Reconnect</button>
+        {/if}
       {:else}
         <svg class="status-icon" viewBox="0 0 24 24" aria-hidden="true">
           <circle class="status-head" cx="12" cy="7" r="4.2"></circle>

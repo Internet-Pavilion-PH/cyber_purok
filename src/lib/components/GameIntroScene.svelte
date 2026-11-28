@@ -1,9 +1,16 @@
 <script lang="ts">
   type Props = {
-    onEnter?: () => void;
+    defaultName?: string;
+    onEnter?: (name: string) => void;
   };
 
-  let { onEnter }: Props = $props();
+  let { defaultName = "Player Hero", onEnter }: Props = $props();
+  let heroName = $state(defaultName);
+
+  const enterArena = (event: SubmitEvent) => {
+    event.preventDefault();
+    onEnter?.(heroName.trim());
+  };
 </script>
 
 <div class="intro-scene" aria-label="Game intro scene">
@@ -18,7 +25,19 @@
       <p class="tagline">project lead by Roan Alvarez</p>
       <p class="tagline">code contributions from KoloWn and Roan Alvarez</p>
       <p class="tagline">contributions are welcome</p>
-    <button class="enter-button" type="button" onclick={onEnter}>Enter </button>
+    <form class="enter-form" onsubmit={enterArena}>
+      <label for="hero-name">Choose your hero name</label>
+      <input
+        id="hero-name"
+        bind:value={heroName}
+        type="text"
+        maxlength="12"
+        autocomplete="nickname"
+        placeholder="Your hero name"
+        required
+      />
+      <button class="enter-button" type="submit">Enter</button>
+    </form>
   </div>
 </div>
 
@@ -80,6 +99,35 @@
     box-shadow: 0 0 0 1px rgba(95, 227, 139, 0.45), 0 10px 28px rgba(95, 227, 139, 0.22);
     transition: transform 0.15s ease, filter 0.15s ease;
       font-family: 'Times New Roman', Times, serif;
+  }
+
+  .enter-form {
+      display: grid;
+      width: min(100%, 360px);
+      gap: 0.75rem;
+  }
+
+  .enter-form label {
+      color: rgba(174, 227, 123, 0.86);
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 0.85rem;
+  }
+
+  .enter-form input {
+      min-width: 0;
+      border: 1px solid rgba(95, 227, 139, 0.55);
+      border-radius: 999px;
+      outline: none;
+      background: rgba(3, 18, 10, 0.88);
+      color: #ebfff1;
+      padding: 0.8rem 1rem;
+      font: inherit;
+      font-size: 16px;
+      text-align: center;
+  }
+
+  .enter-form input:focus {
+      box-shadow: 0 0 0 3px rgba(95, 227, 139, 0.18);
   }
 
   .enter-button:hover {

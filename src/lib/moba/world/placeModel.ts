@@ -27,6 +27,7 @@ export class PlaceModel {
 
   public modelRoot: BABYLON.TransformNode | null = null;
   public addedMeshes: BABYLON.AbstractMesh[] = [];
+  public animationGroups: BABYLON.AnimationGroup[] = [];
   private sound?: BABYLON.Sound;
   private soundAnchor?: BABYLON.Mesh;
 
@@ -100,6 +101,7 @@ export class PlaceModel {
         fileName,
         this.modelName,
       );
+      this.animationGroups = instance.animationGroups;
       const addedMeshes = Array.from(
         new Set(
           instance.rootNodes.flatMap((node) => [
@@ -189,6 +191,8 @@ export class PlaceModel {
           }
         });
       }
+
+      this.animationGroups.forEach((group) => group.start(true));
 
       console.log(`✓ Model '${this.modelName}' placed at`, worldPos);
       return { added: addedMeshes.length, min, max, center, modelRoot: this.modelRoot };

@@ -1,14 +1,29 @@
 <script lang="ts">
-  let { serverConnected = false, onReconnect }: { serverConnected?: boolean; onReconnect?: () => void } = $props();
+  type ConnectionState = "preparing" | "connecting" | "connected" | "disconnected";
+  let { connectionState = "preparing", onReconnect }: { connectionState?: ConnectionState; onReconnect?: () => void } = $props();
 </script>
 
-{#if !serverConnected}
+{#if connectionState !== "connected"}
   <div class="disconnect-overlay" aria-live="polite">
     <div class="disconnect-card">
-      <div class="disconnect-label">Connection lost</div>
-      <div class="disconnect-title">Arena server disconnected</div>
-      <p class="disconnect-copy">Your hero remains in the arena, but remote players are temporarily unavailable while the connection reconnects.</p>
-      <button class="reconnect-button large" type="button" onclick={onReconnect}>Reconnect now</button>
+      <div class="disconnect-label">
+        {connectionState === "disconnected" ? "Connection lost" : "Please wait"}
+      </div>
+      <div class="disconnect-title">
+        {connectionState === "preparing"
+          ? "Preparing arena"
+          : connectionState === "connecting"
+            ? "Connecting to arena"
+            : "Arena server disconnected"}
+      </div>
+      <p class="disconnect-copy">
+        {connectionState === "disconnected"
+          ? "Your hero remains in the arena, but remote players are temporarily unavailable while the connection reconnects."
+          : "The hero and nearby world are being prepared for your session."}
+      </p>
+      {#if connectionState === "disconnected"}
+        <button class="reconnect-button large" type="button" onclick={onReconnect}>Reconnect now</button>
+      {/if}
     </div>
   </div>
 {/if}

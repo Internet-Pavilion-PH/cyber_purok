@@ -1,6 +1,5 @@
 import * as BABYLON from "@babylonjs/core";
 import * as ADDONS from "@babylonjs/addons";
-import { preloadAssets } from "$lib/v1/assetPreloader";
 import type { CustomLoadingScreen } from "$lib/v1/CustomLoadingScreen";
 import { Hero } from "./entities/hero";
 import { createHeroConfig } from "./entities/heroConfig";
@@ -102,6 +101,9 @@ const setupRightClickMove = (
   });
 };
 
+const yieldToBrowser = () =>
+  new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+
 /** Builds the arena, camera, world decor and local hero, and wires the per-frame hero update. */
 export const createGameScene = (options: GameSceneOptions) => {
   const { engine, loadingScreen, playerName, remoteHeroes } = options;
@@ -132,25 +134,33 @@ export const createGameScene = (options: GameSceneOptions) => {
   scene.audioListenerPositionProvider = () => hero.mesh?.absolutePosition ?? camera.position;
 
   
-  void preloadAssets([...models.map((model) => model.load()), hero.load()])
+  void (async () => {
+    await hero.load();
+    if (hero.mesh) {
+      const heroMeshes = [hero.mesh, ...hero.mesh.getChildMeshes()];
+      heroMeshes.forEach((mesh) => {
+        if (mesh instanceof BABYLON.Mesh) {
+          mesh.showBoundingBox = false;
+        }
+      });
+    }
+    if (arena.lights && hero.mesh) arena.lights.addShadowCaster(hero.mesh);
+    hero.playAnimation("Idle");
+    await yieldToBrowser();
+    options.onHeroLoaded(hero);
+    await yieldToBrowser();
+
+    for (const model of models) {
+      await model.load();
+      await yieldToBrowser();
+    }
+  })()
     .then(() => {
       InfoText.createMany(
         scene,
         infoTextSpecs as Parameters<typeof InfoText.createMany>[1],
         () => hero.mesh?.absolutePosition ?? null,
       );
-
-      if (hero.mesh) {
-        const heroMeshes = [hero.mesh, ...hero.mesh.getChildMeshes()];
-        heroMeshes.forEach((mesh) => {
-          if (mesh instanceof BABYLON.Mesh) {
-            mesh.showBoundingBox = false;
-          }
-        });
-      }
-      if (arena.lights && hero.mesh) arena.lights.addShadowCaster(hero.mesh);
-      hero.playAnimation("Idle");
-      options.onHeroLoaded(hero);
     })
     .catch((error) => console.error("Game assets failed to preload:", error))
     .finally(() => {

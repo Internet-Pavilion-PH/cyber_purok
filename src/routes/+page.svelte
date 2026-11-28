@@ -551,7 +551,22 @@ const applyHeroInput = (localHero: Hero) => {
     if (!hasEnteredGame || !canvas) return;
 
     const gameCanvas = canvas;
-    return untrack(() => bootGame(gameCanvas));
+    let cleanup: (() => void) | undefined;
+    let cancelled = false;
+    let secondFrame = 0;
+    const firstFrame = requestAnimationFrame(() => {
+      secondFrame = requestAnimationFrame(() => {
+        if (cancelled) return;
+        cleanup = untrack(() => bootGame(gameCanvas));
+      });
+    });
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(firstFrame);
+      if (secondFrame) cancelAnimationFrame(secondFrame);
+      cleanup?.();
+    };
   });
 
   const bootGame = (gameCanvas: HTMLCanvasElement) => {

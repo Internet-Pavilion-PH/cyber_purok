@@ -7,6 +7,8 @@
   import { createHeroInputController } from "$lib/moba/game/inputController";
   import { createPlayerProfileController } from "$lib/moba/game/playerProfileController";
   import { Hero } from "$lib/moba/entities/hero";
+  import type { HeroPresetName } from "$lib/moba/entities/heroConfig";
+  import { readStoredHeroPreset, writeStoredHeroPreset } from "$lib/moba/net/storedHeroPreset";
   import type { ArenaBuilder } from "$lib/moba/world/arenaBuilder";
   import { bootGameRuntime } from "$lib/moba/gameRuntime";
   import { RemoteHeroes, type MapMarker } from "$lib/moba/entities/remoteHeroes";
@@ -40,8 +42,10 @@
   let debugPoint = $state({ x: 0, y: 0 });
   let fps = $state(0);
   let playerName = $state("Player Hero");
+  let selectedHeroPreset = $state<HeroPresetName>(readStoredHeroPreset());
   let playerGuavaCount = $state(0);
   onMount(() => {
+    selectedHeroPreset = readStoredHeroPreset();
     playerGuavaCount = getPlayerSaveData().guavaCount;
   });
   let lastCountedGuavaSeq = -1;
@@ -184,6 +188,7 @@
 
   const multiplayerController = createMultiplayerController({
     playerName: () => playerName,
+    getPlayerHeroPreset: () => selectedHeroPreset,
     getPlayerGuavaCount: () => playerGuavaCount,
     setPlayerGuavaCount: (value) => (playerGuavaCount = value),
     setOnlinePlayers: (players) => (onlinePlayers = players),
@@ -260,10 +265,12 @@
     }
   };
 
-  const startGame = (enteredName: string) => {
+  const startGame = ({ name, heroPreset }: { name: string; heroPreset: HeroPresetName }) => {
     if (hasEnteredGame) return;
 
-    applyLocalPlayerName(enteredName || readStoredName() || "Player Hero");
+    selectedHeroPreset = heroPreset;
+    writeStoredHeroPreset(heroPreset);
+    applyLocalPlayerName(name || readStoredName() || "Player Hero");
     serverConnectionState = "preparing";
     unlockAudioEngine();
     hasEnteredGame = true;
@@ -305,6 +312,7 @@
       canvas: gameCanvas,
       isMobile,
       playerName,
+      heroPreset: selectedHeroPreset,
       remoteHeroes,
       getHeroMesh: () => heroMesh,
       getMoveTarget: () => currentTarget,
@@ -369,6 +377,7 @@
 {#if !hasEnteredGame}
   <GameIntroScene
     defaultName={readStoredName() || "Player Hero"}
+    defaultHero={selectedHeroPreset}
     guavaCount={playerGuavaCount}
     onEnter={startGame}
   />

@@ -1,17 +1,24 @@
 <script lang="ts">
+  import { HERO_PRESETS, type HeroPresetName } from "$lib/moba/entities/heroConfig";
+
   type Props = {
     defaultName?: string;
     guavaCount?: number;
-    onEnter?: (name: string) => void;
+    defaultHero?: HeroPresetName;
+    onEnter?: (payload: { name: string; heroPreset: HeroPresetName }) => void;
   };
 
-  let { defaultName = "Player Hero", guavaCount = 0, onEnter }: Props = $props();
+  let { defaultName = "Player Hero", guavaCount = 0, defaultHero = "jfk2", onEnter }: Props = $props();
   let heroName = $state(defaultName);
   let isChoosingName = $state(false);
+  let selectedHero = $state<HeroPresetName>(defaultHero);
 
   const enterArena = (event: SubmitEvent) => {
     event.preventDefault();
-    onEnter?.(heroName.trim());
+    onEnter?.({
+      name: heroName.trim(),
+      heroPreset: selectedHero,
+    });
   };
 </script>
 
@@ -50,7 +57,21 @@
           placeholder="Your hero name"
           required
         />
-        <button class="enter-button" type="submit">Enter Cyber Purok</button>
+
+        <div class="hero-picker" aria-label="Choose hero">
+          {#each Object.keys(HERO_PRESETS) as preset}
+            <button
+              type="button"
+              class:selected={selectedHero === preset}
+              class="hero-choice"
+              onclick={() => (selectedHero = preset as HeroPresetName)}
+            >
+              {preset}
+            </button>
+          {/each}
+        </div>
+
+        <button class="enter-button" type="submit">Enter</button>
         <!-- <button class="back-button" type="button" onclick={() => (isChoosingName = false)}>
           Back to credits
         </button> -->
@@ -112,7 +133,13 @@
     appearance: none;
     border: none;
     border-radius: 999px;
-    padding: 0.9rem 2.2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.7rem 1.1rem;
+    min-width: 0;
+    width: auto;
+    box-sizing: border-box;
     font-size: 1rem;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -122,13 +149,47 @@
     background: #5fe38b;
     box-shadow: 0 0 0 1px rgba(95, 227, 139, 0.45), 0 10px 28px rgba(95, 227, 139, 0.22);
     transition: transform 0.15s ease, filter 0.15s ease;
-      font-family: 'Times New Roman', Times, serif;
+    font-family: 'Times New Roman', Times, serif;
   }
 
   .enter-form {
     display: grid;
     width: min(100%, 360px);
-    gap: 0.75rem;
+    gap: 1.1rem;
+  }
+
+  .hero-picker {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .hero-choice {
+    appearance: none;
+    border: 1px solid rgba(95, 227, 139, 0.55);
+    border-radius: 999px;
+    background: transparent;
+    color: rgba(174, 227, 123, 0.88);
+    padding: 0.65rem 0.75rem;
+    font: inherit;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .hero-choice.selected {
+    background: rgba(95, 227, 139, 0.12);
+    border-color: rgba(95, 227, 139, 0.9);
+    color: #ebfff1;
+  }
+
+  .enter-form .enter-button {
+    width: auto;
+    padding: 0.7rem 1.1rem;
+    justify-self: center;
+    margin-top: 0.2rem;
   }
 
   .enter-form h1 {
@@ -148,7 +209,7 @@
   .enter-form input {
       min-width: 0;
       border: 1px solid rgba(95, 227, 139, 0.55);
-      border-radius: 999px;
+      /* border-radius: 999px; */
       outline: none;
       background: transparent;
       color: #ebfff1;

@@ -2,7 +2,7 @@ import * as BABYLON from "@babylonjs/core";
 import * as ADDONS from "@babylonjs/addons";
 import type { CustomLoadingScreen } from "$lib/v1/CustomLoadingScreen";
 import { Hero } from "./entities/hero";
-import { createHeroConfig } from "./entities/heroConfig";
+import { createHeroConfig, type HeroPresetName } from "./entities/heroConfig";
 import { ArenaBuilder } from "./world/arenaBuilder";
 import { FieldworkDecal } from "./world/fieldworkDecal";
 import { setTerrain } from "./world/terrainHeight";
@@ -33,6 +33,7 @@ export type GameSceneOptions = {
   loadingScreen: CustomLoadingScreen;
   isMobile: boolean;
   playerName: string;
+  heroPreset?: HeroPresetName;
   remoteHeroes: RemoteHeroes;
   /** The local hero's mesh once loaded; the mobile camera follows it. */
   getHeroMesh: () => BABYLON.AbstractMesh | null;
@@ -113,7 +114,7 @@ const MOBILE_WORLD_MODEL_UNLOAD_RADIUS = 260;
 
 /** Builds the arena, camera, world decor and local hero, and wires the per-frame hero update. */
 export const createGameScene = (options: GameSceneOptions) => {
-  const { engine, loadingScreen, playerName, remoteHeroes } = options;
+  const { engine, loadingScreen, playerName, remoteHeroes, heroPreset = "jfk2" } = options;
   const worldModelLoadRadius = options.isMobile ? MOBILE_WORLD_MODEL_LOAD_RADIUS : undefined;
   const worldModelUnloadRadius = options.isMobile ? MOBILE_WORLD_MODEL_UNLOAD_RADIUS : undefined;
   const scene = new BABYLON.Scene(engine);
@@ -133,7 +134,10 @@ export const createGameScene = (options: GameSceneOptions) => {
 
   scene.onBeforeRenderObservable.add(() => arena.tickTime(engine.getDeltaTime()));
 
-  const hero = new Hero(scene, createHeroConfig("player-hero", playerName, HERO_START.clone()));
+  const hero = new Hero(
+    scene,
+    createHeroConfig("player-hero", playerName, HERO_START.clone(), heroPreset),
+  );
   hero.updateDisplayName(playerName);
   remoteHeroes.setLocalHero(hero);
 

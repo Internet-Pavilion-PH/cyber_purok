@@ -1,6 +1,6 @@
 import * as BABYLON from "@babylonjs/core";
 import { Hero } from "./hero";
-import { createHeroConfig } from "./heroConfig";
+import { createHeroConfig, HERO_PRESETS, type HeroPresetName } from "./heroConfig";
 import type { ArenaBuilder } from "../world/arenaBuilder";
 import { getTerrainHeight } from "../world/terrainHeight";
 
@@ -12,6 +12,7 @@ export const SERVER_STEP = 0.3;
 export interface RemotePlayer {
   id: string;
   name: string;
+  heroPreset?: string;
   x: number;
   y: number;
   z: number;
@@ -56,6 +57,13 @@ export const toMapMarkers = (players: RemotePlayer[], localId: string | null): M
       color: playerColor(player.id),
       yaw: player.yaw,
     }));
+
+const resolveRemoteHeroPreset = (preset?: string): HeroPresetName => {
+  if (preset && preset in HERO_PRESETS) {
+    return preset as HeroPresetName;
+  }
+  return "jfk2";
+};
 
 const lerpAngle = (from: number, to: number, amount: number) => {
   const diff = ((to - from + Math.PI) % (Math.PI * 2)) - Math.PI;
@@ -138,14 +146,22 @@ export class RemoteHeroes {
     const scene = this.ctx.getScene();
     if (!scene) return;
 
-    let hero = this.heroes.get(player.id);
+    const presetName = resolveRemoteHeroPreset(player.heroPreset);
+    let hero: Hero | null = this.heroes.get(player.id) ?? null;
+
+    if (hero && (hero.config.modelUrl !== HERO_PRESETS[presetName].modelUrl || hero.config.fileName !== HERO_PRESETS[presetName].fileName)) {
+      hero.dispose();
+      this.heroes.delete(player.id);
+      hero = null;
+    }
+
     if (!hero) {
       if (this.loadingIds.has(player.id)) return;
       this.loadingIds.add(player.id);
 
       hero = new Hero(
         scene,
-        createHeroConfig(player.id, player.name, new BABYLON.Vector3(player.x, 0, player.z)),
+        createHeroConfig(player.id, player.name, new BABYLON.Vector3(player.x, 0, player.z), presetName),
       );
 
       try {

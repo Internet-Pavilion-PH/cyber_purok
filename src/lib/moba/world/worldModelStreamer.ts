@@ -7,8 +7,8 @@ export type DistanceActivatableModel = {
   setEnabled: (enabled: boolean) => void;
 };
 
-export const WORLD_MODEL_LOAD_RADIUS = 120;
-export const WORLD_MODEL_UNLOAD_RADIUS = 150;
+export const WORLD_MODEL_LOAD_RADIUS = 250;
+export const WORLD_MODEL_UNLOAD_RADIUS = 300;
 
 export const updateWorldModelStreaming = (
   models: DistanceActivatableModel[],

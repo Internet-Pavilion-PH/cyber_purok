@@ -1,6 +1,10 @@
 const PLAYER_NAME_KEY = "cyberpurok:playerName";
 
 export const readStoredName = () => {
+  if (typeof localStorage === "undefined") {
+    return "";
+  }
+
   try {
     return localStorage.getItem(PLAYER_NAME_KEY) ?? "";
   } catch {
@@ -9,6 +13,10 @@ export const readStoredName = () => {
 };
 
 export const writeStoredName = (name: string) => {
+  if (typeof localStorage === "undefined") {
+    return;
+  }
+
   try {
     localStorage.setItem(PLAYER_NAME_KEY, name);
   } catch {

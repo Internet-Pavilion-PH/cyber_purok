@@ -1,6 +1,7 @@
 import * as BABYLON from "@babylonjs/core";
 import { CustomLoadingScreen } from "$lib/v1/CustomLoadingScreen";
 import type { Hero } from "$lib/moba/entities/hero";
+import type { HeroPresetName } from "$lib/moba/entities/heroConfig";
 import type { RemoteHeroes } from "$lib/moba/entities/remoteHeroes";
 import { createGameScene } from "$lib/moba/gameScene";
 
@@ -8,6 +9,7 @@ export type GameRuntimeDeps = {
   canvas: HTMLCanvasElement;
   isMobile: boolean;
   playerName: string;
+  heroPreset?: HeroPresetName;
   remoteHeroes: RemoteHeroes;
   getHeroMesh: () => BABYLON.AbstractMesh | null;
   getMoveTarget: () => BABYLON.Vector3 | null;
@@ -35,6 +37,7 @@ export const bootGameRuntime = (deps: GameRuntimeDeps) => {
     canvas,
     isMobile,
     playerName,
+    heroPreset = "jfk2",
     remoteHeroes,
     getHeroMesh,
     getMoveTarget,
@@ -63,6 +66,7 @@ export const bootGameRuntime = (deps: GameRuntimeDeps) => {
     loadingScreen,
     isMobile,
     playerName,
+    heroPreset,
     remoteHeroes,
     getHeroMesh,
     getMoveTarget,

@@ -9,6 +9,7 @@ export type ChatEntry = { id: string; author: string; text: string };
 
 export type MultiplayerControllerDeps = {
   playerName: () => string;
+  getPlayerHeroPreset: () => string;
   getPlayerGuavaCount: () => number;
   setPlayerGuavaCount: (value: number) => void;
   setOnlinePlayers: (players: MultiplayerPlayer[]) => void;
@@ -74,6 +75,7 @@ export const createMultiplayerController = (deps: MultiplayerControllerDeps) => 
     socket.connect({
       userId: clientUserId,
       name: deps.playerName(),
+      heroPreset: deps.getPlayerHeroPreset(),
       guavaCount: playerGuavaCount,
       getPosition: () => (deps.getHero()?.mesh ? deps.getHero()!.position : deps.readLastHeroPosition()),
       onWelcome: (message) => {
@@ -91,6 +93,7 @@ export const createMultiplayerController = (deps: MultiplayerControllerDeps) => 
         const players = message.players.map((player) => ({
           ...player,
           name: deps.resolveOnlinePlayerName(player.id, player.name),
+          heroPreset: player.heroPreset,
           guavaCount: typeof player.guavaCount === "number" ? player.guavaCount : deps.isLocalPlayerId(player.id) ? deps.getPlayerGuavaCount() : 0,
         }));
         deps.updateRemoteHeroes(players, deps.getLocalPlayerId());
@@ -100,6 +103,7 @@ export const createMultiplayerController = (deps: MultiplayerControllerDeps) => 
           return {
             id: player.id,
             name: player.name,
+            heroPreset: player.heroPreset,
             guavaCount: typeof player.guavaCount === "number" ? player.guavaCount : deps.isLocalPlayerId(player.id) ? deps.getPlayerGuavaCount() : 0,
           };
         }));

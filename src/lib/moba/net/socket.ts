@@ -36,6 +36,7 @@ export class MultiplayerSocket {
     url?: string;
     userId?: string;
     name?: string;
+    heroPreset?: string;
     guavaCount?: number;
     getPosition?: () => { x: number; z: number } | null;
     onState?: (message: StateMessage) => void;
@@ -107,6 +108,7 @@ export class MultiplayerSocket {
     url?: string;
     userId?: string;
     name?: string;
+    heroPreset?: string;
     guavaCount?: number;
     getPosition?: () => { x: number; z: number } | null;
     onState?: (message: StateMessage) => void;
@@ -146,7 +148,7 @@ export class MultiplayerSocket {
       console.log("server connected");
       this.reconnectAttempt = 0;
       this.startHeartbeat();
-      this.sendJoin(options?.userId, options?.name ?? "Hero", options?.getPosition?.(), options?.guavaCount);
+      this.sendJoin(options?.userId, options?.name ?? "Hero", options?.getPosition?.(), options?.guavaCount, options?.heroPreset);
     };
 
     this.socket.onmessage = (event) => {
@@ -234,13 +236,14 @@ export class MultiplayerSocket {
     return this.socket;
   }
 
-  sendJoin(userId?: string, name = "Hero", position?: { x: number; z: number } | null, guavaCount?: number) {
+  sendJoin(userId?: string, name = "Hero", position?: { x: number; z: number } | null, guavaCount?: number, heroPreset?: string) {
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) return;
 
     const payload: JoinMessage = {
       type: "join",
       userId,
       name,
+      heroPreset: typeof heroPreset === "string" ? heroPreset : undefined,
       guavaCount: typeof guavaCount === "number" && Number.isFinite(guavaCount) ? Math.max(0, guavaCount) : undefined,
       x: position?.x,
       z: position?.z,
@@ -300,6 +303,7 @@ export const createMultiplayerSocket = (options?: {
   url?: string;
   userId?: string;
   name?: string;
+  heroPreset?: string;
   onState?: (message: StateMessage) => void;
   onWelcome?: (message: WelcomeMessage) => void;
   onPresence?: (message: PresenceMessage) => void;

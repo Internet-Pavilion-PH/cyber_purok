@@ -1,6 +1,7 @@
 export type ArenaPlayer = {
   id: string;
   name: string;
+  heroPreset?: string;
   x: number;
   y: number;
   z: number;
@@ -84,6 +85,7 @@ export type JoinMessage = {
   type: "join";
   userId?: string;
   name?: string;
+  heroPreset?: string;
   guavaCount?: number;
   x?: number;
   z?: number;
@@ -100,7 +102,7 @@ export function isFiniteNumber(value: unknown): value is number {
 export function parseArenaPlayer(value: unknown): ArenaPlayer | null {
   if (!isObject(value)) return null;
 
-  const { id, name, x, y, z, yaw, hp, guavaCount } = value;
+  const { id, name, heroPreset, x, y, z, yaw, hp, guavaCount } = value;
   if (typeof id !== "string" || typeof name !== "string") return null;
   if (!isFiniteNumber(x) || !isFiniteNumber(y) || !isFiniteNumber(z) || !isFiniteNumber(yaw) || !isFiniteNumber(hp)) {
     return null;
@@ -109,6 +111,7 @@ export function parseArenaPlayer(value: unknown): ArenaPlayer | null {
   return {
     id,
     name,
+    heroPreset: typeof heroPreset === "string" ? heroPreset : undefined,
     x,
     y,
     z,

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { untrack } from "svelte";
+  import { onMount, untrack } from "svelte";
   import * as BABYLON from "@babylonjs/core";
   import "@babylonjs/loaders/glTF";
   import { MultiplayerSocket } from "$lib/moba/net/socket";
@@ -41,6 +41,9 @@
   let fps = $state(0);
   let playerName = $state("Player Hero");
   let playerGuavaCount = $state(0);
+  onMount(() => {
+    playerGuavaCount = getPlayerSaveData().guavaCount;
+  });
   let lastCountedGuavaSeq = -1;
   let lastAnnouncedGuavaSeq = -1;
   let announcement = $state("");
@@ -364,7 +367,11 @@
 </script>
 
 {#if !hasEnteredGame}
-  <GameIntroScene defaultName={readStoredName() || "Player Hero"} onEnter={startGame} />
+  <GameIntroScene
+    defaultName={readStoredName() || "Player Hero"}
+    guavaCount={playerGuavaCount}
+    onEnter={startGame}
+  />
 {/if}
 
 {#if hasEnteredGame}

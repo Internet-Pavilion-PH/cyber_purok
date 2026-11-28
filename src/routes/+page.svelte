@@ -3,157 +3,31 @@
   import * as BABYLON from "@babylonjs/core";
   import "@babylonjs/loaders/glTF";
   import { MultiplayerSocket } from "$lib/moba/net/socket";
-  import { CustomLoadingScreen } from "$lib/v1/CustomLoadingScreen";
+  import { createMultiplayerController } from "$lib/moba/game/multiplayerController";
+  import { createHeroInputController } from "$lib/moba/game/inputController";
+  import { createPlayerProfileController } from "$lib/moba/game/playerProfileController";
   import { Hero } from "$lib/moba/entities/hero";
   import type { ArenaBuilder } from "$lib/moba/world/arenaBuilder";
-  import { createGameScene } from "$lib/moba/gameScene";
-  import { RemoteHeroes, toMapMarkers, type MapMarker } from "$lib/moba/entities/remoteHeroes";
+  import { bootGameRuntime } from "$lib/moba/gameRuntime";
+  import { RemoteHeroes, type MapMarker } from "$lib/moba/entities/remoteHeroes";
   import { createMovementSender } from "$lib/moba/net/movementSender";
-  import { readStoredName, writeStoredName } from "$lib/moba/net/storedName";
+  import {
+    getPlayerSaveData,
+    readLastHeroPosition,
+    writeLastHeroPosition,
+    type HeroPosition,
+    recordGuavaPickup as persistGuavaPickup,
+  } from "$lib/moba/playerSession";
   import {
     defaultGameCameraConfig,
     focusCameraOn,
     resetGameCameraToTarget,
   } from "$lib/moba/input/cameraController";
-  import { detectMobile, joystickToMoveDirection } from "$lib/moba/input/mobileInput";
-  import { PlayerNameRegistry, generateClientUserId, sanitizeName } from "$lib/moba/net/playerNames";
-  import {
-    createKeyboardController,
-    HERO_SKILL_KEYS,
-    isSkillKey,
-  } from "$lib/moba/input/keyboard";
+  import { detectMobile } from "$lib/moba/input/mobileInput";
+  import { createKeyboardController } from "$lib/moba/input/keyboard";
   import Ui_Moba from "$lib/moba/Ui_Moba.svelte";
   import GameIntroScene from "$lib/components/GameIntroScene.svelte";
-  import { kolownbot } from "$lib/moba/utility/kolownbot";
 
-  type HeroPosition = { x: number; z: number; yaw?: number };
-  type SaveData = { playerId: string; playerName: string; guavaCount: number };
-
-  const LAST_HERO_POSITION_KEY = "cyberpurok:last-hero-position";
-  const SAVE_DATA_KEY = "cyberpurok:save";
-
-  const readLastHeroPosition = (): HeroPosition | null => {
-    if (typeof window === "undefined") return null;
-
-    try {
-      const raw = window.localStorage.getItem(LAST_HERO_POSITION_KEY);
-      if (!raw) return null;
-      const parsed = JSON.parse(raw) as Partial<HeroPosition>;
-      if (typeof parsed.x !== "number" || typeof parsed.z !== "number") return null;
-      return { x: parsed.x, z: parsed.z, yaw: typeof parsed.yaw === "number" ? parsed.yaw : undefined };
-    } catch {
-      return null;
-    }
-  };
-
-  const writeLastHeroPosition = (position: HeroPosition) => {
-    if (typeof window === "undefined") return;
-
-    try {
-      window.localStorage.setItem(LAST_HERO_POSITION_KEY, JSON.stringify(position));
-    } catch {
-      // ignore localStorage failures and fall back to server-authoritative state
-    }
-  };
-
-  const getPlayerSaveData = (): SaveData => {
-    if (typeof window === "undefined") return { playerId: "offline", playerName: "Player Hero", guavaCount: 0 };
-
-    try {
-      const raw = window.localStorage.getItem(SAVE_DATA_KEY);
-      const storedName = sanitizeName(readStoredName() || "Player Hero");
-      if (!raw) {
-        const initial: SaveData = {
-          playerId: typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `player-${Date.now()}`,
-          playerName: storedName,
-          guavaCount: 0,
-        };
-        window.localStorage.setItem(SAVE_DATA_KEY, JSON.stringify(initial));
-        return initial;
-      }
-
-      const parsed = JSON.parse(raw) as Partial<SaveData>;
-      const playerId = typeof parsed.playerId === "string" && parsed.playerId.trim() ? parsed.playerId : (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `player-${Date.now()}`);
-      const playerName = sanitizeName(typeof parsed.playerName === "string" && parsed.playerName.trim() ? parsed.playerName : storedName);
-      const guavaCount = Number.isFinite(parsed.guavaCount) ? Math.max(0, Number(parsed.guavaCount)) : 0;
-      const next: SaveData = { playerId, playerName, guavaCount };
-      window.localStorage.setItem(SAVE_DATA_KEY, JSON.stringify(next));
-      return next;
-    } catch {
-      const fallback: SaveData = {
-        playerId: typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `player-${Date.now()}`,
-        playerName: sanitizeName(readStoredName() || "Player Hero"),
-        guavaCount: 0,
-      };
-      try {
-        window.localStorage.setItem(SAVE_DATA_KEY, JSON.stringify(fallback));
-      } catch {
-        // ignore storage failures
-      }
-      return fallback;
-    }
-  };
-
-  const refreshCurrentPlayerProgress = () => {
-    const save = getPlayerSaveData();
-    playerName = sanitizeName(playerName || save.playerName || "Player Hero");
-    playerGuavaCount = save.guavaCount;
-
-    onlinePlayers = onlinePlayers.map((entry) =>
-      entry.id === clientUserId || entry.id === localPlayerId
-        ? { ...entry, name: playerName, guavaCount: playerGuavaCount }
-        : entry,
-    );
-  };
-
-  const syncPlayerSave = (nextName?: string) => {
-    if (typeof window === "undefined") return;
-
-    const save = getPlayerSaveData();
-    const nextSave: SaveData = {
-      ...save,
-      playerName: sanitizeName(nextName ?? save.playerName ?? playerName ?? "Player Hero"),
-    };
-
-    try {
-      window.localStorage.setItem(SAVE_DATA_KEY, JSON.stringify(nextSave));
-    } catch {
-      // ignore localStorage failures and keep the current session state
-    }
-
-    playerName = nextSave.playerName;
-    playerGuavaCount = nextSave.guavaCount;
-    onlinePlayers = onlinePlayers.map((entry) =>
-      entry.id === clientUserId || entry.id === localPlayerId
-        ? { ...entry, name: nextSave.playerName, guavaCount: nextSave.guavaCount }
-        : entry,
-    );
-  };
-
-  const recordGuavaPickup = () => {
-    if (typeof window === "undefined") return;
-
-    const save = getPlayerSaveData();
-    const nextSave: SaveData = {
-      ...save,
-      playerName: sanitizeName(playerName || save.playerName || "Player Hero"),
-      guavaCount: save.guavaCount + 1,
-    };
-
-    try {
-      window.localStorage.setItem(SAVE_DATA_KEY, JSON.stringify(nextSave));
-    } catch {
-      // ignore localStorage failures and keep the current session state
-    }
-
-    playerName = nextSave.playerName;
-    playerGuavaCount = nextSave.guavaCount;
-    onlinePlayers = onlinePlayers.map((entry) =>
-      entry.id === clientUserId || entry.id === localPlayerId
-        ? { ...entry, name: nextSave.playerName, guavaCount: nextSave.guavaCount }
-        : entry,
-    );
-  };
 
   const isMobile = detectMobile();
 
@@ -180,7 +54,6 @@
       announcementTimer = null;
     }, durationMs);
   };
-  const knownPlayerNames = new PlayerNameRegistry();
   let remoteMarkers = $state<MapMarker[]>([]);
   let onlinePlayers = $state<Array<{ id: string; name: string; guavaCount?: number }>>([]);
   let chatMessages = $state<ChatEntry[]>([]);
@@ -232,52 +105,29 @@
     resetGameCameraToTarget(gameCamera, heroMesh.position.clone(), defaultGameCameraConfig);
   };
 
-  const applyMobileMovement = (input: { x: number; y: number }) => {
-    mobileMoveVector = input;
-  };
-
-  const handleMinimapSelect = (point: HeroPosition) => {
-    if (!gameCamera) return;
-
-    focusCameraOn(gameCamera, point);
-    currentTarget = null;
-    hero?.setTarget(null);
-  };
-
   const preventGameWheel: EventListener = (event) => {
     event.stopPropagation();
   };
 
-  const isLocalPlayerId = (playerId: string) =>
-    playerId === localPlayerId || playerId === clientUserId;
+  const playerProfileController = createPlayerProfileController({
+    getPlayerName: () => playerName,
+    setPlayerName: (name) => (playerName = name),
+    getClientUserId: () => clientUserId,
+    setClientUserId: (id) => (clientUserId = id),
+    getLocalPlayerId: () => localPlayerId,
+    updateHeroDisplayName: (name) => hero?.updateDisplayName(name),
+  });
 
-  const resolveOnlinePlayerName = (playerId: string, incomingName?: string) =>
-    knownPlayerNames.resolve(playerId, incomingName, isLocalPlayerId(playerId), playerName);
-
-  const applyLocalPlayerName = (name: string) => {
-    const nextName = sanitizeName(name);
-    playerName = nextName;
-    knownPlayerNames.set(clientUserId, nextName);
-    hero?.updateDisplayName(nextName);
-    writeStoredName(nextName);
-    syncPlayerSave(nextName);
-    return nextName;
-  };
-
-  const resolvePlayerName = () => {
-    const storedName = readStoredName();
-    const defaultName = storedName || clientUserId || generateClientUserId();
-    const name = applyLocalPlayerName(defaultName);
-    writeStoredName(name);
-    void kolownbot(name).catch(() => undefined);
-    return name;
-  };
+  const readStoredName = playerProfileController.readStoredName;
+  const isLocalPlayerId = playerProfileController.isLocalPlayerId;
+  const resolveOnlinePlayerName = playerProfileController.resolveOnlinePlayerName;
+  const applyLocalPlayerName = playerProfileController.applyLocalPlayerName;
 
   const handleChatSend = (text: string) => {
     const nextText = text.trim();
     if (!nextText) return;
 
-    multiplayerSocket?.sendChat(nextText, playerName, clientUserId);
+    multiplayerController.sendChat(nextText, playerName, clientUserId);
     chatMessages = [
       ...chatMessages,
       {
@@ -288,29 +138,22 @@
     ].slice(-5);
   };
 
-  const handleHeroKey = (key: string, isPressed: boolean) => {
-    if (!isPressed) return;
+  const inputController = createHeroInputController({
+    getHero: () => hero,
+    getCurrentTarget: () => currentTarget,
+    setCurrentTarget: (target) => (currentTarget = target),
+    getMobileMoveVector: () => mobileMoveVector,
+    setMobileMoveVector: (input) => (mobileMoveVector = input),
+    resetGameCameraToHero,
+    focusCameraOn: (point) => {
+      if (!gameCamera) return;
+      focusCameraOn(gameCamera, point);
+    },
+  });
 
-    if (key === "1") {
-      resetGameCameraToHero();
-      return;
-    }
-
-    if (!hero) return;
-
-    if (key === "a") {
-      hero.attack();
-      return;
-    }
-
-    if (isSkillKey(key)) {
-      const skill = HERO_SKILL_KEYS[key];
-      if (skill === "q") hero.castQ();
-      if (skill === "w") hero.castW();
-      if (skill === "e") hero.castE();
-      if (skill === "r") hero.castR();
-    }
-  };
+  const applyMobileMovement = inputController.applyMobileMovement;
+  const handleMinimapSelect = inputController.handleMinimapSelect;
+  const handleHeroKey = inputController.handleHeroKey;
 
   // --- Multiplayer ---
   const syncLocalHeroVisibility = (visible: boolean) => {
@@ -336,119 +179,47 @@
     currentTarget = null;
   };
 
+  const multiplayerController = createMultiplayerController({
+    playerName: () => playerName,
+    getPlayerGuavaCount: () => playerGuavaCount,
+    setPlayerGuavaCount: (value) => (playerGuavaCount = value),
+    setOnlinePlayers: (players) => (onlinePlayers = players),
+    setRemoteMarkers: (markers) => (remoteMarkers = markers),
+    setSocket: (socket) => (multiplayerSocket = socket),
+    getLocalPlayerId: () => localPlayerId,
+    setLocalPlayerId: (id) => (localPlayerId = id),
+    setClientUserId: (id) => (clientUserId = id),
+    setServerConnected: (value) => (isServerConnected = value),
+    setServerConnectionState: (state) => (serverConnectionState = state),
+    setChatMessages: (messages) => (chatMessages = messages),
+    updateRemoteHeroes: (players, localPlayerIdValue) => remoteHeroes.sync(players as any, localPlayerIdValue),
+    resolveOnlinePlayerName,
+    isLocalPlayerId,
+    applyLocalPlayerName,
+    syncLocalHeroVisibility,
+    resetLocalHeroToSpawn,
+    showAnnouncement,
+    onConnected: () => {
+      guavaHuntInstance?.setServerMode(true);
+    },
+    onDisconnected: () => {
+      guavaHuntInstance?.setLocalFallbackMode();
+    },
+    onGuavaUpdate: (message) => {
+      guavaHuntInstance?.syncFromServer(message as any);
+    },
+    persistGuavaPickup,
+    readLastHeroPosition,
+    getHero: () => hero,
+    getHeroMesh: () => heroMesh,
+    getLastAnnouncedGuavaSeq: () => lastAnnouncedGuavaSeq,
+    setLastAnnouncedGuavaSeq: (value) => (lastAnnouncedGuavaSeq = value),
+    getLastCountedGuavaSeq: () => lastCountedGuavaSeq,
+    setLastCountedGuavaSeq: (value) => (lastCountedGuavaSeq = value),
+  });
+
   const connectMultiplayer = () => {
-    serverConnectionState = "connecting";
-    clientUserId = clientUserId || generateClientUserId();
-    multiplayerSocket?.close();
-
-    const lastSavedPosition = readLastHeroPosition() ?? { x: 0, z: 0 };
-    playerGuavaCount = getPlayerSaveData().guavaCount;
-    onlinePlayers = [{ id: clientUserId, name: playerName, guavaCount: playerGuavaCount }];
-    isServerConnected = false;
-    serverConnectionState = "connecting";
-    syncLocalHeroVisibility(true);
-    resetLocalHeroToSpawn(lastSavedPosition.x, lastSavedPosition.z);
-
-    multiplayerSocket = new MultiplayerSocket();
-    multiplayerSocket.connect({
-      userId: clientUserId,
-      name: playerName,
-      guavaCount: playerGuavaCount,
-      getPosition: () => (hero?.mesh ? hero.position : readLastHeroPosition()),
-      onWelcome: (message) => {
-        localPlayerId = message.you;
-        knownPlayerNames.set(message.you, playerName);
-        if (hero) hero.config.id = message.you;
-        const spawnX = message.spawnX ?? lastSavedPosition.x ?? 0;
-        const spawnZ = message.spawnZ ?? lastSavedPosition.z ?? 0;
-        resetLocalHeroToSpawn(spawnX, spawnZ);
-        isServerConnected = true;
-        serverConnectionState = "connected";
-        guavaHuntInstance?.setServerMode(true);
-        syncLocalHeroVisibility(true);
-      },
-      onState: (message) => {
-        const players = message.players.map((player) => ({
-          ...player,
-          name: resolveOnlinePlayerName(player.id, player.name),
-          guavaCount: typeof player.guavaCount === "number" ? player.guavaCount : player.id === localPlayerId ? playerGuavaCount : 0,
-        }));
-        remoteHeroes.sync(players, localPlayerId);
-        remoteMarkers = toMapMarkers(players, localPlayerId);
-        onlinePlayers = players.map((player) => {
-          if (isLocalPlayerId(player.id)) applyLocalPlayerName(player.name);
-          return { id: player.id, name: player.name, guavaCount: typeof player.guavaCount === "number" ? player.guavaCount : isLocalPlayerId(player.id) ? playerGuavaCount : 0 };
-        });
-      },
-      onPresence: (message) => {
-        const nextOnlinePlayers = [...new Set(message.ids)].map((id) => ({
-          id,
-          name: resolveOnlinePlayerName(id, undefined),
-          guavaCount: id === localPlayerId ? playerGuavaCount : 0,
-        }));
-        onlinePlayers = nextOnlinePlayers;
-      },
-      onChat: (message) => {
-        // own messages are already appended locally in handleChatSend
-        if (message.senderId === clientUserId) return;
-        chatMessages = [
-          ...chatMessages,
-          {
-            id: `chat-${message.ts}-${message.senderId}`,
-            author: message.senderName,
-            text: message.text,
-          },
-        ].slice(-5);
-      },
-      onGuava: (message) => {
-        if (
-          message.type === "guava_pickup" &&
-          message.playerId &&
-          message.seq !== lastAnnouncedGuavaSeq
-        ) {
-          lastAnnouncedGuavaSeq = message.seq;
-          const pickerName = isLocalPlayerId(message.playerId)
-            ? playerName
-            : resolveOnlinePlayerName(message.playerId, undefined);
-          showAnnouncement(`${pickerName} picked up the guava`);
-        }
-        if (
-          message.type === "guava_pickup" &&
-          message.playerId &&
-          isLocalPlayerId(message.playerId) &&
-          message.seq !== lastCountedGuavaSeq
-        ) {
-          lastCountedGuavaSeq = message.seq;
-          recordGuavaPickup();
-        }
-        guavaHuntInstance?.syncFromServer(message);
-      },
-      onClose: () => {
-        guavaHuntInstance?.setLocalFallbackMode();
-        isServerConnected = false;
-        serverConnectionState = "disconnected";
-        localPlayerId = null;
-        remoteHeroes.clear();
-        remoteMarkers = [];
-        onlinePlayers = [];
-        const fallbackPosition = readLastHeroPosition() ?? { x: 0, z: 0 };
-        if (hero) {
-          hero.setMoveDirection(null);
-          hero.setTarget(null);
-          if (hero.mesh) {
-            hero.mesh.position.set(fallbackPosition.x, 0, fallbackPosition.z);
-            hero.mesh.rotation.y = 0;
-          }
-        }
-        heroPosition = fallbackPosition;
-        syncLocalHeroVisibility(true);
-      },
-      onError: (event) => {
-        isServerConnected = false;
-        serverConnectionState = "disconnected";
-        console.error("multiplayer socket error", event);
-      },
-    });
+    multiplayerController.connect();
   };
 
   const sendMovement = createMovementSender(() => multiplayerSocket);
@@ -456,65 +227,9 @@
     sendMovement(localHero.position, localHero.mesh.rotation.y);
 
   // --- Per-frame hero control ---
-const applyHeroInput = (localHero: Hero) => {
-  const joystickActive = mobileMoveVector.x !== 0 || mobileMoveVector.y !== 0;
-  const direction = joystickToMoveDirection(mobileMoveVector);
-
-  if (joystickActive) currentTarget = null;
-
-  localHero.setMoveDirection(direction ? new BABYLON.Vector3(direction.x, 0, direction.z) : null);
-  localHero.setTarget(currentTarget);
-};
+  const applyHeroInput = inputController.applyHeroInput;
 
   // --- Scene setup ---
-  const createScene = (engine: BABYLON.Engine, loadingScreen: CustomLoadingScreen, gameCanvas: HTMLCanvasElement) => {
-    const game = createGameScene({
-      engine,
-      canvas: gameCanvas,
-      loadingScreen,
-      isMobile,
-      playerName,
-      remoteHeroes,
-      getHeroMesh: () => heroMesh,
-      getMoveTarget: () => currentTarget,
-      onMoveTarget: (target) => (currentTarget = target),
-      onGroundClick: ({ x, z }) => (debugPoint = { x, y: z }),
-      onBeforeHeroUpdate: applyHeroInput,
-      onAfterHeroUpdate: (localHero) => {
-        heroPosition = { x: localHero.position.x, z: localHero.position.z, yaw: localHero.mesh?.rotation?.y ?? 0 };
-        writeLastHeroPosition(heroPosition);
-        sendHeroMovement(localHero as Hero & { mesh: BABYLON.AbstractMesh });
-      },
-      onGuavaCollected: () => {
-        recordGuavaPickup();
-        showAnnouncement(`${playerName} picked up the guava`);
-      },
-      onHeroLoaded: (localHero) => {
-        heroMesh = localHero.mesh;
-        heroPosition = { x: localHero.position.x, z: localHero.position.z, yaw: localHero.mesh?.rotation?.y ?? 0 };
-        connectMultiplayer();
-        if (!isServerConnected) {
-          guavaHuntInstance?.setLocalFallbackMode();
-        }
-        syncLocalHeroVisibility(isServerConnected);
-        resetGameCameraToHero();
-      },
-      isGameLive: () => isServerConnected,
-    });
-
-    sceneRef = game.scene;
-    gameCamera = game.camera;
-    arenaBuilder = game.arena;
-    groundMesh = game.arena.ground;
-    wallMeshes = game.arena.walls;
-    gameGroundMaterial = game.arena.gameGroundMaterial;
-    hero = game.hero;
-    guavaHuntInstance = game.guavaHunt;
-    guavaHuntRef = game.guavaHunt;
-
-    return game.scene;
-  };
-
   // Applies the game ground material and camera input rules once the scene is ready.
   $effect(() => {
     if (!sceneRef || !gameCamera || !gameGroundMaterial || !canvas) return;
@@ -577,39 +292,73 @@ const applyHeroInput = (localHero: Hero) => {
 
   const bootGame = (gameCanvas: HTMLCanvasElement) => {
     unlockAudioEngine();
-    clientUserId = clientUserId || generateClientUserId();
+    playerProfileController.ensureClientUserId();
     const save = getPlayerSaveData();
-    playerName = resolvePlayerName();
     playerGuavaCount = save.guavaCount;
+    playerName = playerProfileController.resolvePlayerName();
     keyboardController = createKeyboardController(handleHeroKey);
 
-    const engine = new BABYLON.Engine(gameCanvas, true, { audioEngine: true });
-    BABYLON.SceneLoader.ShowLoadingScreen = true;
-    const loadingScreen = new CustomLoadingScreen("/images/cyber_purok2.png");
-    engine.loadingScreen = loadingScreen;
-    loadingScreen.displayLoadingUI();
-
-    const scene = createScene(engine, loadingScreen, gameCanvas);
-    scene.activeCamera = gameCamera;
-    gameCamera?.attachControl(gameCanvas, true);
-
-    engine.runRenderLoop(() => {
-      scene.render();
-      fps = Math.round(engine.getFps?.() ?? 0);
+    const cleanupRuntime = bootGameRuntime({
+      canvas: gameCanvas,
+      isMobile,
+      playerName,
+      remoteHeroes,
+      getHeroMesh: () => heroMesh,
+      getMoveTarget: () => currentTarget,
+      onMoveTarget: (target) => (currentTarget = target),
+      onGroundClick: ({ x, z }) => (debugPoint = { x, y: z }),
+      onBeforeHeroUpdate: applyHeroInput,
+      onAfterHeroUpdate: (localHero) => {
+        heroPosition = { x: localHero.position.x, z: localHero.position.z, yaw: localHero.mesh?.rotation?.y ?? 0 };
+        writeLastHeroPosition(heroPosition);
+        sendHeroMovement(localHero as Hero & { mesh: BABYLON.AbstractMesh });
+      },
+      onGuavaCollected: () => {
+        const nextSave = persistGuavaPickup(playerName, playerGuavaCount + 1);
+        if (nextSave) {
+          playerGuavaCount = nextSave.guavaCount;
+          onlinePlayers = onlinePlayers.map((entry) =>
+            entry.id === clientUserId || entry.id === localPlayerId
+              ? { ...entry, guavaCount: nextSave.guavaCount }
+              : entry,
+          );
+        }
+        showAnnouncement(`${playerName} picked up the guava`);
+      },
+      onHeroLoaded: (localHero) => {
+        heroMesh = localHero.mesh;
+        heroPosition = { x: localHero.position.x, z: localHero.position.z, yaw: localHero.mesh?.rotation?.y ?? 0 };
+        connectMultiplayer();
+        if (!isServerConnected) {
+          guavaHuntInstance?.setLocalFallbackMode();
+        }
+        syncLocalHeroVisibility(isServerConnected);
+        resetGameCameraToHero();
+      },
+      isGameLive: () => isServerConnected,
+      onSceneReady: (runtime) => {
+        sceneRef = runtime.scene;
+        gameCamera = runtime.camera;
+        arenaBuilder = runtime.arena;
+        groundMesh = runtime.arena.ground;
+        wallMeshes = runtime.arena.walls;
+        gameGroundMaterial = runtime.arena.gameGroundMaterial;
+        hero = runtime.hero;
+        guavaHuntInstance = runtime.guavaHunt;
+        guavaHuntRef = runtime.guavaHunt;
+      },
+      onFpsUpdate: (fpsValue) => {
+        fps = fpsValue;
+      },
+      onWheelCapture: preventGameWheel,
     });
 
-    const handleResize = () => engine.resize();
-    window.addEventListener("resize", handleResize);
-
     return () => {
-      window.removeEventListener("resize", handleResize);
-      gameCanvas.removeEventListener("wheel", preventGameWheel);
+      cleanupRuntime();
       keyboardController?.dispose();
-      multiplayerSocket?.close();
+      multiplayerController.close();
       remoteHeroes.setLocalHero(null);
       remoteHeroes.disposeAll();
-      scene.dispose();
-      engine.dispose();
     };
   };
 </script>

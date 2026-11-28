@@ -22,15 +22,25 @@ export class Stone {
         const spacing = size * 1.6;
         const count = Math.max(2, Math.ceil(BABYLON.Vector3.Distance(start, end) / spacing) + 1);
 
+        const prototype = this.createPrototype(size, "stonePrototype");
+        prototype.material = material;
+        prototype.isVisible = false;
+        prototype.doNotSyncBoundingInfo = true;
+        prototype.checkCollisions = this.collidable;
+
         for (let i = 0; i < count; i++) {
             const point = BABYLON.Vector3.Lerp(start, end, i / (count - 1));
-            const stone = this.createPrototype(size, `stone_${i}`);
+            const stone = prototype.createInstance(`stone_${i}`);
             stone.checkCollisions = this.collidable;
             stone.material = material;
             stone.position = point.clone();
             stone.rotation.y = Math.random() * Math.PI * 2;
             stone.parent = root;
         }
+
+        prototype.parent = root;
+        prototype.position.set(0, 0, 0);
+        prototype.isVisible = false;
         return root;
     }
 
@@ -55,6 +65,7 @@ export class Stone {
         );
         mesh.convertToFlatShadedMesh();
         mesh.doNotSyncBoundingInfo = true;
+        mesh.isPickable = false;
         return mesh;
     }
 

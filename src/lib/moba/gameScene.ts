@@ -119,6 +119,10 @@ export const createGameScene = (options: GameSceneOptions) => {
   const camera = setupGameCamera(scene, options);
   setupRightClickMove(scene, arena.ground, options);
   createSky(scene);
+  scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR;
+  scene.fogStart = 220;
+  scene.fogEnd = 280;
+  scene.fogColor = new BABYLON.Color3(0.68, 0.9, 0.87);
   void arena.groundReady.then(() => {
     setTerrain(arena.ground);
     FieldworkDecal.createGroundDecals(scene, arena.ground);

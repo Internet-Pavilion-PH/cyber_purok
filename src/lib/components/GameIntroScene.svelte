@@ -1,11 +1,13 @@
 <script lang="ts">
   type Props = {
     defaultName?: string;
+    guavaCount?: number;
     onEnter?: (name: string) => void;
   };
 
-  let { defaultName = "Player Hero", onEnter }: Props = $props();
+  let { defaultName = "Player Hero", guavaCount = 0, onEnter }: Props = $props();
   let heroName = $state(defaultName);
+  let isChoosingName = $state(false);
 
   const enterArena = (event: SubmitEvent) => {
     event.preventDefault();
@@ -14,31 +16,47 @@
 </script>
 
 <div class="intro-scene" aria-label="Game intro scene">
-  <div class="logo-wrap">
+  <section class:credit-page={!isChoosingName} class:choose-page={isChoosingName} aria-live="polite">
     <img class="logo" src="/images/cyber_purok2.png" alt="Cyber Purok logo" />
-    <p class="tagline">a project by Low Bandwidth Dreams</p>
-      <p class="tagline">exploring the idea of Dagyaw</p>
-      <p class="tagline">art assets from Salawaki, Jellyfish Kisses x Jetvlz, <br/>
-        Rogermond, Kirk Tabanera, V!ne, Jep Alaba,VariousB <br/> 
-        Roan Alvarez, Rhaz Oriente, Franco Mamaril</p>
-     
-      <p class="tagline">project lead by Roan Alvarez</p>
-      <p class="tagline">code contributions from KoloWn and Roan Alvarez</p>
-      <p class="tagline">contributions are welcome</p>
-    <form class="enter-form" onsubmit={enterArena}>
-      <label for="hero-name">Choose your hero name</label>
-      <input
-        id="hero-name"
-        bind:value={heroName}
-        type="text"
-        maxlength="12"
-        autocomplete="nickname"
-        placeholder="Your hero name"
-        required
-      />
-      <button class="enter-button" type="submit">Enter</button>
-    </form>
-  </div>
+
+    {#if !isChoosingName}
+      <div class="attributions">
+        <p class="tagline">a project by Low Bandwidth Dreams</p>
+        <p class="tagline">exploring the idea of Dagyaw</p>
+        <p class="tagline">
+          art assets from Salawaki, Jellyfish Kisses x Jetvlz,<br />
+          Rogermond, Kirk Tabanera, V!ne, Jep Alaba, VariousB,<br />
+          Roan Alvarez, Rhaz Oriente, Franco Mamaril
+        </p>
+        <p class="tagline">project lead by Roan Alvarez</p>
+        <p class="tagline">code contributions from KoloWn and Roan Alvarez</p>
+        <p class="tagline">contributions are welcome</p>
+      </div>
+      <button class="enter-button" type="button" onclick={() => (isChoosingName = true)}>
+        Continue
+      </button>
+    {:else}
+      <form class="enter-form" onsubmit={enterArena}>
+        <h1>hero name</h1>
+        <label for="hero-name">
+          {guavaCount} {guavaCount === 1 ? "guava" : "guavas"} collected
+        </label>
+        <input
+          id="hero-name"
+          bind:value={heroName}
+          type="text"
+          maxlength="12"
+          autocomplete="nickname"
+          placeholder="Your hero name"
+          required
+        />
+        <button class="enter-button" type="submit">Enter Cyber Purok</button>
+        <!-- <button class="back-button" type="button" onclick={() => (isChoosingName = false)}>
+          Back to credits
+        </button> -->
+      </form>
+    {/if}
+  </section>
 </div>
 
 <style>
@@ -56,13 +74,14 @@
     padding: 24px;
   }
 
-  .logo-wrap {
+  section {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 1.25rem;
+    gap: 1rem;
     text-align: center;
+    max-height: 100%;
   }
 
   .logo {
@@ -84,6 +103,11 @@
     font-family: 'Times New Roman', Times, serif;
   }
 
+  .attributions {
+    display: grid;
+    gap: 0.5rem;
+  }
+
   .enter-button {
     appearance: none;
     border: none;
@@ -102,9 +126,17 @@
   }
 
   .enter-form {
-      display: grid;
-      width: min(100%, 360px);
-      gap: 0.75rem;
+    display: grid;
+    width: min(100%, 360px);
+    gap: 0.75rem;
+  }
+
+  .enter-form h1 {
+    margin: 0.25rem 0 0;
+    color: #aee37b;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: clamp(1.35rem, 5vw, 2rem);
+    font-weight: 400;
   }
 
   .enter-form label {
@@ -138,6 +170,30 @@
 
   .enter-button:active {
     transform: translateY(0);
-    
+  }
+
+ 
+
+  @media (max-height: 720px) {
+    .intro-scene {
+      padding: 14px;
+    }
+
+    .credit-page {
+      gap: 0.65rem;
+    }
+
+    .credit-page .logo {
+      max-width: min(58vw, 520px);
+    }
+
+    .credit-page .tagline {
+      font-size: 0.75rem;
+      line-height: 1.35;
+    }
+
+    .attributions {
+      gap: 0.3rem;
+    }
   }
 </style>

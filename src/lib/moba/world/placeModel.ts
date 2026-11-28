@@ -28,8 +28,10 @@ export class PlaceModel {
   public modelRoot: BABYLON.TransformNode | null = null;
   public addedMeshes: BABYLON.AbstractMesh[] = [];
   public animationGroups: BABYLON.AnimationGroup[] = [];
+  public isLoaded = false;
   private sound?: BABYLON.Sound;
   private soundAnchor?: BABYLON.Mesh;
+  private loadPromise: Promise<{ added: number; min?: BABYLON.Vector3; max?: BABYLON.Vector3; center?: BABYLON.Vector3; modelRoot?: BABYLON.TransformNode | null } | null> | null = null;
 
   constructor(
     scene: BABYLON.Scene,
@@ -78,6 +80,46 @@ export class PlaceModel {
   }
 
   public async load() {
+    if (this.loadPromise) {
+      return this.loadPromise;
+    }
+
+    this.loadPromise = this.doLoad();
+    try {
+      return await this.loadPromise;
+    } catch (error) {
+      this.loadPromise = null;
+      throw error;
+    }
+  }
+
+  public async ensureLoaded() {
+    if (this.isLoaded) {
+      return { modelRoot: this.modelRoot, added: this.addedMeshes.length };
+    }
+
+    return this.load();
+  }
+
+  public setEnabled(enabled: boolean) {
+    if (!this.isLoaded) {
+      if (enabled) {
+        void this.ensureLoaded();
+      }
+      return;
+    }
+
+    if (this.modelRoot) {
+      this.modelRoot.setEnabled(enabled);
+    }
+
+    this.addedMeshes.forEach((mesh) => mesh.setEnabled(enabled));
+    if (this.sound && this.sound.isReady()) {
+      this.sound.setVolume(enabled ? (this.sound.getVolume() || 0.04) : 0);
+    }
+  }
+
+  private async doLoad() {
     const { rootUrl, fileName } = resolveAssetPath(this.modelName);
     const worldPos = this.position.clone();
 
@@ -193,12 +235,15 @@ export class PlaceModel {
       }
 
       this.animationGroups.forEach((group) => group.start(true));
+      this.isLoaded = true;
 
       console.log(`✓ Model '${this.modelName}' placed at`, worldPos);
       return { added: addedMeshes.length, min, max, center, modelRoot: this.modelRoot };
     } catch (error) {
       console.error(`✗ Failed to place model '${this.modelName}'`, error);
       throw error;
+    } finally {
+      this.loadPromise = null;
     }
   }
 

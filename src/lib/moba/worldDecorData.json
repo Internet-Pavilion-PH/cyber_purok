@@ -13,7 +13,6 @@
     "TVfranco": { "file": "tv-franco-opt.glb", "position": [-201, 1, -68], "scale": 71, "rotationY": "Math.PI / -1" },
     
     "TVgab": { "file": "tv-gab-opt.glb", "position": [-413, 1, 155], "scale": 81, "rotationY": "Math.PI / -1.25" },
-    "crate2": { "file": "crate.glb", "position": [-310, 1, 75], "scale": 50, "rotationY": "Math.PI / -1" },
     
     "crateLuyo1": { "file": "crate.glb", "position": [-263, 1, -91], "scale": 50, "rotationY": "Math.PI / -1.5" },
     "crateLuyo2": { "file": "crate.glb", "position": [-328, 1, -94], "scale": 50, "rotationY": "Math.PI / 2" },

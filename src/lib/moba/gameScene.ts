@@ -22,6 +22,7 @@ import {
 import { CAMERA_EDGE_INSET, GROUND_SIZE, HERO_START } from "./constants";
 
 import { GuavaHunt } from "./gameplay/guavaHunt";
+import { createAssetLoader } from "./assets/assetLoader";
 
 export type GameSceneOptions = {
   engine: BABYLON.Engine;
@@ -116,7 +117,8 @@ export const createGameScene = (options: GameSceneOptions) => {
     setTerrain(arena.ground);
     FieldworkDecal.createGroundDecals(scene, arena.ground);
   });
-  const { models } = buildWorldDecor(scene, arena);
+  const assetLoader = createAssetLoader(scene);
+  const { models } = buildWorldDecor(scene, arena, assetLoader);
 
   scene.onBeforeRenderObservable.add(() => arena.tickTime(engine.getDeltaTime()));
 

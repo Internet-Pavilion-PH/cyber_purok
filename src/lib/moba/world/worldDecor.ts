@@ -8,6 +8,7 @@ import { Stone } from "./stone";
 import { PlaceModel } from "./placeModel";
 import { BoardUp} from "./boardUp";
 import type { ArenaBuilder } from "./arenaBuilder";
+import type { AssetLoader } from "../assets/assetLoader";
 
 type TreeSpec = { x: number; z: number; scale: number; height: number };
 type TowerSpec = { position: [number, number, number]; angle: number | string };
@@ -84,7 +85,11 @@ export const createSky = (scene: BABYLON.Scene) => {
 };
 
 /** Places static scenery and returns the models the caller must `load()` during preload. */
-export const buildWorldDecor = (scene: BABYLON.Scene, arena: ArenaBuilder | null) => {
+export const buildWorldDecor = (
+  scene: BABYLON.Scene,
+  arena: ArenaBuilder | null,
+  assetLoader: AssetLoader,
+) => {
   const treeSprites = new TreeSprites(scene, "/images/texture/artwork_tree.png", TREES.length + 32, { width: 1117, height: 1117 });
   for (const { x, z, scale } of TREES) {
     const spriteSize = Math.max(22, scale * 7);
@@ -108,7 +113,7 @@ export const buildWorldDecor = (scene: BABYLON.Scene, arena: ArenaBuilder | null
         fadeIn: true,
         collidable,
         soundTitle,
-      });
+      }, assetLoader);
     },
   );
 

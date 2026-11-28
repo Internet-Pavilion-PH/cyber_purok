@@ -1,5 +1,10 @@
 import * as BABYLON from "@babylonjs/core";
-import { resolveAssetPath, resolveAssetUrl } from "../assets/assetLoader";
+import {
+  createAssetLoader,
+  resolveAssetPath,
+  resolveAssetUrl,
+  type AssetLoader,
+} from "../assets/assetLoader";
 
 export interface PlaceModelOptions {
   scaleFactor?: number;
@@ -21,7 +26,7 @@ export class PlaceModel {
   public options: Required<Pick<PlaceModelOptions, "scaleFactor" | "targetSize" | "onGround" | "mergeMeshes" | "fadeIn" | "collidable" | "rotation" | "soundTitle" | "soundOptions">>;
 
   public modelRoot: BABYLON.TransformNode | null = null;
-  public addedMeshes: BABYLON.Mesh[] = [];
+  public addedMeshes: BABYLON.AbstractMesh[] = [];
   private sound?: BABYLON.Sound;
   private soundAnchor?: BABYLON.Mesh;
 
@@ -30,6 +35,7 @@ export class PlaceModel {
     modelName: string,
     position: BABYLON.Vector3 | number[],
     options: PlaceModelOptions = {},
+    private readonly assetLoader: AssetLoader = createAssetLoader(scene),
   ) {
     this.scene = scene;
     this.modelName = modelName;
@@ -89,33 +95,19 @@ export class PlaceModel {
     }
 
     try {
-      const beforeCount = this.scene.meshes.length;
-      const beforeCams = this.scene.cameras.length;
-      const beforeLights = this.scene.lights.length;
-
-      const result = await BABYLON.SceneLoader.ImportMeshAsync("", rootUrl, fileName, this.scene);
-
-      const addedMeshes = result.meshes.filter(
-        (mesh) => mesh instanceof BABYLON.Mesh,
-      ) as BABYLON.Mesh[];
-
-      this.scene.cameras.slice(beforeCams).forEach((camera) => {
-        try {
-          camera.dispose();
-        } catch {
-          // ignore camera cleanup issues
-        }
-      });
-
-      this.scene.lights.slice(beforeLights).forEach((light) => {
-        if (light.name !== "dir") {
-          try {
-            light.dispose();
-          } catch {
-            // ignore light cleanup issues
-          }
-        }
-      });
+      const instance = await this.assetLoader.instantiateAssetContainer(
+        rootUrl,
+        fileName,
+        this.modelName,
+      );
+      const addedMeshes = Array.from(
+        new Set(
+          instance.rootNodes.flatMap((node) => [
+            ...(node instanceof BABYLON.AbstractMesh ? [node] : []),
+            ...node.getChildMeshes(),
+          ]),
+        ),
+      );
 
       if (!addedMeshes.length) {
         console.warn(`No meshes loaded from '${this.modelName}'`);
@@ -135,16 +127,9 @@ export class PlaceModel {
       this.soundAnchor.isPickable = false;
       this.soundAnchor.parent = this.modelRoot;
 
-      const glbRoot = result.transformNodes.find(
-        (node) => (node.name === "__root__" || node.name === fileName.replace(/\.glb$/i, "")) && !node.parent,
-      );
-
-      if (glbRoot) {
-        glbRoot.setParent(this.modelRoot);
-      } else {
-        const topLevelMeshes = addedMeshes.filter((mesh) => !mesh.parent);
-        topLevelMeshes.forEach((mesh) => mesh.setParent(this.modelRoot));
-      }
+      instance.rootNodes.forEach((node) => {
+        node.parent = this.modelRoot;
+      });
 
       const min = new BABYLON.Vector3(
         Number.POSITIVE_INFINITY,
